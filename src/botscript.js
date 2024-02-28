@@ -1,20 +1,15 @@
 require('dotenv').config();
 
 const axios = require('axios');
-const { Client, GatewayIntentBits } = require('discord.js'); // Fix here
+const { Client, GatewayIntentBits } = require('discord.js');
+const prefix = '/';
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] }); // Fix here
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 client.on('ready', () => {
-    console.log('bot is ready');
-});
-
-client.on('messageCreate', async (message) => { // Fix here
-    if (message.content === 'ping') {
-        message.reply({
-            content: 'pong',
-        });
-    } 
+    console.log(`Logged in as ${client.user.tag}!`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+module.exports = client;
