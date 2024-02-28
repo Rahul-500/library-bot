@@ -17,6 +17,7 @@
     "nodemon": "^3.1.0"
   },
   "devDependencies": {
+    "babel": "^6.23.0",
     "jest": "^29.7.0"
   }
 }
