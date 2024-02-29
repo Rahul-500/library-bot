@@ -1,4 +1,4 @@
-const {start} = require('../../src/controllers/startController')
+const {start} = require('../../src/controllers/commandsController')
 const constants=require('../../src/constants/constant')
 describe('/start command', () => {
     afterEach(() => {
