@@ -18,6 +18,9 @@ client.on('messageCreate', (message) => {
             case 'start':
                 bookCommands.handleStart(message);
                 break;
+            case '1':
+                bookCommands.handleDisplayAllAvailableBooks(message);
+                break;
         }
     }
 });
