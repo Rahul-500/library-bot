@@ -1,6 +1,6 @@
 
 const mysql = require('mysql2');
-const dbConfig = require('../db.config');
+const dbConfig = require('../config/db.config');
 
 exports.connect = () => {
   return new Promise((resolve, reject) => {
