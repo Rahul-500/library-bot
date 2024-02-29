@@ -1,4 +1,6 @@
+const constants = require('../constants/constant')
+
 exports.start = (message) => {
-    message.reply(`Welcome to the Book Library, ${message.author.username}!`);
-    message.reply('Menu:\n1. Display all available books');
+    message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!`);
+    message.reply(constants.MENU_OPTIONS);
 }

@@ -1,5 +1,5 @@
 const {start} = require('../../src/controllers/startController')
-
+const constants=require('../../src/constants/constant')
 describe('/start command', () => {
     afterEach(() => {
         jest.clearAllMocks();
@@ -13,7 +13,7 @@ describe('/start command', () => {
 
         start(mockMessage);
 
-        expect(mockMessage.reply).toHaveBeenCalledWith('Welcome to the Book Library, TestUser!');
-        expect(mockMessage.reply).toHaveBeenCalledWith('Menu:\n1. Display all available books');
+        expect(mockMessage.reply).toHaveBeenCalledWith(`${constants.WELCOME_MESSAGE}, TestUser!`);
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.MENU_OPTIONS);
     });
 });
