@@ -1,4 +1,6 @@
-function menu(message) {
+const {start} = require('./startController')
+
+exports.menu = (message) => {
 
     if (message.author.bot) return;
 
@@ -7,12 +9,8 @@ function menu(message) {
         const command = args.shift().toLowerCase();
         switch (command) {
             case 'start':
-                console.log(message)
+                start(message)
                 break;
         }
     }
-}
-
-module.exports = {
-    menu
 }
