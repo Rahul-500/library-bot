@@ -10,6 +10,9 @@ exports.menu = (message, commandsController, connection) => {
             case 'start':
                 commandsController.start(message)
                 break;
+            case '1':
+                commandsController.getAvailableBooks(message, connection)
+                break;
         }
     }
 }
