@@ -1,8 +1,6 @@
 require('dotenv').config();
-
-const axios = require('axios');
 const { Client, GatewayIntentBits } = require('discord.js');
-const prefix = '/';
+const bookCommands = require('./commands/bookCommands');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
@@ -10,6 +8,18 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.login(process.env.DISCORD_TOKEN);
+client.on('messageCreate', (message) => {
+    if (message.author.bot) return;
 
-module.exports = client;
+    if (message.content.startsWith('/')) {
+        const args = message.content.slice(1).trim().split(/ +/);
+        const command = args.shift().toLowerCase();
+        switch (command) {
+            case 'start':
+                bookCommands.handleStart(message);
+                break;
+        }
+    }
+});
+
+client.login(process.env.DISCORD_TOKEN);
