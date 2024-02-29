@@ -6,15 +6,15 @@ const commandsController = require('../src/controllers/commandsController');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 connect()
-  .then((connection) => {
-    client.on('ready', () => {
-      console.log(`Logged in as ${client.user.tag}!`);
+    .then((connection) => {
+        client.on('ready', () => {
+            console.log(`Logged in as ${client.user.tag}!`);
+        });
+
+        client.on('messageCreate', (message) => menu(message, commandsController, connection));
+
+        client.login(process.env.DISCORD_TOKEN);
+    })
+    .catch((error) => {
+        console.error('Error connecting to MySQL database:', error);
     });
-
-    client.on('messageCreate', (message) => menu(message, commandsController));
-
-    client.login(process.env.DISCORD_TOKEN);
-  })
-  .catch((error) => {
-    console.error('Error connecting to MySQL database:', error);
-  });
