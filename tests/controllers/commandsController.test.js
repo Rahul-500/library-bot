@@ -1,5 +1,5 @@
 const { start } = require('../../src/controllers/commandsController')
-const { getAvailableBooks } = require('../../src/controllers/commandsController')
+const { getAvailableBooks, checkoutBook } = require('../../src/controllers/commandsController')
 const constants = require('../../src/constants/constant')
 describe('/start command', () => {
     let mockMessage;
@@ -125,6 +125,75 @@ describe('getAvailableBooks', () => {
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
             constants.ERROR_FETCHING_BOOKS
+        );
+    });
+});
+
+
+describe('checkoutBook', () => {
+    let mockMessage;
+    let mockConnection;
+    let mockBookMap;
+
+    beforeEach(() => {
+        mockMessage = {
+            content: '/checkout 1',
+            author: {
+                id: 'user123',
+            },
+            reply: jest.fn(),
+        };
+
+        mockConnection = {
+            query: jest.fn(),
+            beginTransaction: jest.fn(),
+            commit: jest.fn(),
+            rollback: jest.fn(),
+        };
+
+        mockBookMap = new Map([
+            [1, { id: 1, title: 'Book 1' }],
+        ]);
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('should reply with success message when book is successfully checked out', async () => {
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+
+            callback(null, [{}]);
+        });
+        mockConnection.beginTransaction.mockImplementation((callback) => {
+            callback(null);
+        });
+        mockConnection.commit.mockImplementation((callback) => {
+            callback(null);
+        });
+
+        await checkoutBook(mockMessage, mockConnection, mockBookMap);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            expect.stringContaining(constants.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE)
+        );
+    });
+
+    test('should reply with error message when there is an error during checkout', async () => {
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+            callback(new Error('Test error'), null);
+        });
+        mockConnection.beginTransaction.mockImplementationOnce((callback) => {
+            callback(new Error('Failed to begin transaction'));
+        });
+        mockConnection.rollback.mockImplementationOnce((callback) => {
+            callback(null);
+        });
+
+        await checkoutBook(mockMessage, mockConnection, mockBookMap);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            expect.stringContaining(constants.ERROR_CHECKED_OUT_MESSAGE)
         );
     });
 });
