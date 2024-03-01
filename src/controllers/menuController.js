@@ -29,6 +29,10 @@ exports.menu = async (dependencies) => {
             await commandsController.getAvailableBooks(message, connection, bookMap);
             break;
         case checkoutPattern.test(command):
+            if ((bookMap).size == 0) {
+                message.reply('Please use `/1` command to get the list of available books before using /checkout.');
+                break;
+            }
             await commandsController.checkoutBook(message, connection, bookMap);
             break;
         default:
