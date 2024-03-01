@@ -6,7 +6,7 @@ const validateUser = require('../../src/service/validateUser')
 describe('menu', () => {
     let mockMessage;
     let mockConnection;
-    let bookMap = new Map();
+    let bookMap;
     beforeEach(() => {
         mockMessage = {
             reply: jest.fn(),
@@ -15,6 +15,8 @@ describe('menu', () => {
         mockConnection = {
             query: jest.fn(),
         };
+
+        bookMap = new Map();
     });
     afterEach(() => {
         jest.clearAllMocks();
@@ -31,11 +33,26 @@ describe('menu', () => {
         };
 
         validateUser.checkForExistingUser.mockResolvedValue(true);
-        
+
         let dependencies = { message: mockMessage, commandsController, connection: mockConnection, validateUser, bookMap };
 
         await menuController.menu(dependencies);
 
         expect(commandsController.start).toHaveBeenCalledWith(mockMessage, mockConnection);
+    });
+
+    test('On /1 getAvailableBooks method should be invoked', async () => {
+        commandsController.getAvailableBooks = jest.fn();
+        const mockMessage = {
+            reply: jest.fn(),
+            author: { username: 'TestUser', bot: false },
+            content: '/1'
+        };
+
+        let dependencies = { message: mockMessage, commandsController, connection: mockConnection, validateUser, bookMap };
+
+        await menuController.menu(dependencies);
+
+        expect(commandsController.getAvailableBooks).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap);
     });
 });
