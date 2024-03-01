@@ -113,9 +113,7 @@ exports.getUserBooks = async (message, connection, checkedOutBooks) => {
             });
         });
 
-
         const results = await queryPromise;
-        console.log(results)
         const books = results;
         if (books.length === 0) {
             message.reply(constants.NO_CHECKED_OUT_BOOK_MESSAGE);

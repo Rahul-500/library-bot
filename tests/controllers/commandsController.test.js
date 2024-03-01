@@ -1,5 +1,5 @@
 const { start } = require('../../src/controllers/commandsController')
-const { getAvailableBooks, checkoutBook } = require('../../src/controllers/commandsController')
+const { getAvailableBooks, checkoutBook, getUserBooks} = require('../../src/controllers/commandsController')
 const constants = require('../../src/constants/constant')
 describe('/start command', () => {
     let mockMessage;
@@ -81,6 +81,7 @@ describe('getAvailableBooks', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        bookMap.clear();
     });
 
     test('should reply with available books when there are books', async () => {
@@ -218,6 +219,73 @@ describe('checkoutBook', () => {
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
             expect.stringContaining(constants.ALREADY_CHECKED_OUT_BOOK_MESSAGE)
+        );
+    });
+});
+
+describe('getUserBooks', () => {
+    let mockMessage;
+    let mockConnection;
+    let checkedOutBooks = new Map();
+
+    beforeEach(() => {
+        mockMessage = {
+            reply: jest.fn(),
+            author: { id: '1' },
+        };
+
+        mockConnection = {
+            query: jest.fn(),
+        };
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        checkedOutBooks.clear();
+    });
+
+    test(`should reply with user's checked-out books when there are books`, async () => {
+        const mockResults = [
+            { id: 1, title: 'Book 1' },
+            { id: 2, title: 'Book 2' },
+        ];
+    
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+            callback(null, mockResults);
+        });
+    
+        await getUserBooks(mockMessage, mockConnection, checkedOutBooks);
+    
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            expect.stringContaining("My books\n1 - Book 1\n2 - Book 2")
+        );
+    });
+
+    test('should reply with "No checked-out books found" when there are no books', async () => {
+        const mockResults = [];
+
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+            callback(null, mockResults);
+        });
+
+        await getUserBooks(mockMessage, mockConnection, checkedOutBooks);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            constants.NO_CHECKED_OUT_BOOK_MESSAGE
+        );
+    });
+
+    test('should reply with "Error fetching checked-out books" when there is an error', async () => {
+        const mockError = new Error('Test error');
+
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+            callback(mockError, null);
+        });
+
+        await getUserBooks(mockMessage, mockConnection, checkedOutBooks);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            constants.ERROR_FETCHING_BOOKS
         );
     });
 });
