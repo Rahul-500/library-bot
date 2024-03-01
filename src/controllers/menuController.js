@@ -3,7 +3,7 @@ const constants = require('../constants/constant')
 exports.menu = async (dependencies) => {
 
     const { message, commandsController, connection, validateUser, bookMap } = dependencies;
-    
+
     if (message.author.bot) return;
 
     if (message.content !== '/start') {
@@ -19,7 +19,7 @@ exports.menu = async (dependencies) => {
         }
     }
     const command = message.content;
-    const checkoutPattern = /^\/checkout\s+\S+$/;
+    const checkoutPattern = /^\/checkout\s\d{1,}$/;
 
     switch (true) {
         case command === ('/start'):
@@ -27,10 +27,9 @@ exports.menu = async (dependencies) => {
             break;
         case command === ('/1'):
             await commandsController.getAvailableBooks(message, connection, bookMap);
-            console.log(bookMap);
             break;
         case checkoutPattern.test(command):
-            commandsController.checkoutBook(message, connection);
+            await commandsController.checkoutBook(message, connection, bookMap);
             break;
         default:
             message.reply(constants.HELP_MESSAGE);

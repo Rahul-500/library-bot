@@ -1,3 +1,4 @@
+require('dotenv').config();
 const constants = require('../constants/constant')
 
 exports.start = (message, connection) => {
@@ -44,6 +45,7 @@ exports.getAvailableBooks = async (message, connection, bookMap) => {
             return;
         }
 
+        bookMap.clear()
         let count = 1;
         const bookList = books.map((book) => `${count++} - ${book.title}`).join('\n');
         count = 1;
@@ -55,5 +57,35 @@ exports.getAvailableBooks = async (message, connection, bookMap) => {
         message.reply(`${constants.AVAILABEL_BOOKS}\n${bookList}`);
     } catch (error) {
         message.reply(constants.ERROR_FETCHING_BOOKS);
+    }
+};
+
+exports.checkoutBook = async (message, connection, bookMap) => {
+    const content = message.content;
+    const userId = message.author.id;
+    const virtualId = parseInt(content.split(' ')[1]);
+    const book = bookMap.get(virtualId);
+    const bookId = book.id
+
+    try {
+        const QUERY = `
+            INSERT INTO library.transactions (user_id, book_id, checked_out)
+            VALUES ('${userId}', '${bookId}', NOW())`;
+            const queryPromise = new Promise((resolve, reject) => {
+                connection.query(QUERY, (error, results) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(results);
+                    }
+                });
+            });
+    
+            const results = await queryPromise;
+
+        message.reply(`Book successfully checked out: ${book.title}`);
+    } catch (error) {
+        console.error('Error during checkout:', error);
+        message.reply('Error during checkout. Please try again.');
     }
 };
