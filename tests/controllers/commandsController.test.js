@@ -154,6 +154,8 @@ describe('checkoutBook', () => {
         mockBookMap = new Map([
             [1, { id: 1, title: 'Book 1' }],
         ]);
+
+
     });
 
     afterEach(() => {
@@ -161,6 +163,10 @@ describe('checkoutBook', () => {
     });
 
     test('should reply with success message when book is successfully checked out', async () => {
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+
+            callback(null, [{ bookCount: 0 }]);
+        });
         mockConnection.query.mockImplementationOnce((query, callback) => {
 
             callback(null, [{}]);
@@ -181,6 +187,11 @@ describe('checkoutBook', () => {
 
     test('should reply with error message when there is an error during checkout', async () => {
         mockConnection.query.mockImplementationOnce((query, callback) => {
+
+            callback(null, [{ bookCount: 0 }]);
+        });
+
+        mockConnection.query.mockImplementationOnce((query, callback) => {
             callback(new Error('Test error'), null);
         });
         mockConnection.beginTransaction.mockImplementationOnce((callback) => {
@@ -194,6 +205,19 @@ describe('checkoutBook', () => {
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
             expect.stringContaining(constants.ERROR_CHECKED_OUT_MESSAGE)
+        );
+    });
+    
+    test('should reply with message that book is already checked out', async () => {
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+
+            callback(null, [{ bookCount: 1 }]);
+        });
+        
+        await checkoutBook(mockMessage, mockConnection, mockBookMap);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            expect.stringContaining(constants.ALREADY_CHECKED_OUT_BOOK_MESSAGE)
         );
     });
 });
