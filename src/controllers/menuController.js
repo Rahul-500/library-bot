@@ -2,7 +2,7 @@ const constants = require('../constants/constant')
 
 exports.menu = async (message, commandsController, connection, validateUser) => {
 
-    if (message.author.bot || !message.content.startsWith('/')) return;
+    if (message.author.bot) return;
 
     if (message.content !== '/start') {
         try {
@@ -16,15 +16,14 @@ exports.menu = async (message, commandsController, connection, validateUser) => 
             return;
         }
     }
-    
-    const args = message.content.slice(1).trim().split(/ +/);
-    const command = args.shift().toLowerCase()
+    const command = message.content;
     switch (command) {
-        case 'start':
+        case '/start':
             commandsController.start(message, connection)
             break;
-        case '1':
+        case '/1':
             commandsController.getAvailableBooks(message, connection)
             break;
+        default: message.reply(constants.HELP_MESSAGE);
     }
 }
