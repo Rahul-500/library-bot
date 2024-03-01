@@ -18,17 +18,16 @@ exports.menu = async (message, commandsController, connection, validateUser) => 
     }
     const command = message.content;
     const checkoutPattern = /^\/checkout\s+\S+$/;
-    
+
     switch (true) {
         case command === ('/start'):
             commandsController.start(message, connection);
             break;
-
         case command === ('/1'):
             commandsController.getAvailableBooks(message, connection);
             break;
         case checkoutPattern.test(command):
-            message.reply("you got it man")
+            commandsController.checkoutBook(message, connection);
             break;
         default:
             message.reply(constants.HELP_MESSAGE);

@@ -24,6 +24,10 @@ const Book = sequelize.define('Book', {
     quantity_available: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    virutal_id: {
+        type: DataTypes.STRING(255),
+        defaultValue: null,
     }
 }, {
     tableName: 'books',

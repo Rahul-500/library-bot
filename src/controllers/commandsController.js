@@ -44,3 +44,10 @@ exports.getAvailableBooks = (message, connection) => {
         message.reply(constants.ERROR_FETCHING_BOOKS);
     }
 };
+
+exports.checkoutBook = (message, connection) => {
+    const userId = message.author.id;
+    const args = command.split(' ');
+    const id = args[1];
+    
+}
