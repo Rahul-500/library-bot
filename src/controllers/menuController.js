@@ -8,7 +8,7 @@ exports.menu = (message, commandsController, connection) => {
 
         switch (command) {
             case 'start':
-                commandsController.start(message)
+                commandsController.start(message, connection)
                 break;
             case '1':
                 commandsController.getAvailableBooks(message, connection)

@@ -8,6 +8,7 @@ describe('/start command', () => {
     beforeEach(() => {
         mockMessage = {
             reply: jest.fn(),
+            author: { id: '123', username: 'TestUser' },
         };
 
         mockConnection = {
@@ -19,17 +20,35 @@ describe('/start command', () => {
         jest.clearAllMocks();
     });
 
-    test('handleStart should reply with welcome message and menu', () => {
-        const mockMessage = {
-            reply: jest.fn(),
-            author: { username: 'TestUser' },
-        };
-
+    test('start should reply with welcome message and menu', () => {
         start(mockMessage, mockConnection);
-
         expect(mockMessage.reply).toHaveBeenCalledWith(`${constants.WELCOME_MESSAGE}, TestUser!`);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.MENU_OPTIONS);
     });
+
+    test('start should call addUserInfo method for new user', ()=>{
+        const mockResults = [];
+
+        mockConnection.query.mockImplementation((query, callback) => {
+            if (query.includes('SELECT * FROM library.users')) {
+                callback(null, mockResults);
+            }
+        });
+        start(mockMessage, mockConnection);
+        expect(mockConnection.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO library.users'));
+    })
+
+    test('start should not call addUserInfo method for existing user', ()=>{
+        const mockResults = [{id : '123', name : 'TestUser'}];
+
+        mockConnection.query.mockImplementation((query, callback) => {
+            if (query.includes('SELECT * FROM library.users')) {
+                callback(null, mockResults);
+            }
+        });
+        start(mockMessage, mockConnection);
+        expect(mockConnection.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO library.users'));
+    })
 });
 
 describe('getAvailableBooks', () => {
