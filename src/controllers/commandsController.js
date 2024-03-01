@@ -9,45 +9,51 @@ exports.start = (message, connection) => {
             return;
         }
         const user = result;
-        if(user.length == 0){
+        if (user.length == 0) {
             const author = message.author.username;
-            addUserInfo(id, author, connection);   
+            addUserInfo(id, author, connection);
         }
     });
     message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!`);
     message.reply(constants.MENU_OPTIONS);
 }
 
-function addUserInfo(id, author, connection){
+function addUserInfo(id, author, connection) {
     const QUERY = `INSERT INTO library.users (id, name) VALUES (${id}, '${author}')`;
     connection.query(QUERY);
 }
 
-exports.getAvailableBooks = (message, connection) => {
+exports.getAvailableBooks = async (message, connection, bookMap) => {
     const QUERY = 'SELECT * FROM library.books WHERE quantity_available > 0';
     try {
-        connection.query(QUERY, (error, results) => {
-            if (error) {
-                message.reply(constants.ERROR_FETCHING_BOOKS);
-                return;
-            }
-            const books = results;
-            if (books.length === 0) {
-                message.reply(constants.NO_BOOKS_FOUND);
-                return;
-            }
-            const bookList = books.map((book) => `- ${book.title}`).join('\n');
-            message.reply(`${constants.AVAILABEL_BOOKS}\n${bookList}`);
+        const queryPromise = new Promise((resolve, reject) => {
+            connection.query(QUERY, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
         });
+
+        const results = await queryPromise;
+
+        const books = results;
+        if (books.length === 0) {
+            message.reply(constants.NO_BOOKS_FOUND);
+            return;
+        }
+
+        let count = 1;
+        const bookList = books.map((book) => `${count++} - ${book.title}`).join('\n');
+        count = 1;
+
+        books.forEach((book) => {
+            bookMap.set(count++, book);
+        });
+
+        message.reply(`${constants.AVAILABEL_BOOKS}\n${bookList}`);
     } catch (error) {
-        console.error('Error:', error);
         message.reply(constants.ERROR_FETCHING_BOOKS);
     }
 };
-
-exports.checkoutBook = (message, connection) => {
-    const userId = message.author.id;
-    const args = command.split(' ');
-    const id = args[1];
-    
-}

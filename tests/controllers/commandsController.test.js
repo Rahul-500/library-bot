@@ -26,7 +26,7 @@ describe('/start command', () => {
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.MENU_OPTIONS);
     });
 
-    test('start should call addUserInfo method for new user', ()=>{
+    test('start should call addUserInfo method for new user', () => {
         const mockResults = [];
 
         mockConnection.query.mockImplementation((query, callback) => {
@@ -38,8 +38,8 @@ describe('/start command', () => {
         expect(mockConnection.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO library.users'));
     })
 
-    test('start should not call addUserInfo method for existing user', ()=>{
-        const mockResults = [{id : '123', name : 'TestUser'}];
+    test('start should not call addUserInfo method for existing user', () => {
+        const mockResults = [{ id: '123', name: 'TestUser' }];
 
         mockConnection.query.mockImplementation((query, callback) => {
             if (query.includes('SELECT * FROM library.users')) {
@@ -68,7 +68,7 @@ describe('/start command', () => {
 describe('getAvailableBooks', () => {
     let mockMessage;
     let mockConnection;
-
+    let bookMap = new Map();
     beforeEach(() => {
         mockMessage = {
             reply: jest.fn(),
@@ -83,45 +83,45 @@ describe('getAvailableBooks', () => {
         jest.clearAllMocks();
     });
 
-    test('should reply with available books when there are books', () => {
+    test('should reply with available books when there are books', async () => {
         const mockResults = [
-            { id: 1, title: 'Book 1', quantity_available: 3 },
-            { id: 2, title: 'Book 2', quantity_available: 5 },
+            { id: 1, title: 'Book 1', quantity_available: 3, },
+            { id: 2, title: 'Book 2', quantity_available: 5, },
         ];
 
         mockConnection.query.mockImplementationOnce((query, callback) => {
             callback(null, mockResults);
         });
 
-        getAvailableBooks(mockMessage, mockConnection);
+        await getAvailableBooks(mockMessage, mockConnection, bookMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
-            expect.stringContaining("Available Books:\n- Book 1\n- Book 2")
+            expect.stringContaining("Available Books:\n1 - Book 1\n2 - Book 2")
         );
     });
 
-    test('should reply with "No available books found" when there are no books', () => {
+    test('should reply with "No available books found" when there are no books', async () => {
         const mockResults = [];
 
         mockConnection.query.mockImplementationOnce((query, callback) => {
             callback(null, mockResults);
         });
 
-        getAvailableBooks(mockMessage, mockConnection);
+        await getAvailableBooks(mockMessage, mockConnection);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
             constants.NO_BOOKS_FOUND
         );
     });
 
-    test('should reply with "Error fetching available books" when there is an error', () => {
+    test('should reply with "Error fetching available books" when there is an error', async () => {
         const mockError = new Error('Test error');
 
         mockConnection.query.mockImplementationOnce((query, callback) => {
             callback(mockError, null);
         });
 
-        getAvailableBooks(mockMessage, mockConnection);
+        await getAvailableBooks(mockMessage, mockConnection);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
             constants.ERROR_FETCHING_BOOKS

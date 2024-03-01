@@ -4,7 +4,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const { menu } = require('./controllers/menuController');
 const commandsController = require('../src/controllers/commandsController');
 const validateUser = require('../src/service/validateUser');
-
+const bookMap = new Map();
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 connect()
     .then((connection) => {
@@ -12,7 +12,16 @@ connect()
             console.log(`Logged in as ${client.user.tag}!`);
         });
 
-        client.on('messageCreate', (message) => menu(message, commandsController, connection, validateUser));
+        client.on('messageCreate', (message) => {
+            const dependencies = {
+                message,
+                commandsController,
+                connection,
+                validateUser,
+                bookMap
+            }
+            menu(dependencies)
+        });
 
         client.login(process.env.DISCORD_TOKEN);
     })

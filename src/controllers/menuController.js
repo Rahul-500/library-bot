@@ -1,7 +1,9 @@
 const constants = require('../constants/constant')
 
-exports.menu = async (message, commandsController, connection, validateUser) => {
+exports.menu = async (dependencies) => {
 
+    const { message, commandsController, connection, validateUser, bookMap } = dependencies;
+    
     if (message.author.bot) return;
 
     if (message.content !== '/start') {
@@ -24,7 +26,8 @@ exports.menu = async (message, commandsController, connection, validateUser) => 
             commandsController.start(message, connection);
             break;
         case command === ('/1'):
-            commandsController.getAvailableBooks(message, connection);
+            await commandsController.getAvailableBooks(message, connection, bookMap);
+            console.log(bookMap);
             break;
         case checkoutPattern.test(command):
             commandsController.checkoutBook(message, connection);

@@ -6,6 +6,7 @@ const validateUser = require('../../src/service/validateUser')
 describe('menu', () => {
     let mockMessage;
     let mockConnection;
+    let bookMap = new Map();
     beforeEach(() => {
         mockMessage = {
             reply: jest.fn(),
@@ -30,8 +31,10 @@ describe('menu', () => {
         };
 
         validateUser.checkForExistingUser.mockResolvedValue(true);
+        
+        let dependencies = { message: mockMessage, commandsController, connection: mockConnection, validateUser, bookMap };
 
-        await menuController.menu(mockMessage, commandsController, mockConnection, validateUser);
+        await menuController.menu(dependencies);
 
         expect(commandsController.start).toHaveBeenCalledWith(mockMessage, mockConnection);
     });

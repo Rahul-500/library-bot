@@ -25,10 +25,6 @@ const Book = sequelize.define('Book', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    virutal_id: {
-        type: DataTypes.STRING(255),
-        defaultValue: null,
-    }
 }, {
     tableName: 'books',
     timestamps: false
