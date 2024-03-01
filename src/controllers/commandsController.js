@@ -83,10 +83,10 @@ exports.checkoutBook = async (message, connection, bookMap) => {
         await queryPromise;
         await transactions.commitTransaction(connection);
 
-        message.reply(`Book successfully checked out: ${book.title}`);
+        message.reply(`${constants.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE} ${book.title}`);
     } catch (error) {
         await transactions.rollbackTransaction(connection);
         console.error('Error during checkout:', error);
-        message.reply('Error during checkout. Please try again.');
+        message.reply(constants.ERROR_CHECKED_OUT_MESSAGE);
     }
 };
