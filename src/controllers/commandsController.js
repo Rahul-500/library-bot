@@ -99,6 +99,44 @@ exports.checkoutBook = async (message, connection, bookMap) => {
     }
 };
 
+exports.getUserBooks = async (message, connection, checkedOutBooks) => {
+    const userId = message.author.id;
+    const QUERY = `SELECT * FROM library.books WHERE id in (SELECT book_id FROM library.transactions WHERE user_id = ${userId} GROUP BY book_id)`;
+    try {
+        const queryPromise = new Promise((resolve, reject) => {
+            connection.query(QUERY, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+
+
+        const results = await queryPromise;
+        console.log(results)
+        const books = results;
+        if (books.length === 0) {
+            message.reply(constants.NO_CHECKED_OUT_BOOK_MESSAGE);
+            return;
+        }
+
+        checkedOutBooks.clear()
+        let count = 1;
+        const bookList = books.map((book) => `${count++} - ${book.title}`).join('\n');
+        count = 1;
+
+        books.forEach((book) => {
+            checkedOutBooks.set(count++, book);
+        });
+
+        message.reply(`${constants.MY_BOOKS}\n${bookList}`);
+    } catch (error) {
+        message.reply(constants.ERROR_FETCHING_BOOKS);
+    }
+};
+
 const validateCheckout = (connection, userId, bookId) => {
     const QUERY = `SELECT COUNT(book_id) AS bookCount
     FROM (

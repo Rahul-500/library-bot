@@ -5,6 +5,7 @@ const { menu } = require('./controllers/menuController');
 const commandsController = require('../src/controllers/commandsController');
 const validateUser = require('../src/service/validateUser');
 const bookMap = new Map();
+const checkedOutBooks = new Map();
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 connect()
     .then((connection) => {
@@ -18,7 +19,8 @@ connect()
                 commandsController,
                 connection,
                 validateUser,
-                bookMap
+                bookMap,
+                checkedOutBooks
             }
             menu(dependencies)
         });
