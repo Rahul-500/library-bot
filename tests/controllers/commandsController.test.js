@@ -60,7 +60,7 @@ describe('/start command', () => {
         start(mockMessage, mockConnection);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
-            'Error fetching user. Please try again later.'
+            constants.ERROR_FETCHING_USER
         );
     });
 });
@@ -110,7 +110,7 @@ describe('getAvailableBooks', () => {
         getAvailableBooks(mockMessage, mockConnection);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
-            'No available books found.'
+            constants.NO_BOOKS_FOUND
         );
     });
 
@@ -124,7 +124,7 @@ describe('getAvailableBooks', () => {
         getAvailableBooks(mockMessage, mockConnection);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
-            'Error fetching available books. Please try again later.'
+            constants.ERROR_FETCHING_BOOKS
         );
     });
 });
