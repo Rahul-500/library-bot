@@ -17,13 +17,21 @@ exports.menu = async (message, commandsController, connection, validateUser) => 
         }
     }
     const command = message.content;
-    switch (command) {
-        case '/start':
-            commandsController.start(message, connection)
+    const checkoutPattern = /^\/checkout\s+\S+$/;
+    
+    switch (true) {
+        case command === ('/start'):
+            commandsController.start(message, connection);
             break;
-        case '/1':
-            commandsController.getAvailableBooks(message, connection)
+
+        case command === ('/1'):
+            commandsController.getAvailableBooks(message, connection);
             break;
-        default: message.reply(constants.HELP_MESSAGE);
+        case checkoutPattern.test(command):
+            message.reply("you got it man")
+            break;
+        default:
+            message.reply(constants.HELP_MESSAGE);
     }
+
 }
