@@ -1,7 +1,7 @@
 const menuController = require('../../src/controllers/menuController');
 const commandsController = require('../../src/controllers/commandsController');
 const validateUser = require('../../src/service/validateUser')
-
+const constants = require('../../src/constants/constant')
 
 describe('menu', () => {
     let mockMessage;
@@ -11,6 +11,8 @@ describe('menu', () => {
     beforeEach(() => {
         mockMessage = {
             reply: jest.fn(),
+            author: { username: 'TestUser', bot: false },
+            content: ''
         };
 
         mockConnection = {
@@ -25,18 +27,20 @@ describe('menu', () => {
     });
 
     test('On /start start method should be invoked', async () => {
-
+        const command = '/start';
         commandsController.start = jest.fn()
         validateUser.checkForExistingUser = jest.fn()
-        const mockMessage = {
-            reply: jest.fn(),
-            author: { username: 'TestUser', bot: false },
-            content: '/start'
-        };
+        mockMessage.content = command
 
         validateUser.checkForExistingUser.mockResolvedValue(true);
 
-        let dependencies = { message: mockMessage, commandsController, connection: mockConnection, validateUser, bookMap };
+        let dependencies = { 
+            message: mockMessage, 
+            commandsController, 
+            connection: mockConnection, 
+            validateUser, 
+            bookMap 
+        };
 
         await menuController.menu(dependencies);
 
@@ -44,14 +48,17 @@ describe('menu', () => {
     });
 
     test('On /1 getAvailableBooks method should be invoked', async () => {
+        const command = '/1'
         commandsController.getAvailableBooks = jest.fn();
-        const mockMessage = {
-            reply: jest.fn(),
-            author: { username: 'TestUser', bot: false },
-            content: '/1'
-        };
+        mockMessage.content = command
 
-        let dependencies = { message: mockMessage, commandsController, connection: mockConnection, validateUser, bookMap };
+        let dependencies = { 
+            message: mockMessage, 
+            commandsController, 
+            connection: mockConnection, 
+            validateUser, 
+            bookMap 
+        };
 
         await menuController.menu(dependencies);
 
@@ -60,16 +67,59 @@ describe('menu', () => {
 
     test('On /2 getUserBooks method should be invoked', async () => {
         commandsController.getUserBooks = jest.fn();
-        const mockMessage = {
-            reply: jest.fn(),
-            author: { username: 'TestUser', bot: false },
-            content: '/2'
-        };
+        const command = '/2'
+        mockMessage.content = command
 
-        let dependencies = { message: mockMessage, commandsController, connection: mockConnection, validateUser, checkedOutBooks };
+        let dependencies = { 
+            message: mockMessage, 
+            commandsController, 
+            connection: mockConnection, 
+            validateUser, 
+            checkedOutBooks 
+        };
 
         await menuController.menu(dependencies);
 
         expect(commandsController.getUserBooks).toHaveBeenCalledWith(mockMessage, mockConnection, checkedOutBooks);
+    });
+
+    test('should reply with GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE if bookMap is empty', async () => {
+        const command = '/checkout 1';
+        mockMessage.content = command;
+        commandsController.checkoutBook = jest.fn();
+
+        await menuController.menu({
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap,
+        });
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            expect.stringContaining(constants.GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE)
+        );
+        expect(commandsController.checkoutBook).not.toHaveBeenCalled();
+    });
+
+
+    test('should invoke checkoutBook if bookMap is not empty and command matches checkoutPattern', async () => {
+        const mockCommand = '/checkout 1';
+        mockMessage.content = mockCommand;
+        menuController.commandsController = commandsController;
+        commandsController.checkoutBook = jest.fn();
+
+        bookMap.set(1, { id: 1, title: 'Sample Book', author: 'Sample Author', published_year: 2022, quantity_available: 5 });
+
+        await menuController.menu({
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap,
+        });
+
+        expect(mockMessage.reply).not.toHaveBeenCalledWith(expect.stringContaining(constants.GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE));
+        expect(commandsController.checkoutBook).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap);
     });
 });
