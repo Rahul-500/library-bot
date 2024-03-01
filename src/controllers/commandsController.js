@@ -1,6 +1,5 @@
-require('dotenv').config();
 const constants = require('../constants/constant')
-
+const transactions = require('../service/transactions')
 exports.start = (message, connection) => {
     const id = message.author.id;
     const QUERY = `SELECT * FROM library.users WHERE id = ${id}`;
@@ -67,24 +66,26 @@ exports.checkoutBook = async (message, connection, bookMap) => {
     const book = bookMap.get(virtualId);
     const bookId = book.id
 
+    const QUERY = `INSERT INTO library.transactions (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
     try {
-        const QUERY = `
-            INSERT INTO library.transactions (user_id, book_id, checked_out)
-            VALUES ('${userId}', '${bookId}', NOW())`;
-            const queryPromise = new Promise((resolve, reject) => {
-                connection.query(QUERY, (error, results) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        resolve(results);
-                    }
-                });
+        await transactions.beginTransaction(connection);
+
+        const queryPromise = new Promise((resolve, reject) => {
+            connection.query(QUERY, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
             });
-    
-            const results = await queryPromise;
+        });
+
+        await queryPromise;
+        await transactions.commitTransaction(connection);
 
         message.reply(`Book successfully checked out: ${book.title}`);
     } catch (error) {
+        await transactions.rollbackTransaction(connection);
         console.error('Error during checkout:', error);
         message.reply('Error during checkout. Please try again.');
     }
