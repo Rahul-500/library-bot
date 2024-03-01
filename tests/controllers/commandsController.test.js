@@ -2,6 +2,19 @@ const { start } = require('../../src/controllers/commandsController')
 const { getAvailableBooks } = require('../../src/controllers/commandsController')
 const constants = require('../../src/constants/constant')
 describe('/start command', () => {
+    let mockMessage;
+    let mockConnection;
+
+    beforeEach(() => {
+        mockMessage = {
+            reply: jest.fn(),
+        };
+
+        mockConnection = {
+            query: jest.fn(),
+        };
+    });
+
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -12,7 +25,7 @@ describe('/start command', () => {
             author: { username: 'TestUser' },
         };
 
-        start(mockMessage);
+        start(mockMessage, mockConnection);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(`${constants.WELCOME_MESSAGE}, TestUser!`);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.MENU_OPTIONS);
