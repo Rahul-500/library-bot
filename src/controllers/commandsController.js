@@ -66,6 +66,12 @@ exports.checkoutBook = async (message, connection, bookMap) => {
     const book = bookMap.get(virtualId);
     const bookId = book.id
 
+    const result = await validateCheckout(connection, userId, bookId)
+    if (!result) {
+        message.reply(constants.ALREADY_CHECKED_OUT_BOOK_MESSAGE);
+        return;
+    }
+
     const QUERY = `INSERT INTO library.transactions (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
     try {
         await transactions.beginTransaction(connection);
@@ -81,6 +87,8 @@ exports.checkoutBook = async (message, connection, bookMap) => {
         });
 
         await queryPromise;
+
+
         await transactions.commitTransaction(connection);
 
         message.reply(`${constants.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE} ${book.title}`);
@@ -90,3 +98,25 @@ exports.checkoutBook = async (message, connection, bookMap) => {
         message.reply(constants.ERROR_CHECKED_OUT_MESSAGE);
     }
 };
+
+const validateCheckout = (connection, userId, bookId) => {
+    const QUERY = `SELECT COUNT(book_id) AS bookCount
+    FROM (
+        SELECT book_id
+        FROM library.transactions
+        WHERE user_id = ${userId}
+        GROUP BY book_id
+    ) AS subquery
+    WHERE book_id = ${bookId};
+    `;
+    return new Promise((resolve, reject) => {
+        connection.query(QUERY, (error, result) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(result[0].bookCount == 0);
+            }
+        });
+    });
+
+}

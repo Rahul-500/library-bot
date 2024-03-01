@@ -11,3 +11,4 @@ exports.HELP_MESSAGE = "Please enter !help to get available commands."
 exports.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE = "Book successfully checked out:"
 exports.ERROR_CHECKED_OUT_MESSAGE = 'Error during checkout. Please try again.'
 exports.GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE = 'Please use `/1` command to get the list of available books before using /checkout.'
+exports.ALREADY_CHECKED_OUT_BOOK_MESSAGE = "You already have checked out this book return it to checkout again."
