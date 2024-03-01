@@ -1,17 +1,11 @@
 const constants = require('../constants/constant')
 
-const QUERY = 'SELECT * FROM library.books WHERE quantity_available > 0';
-const ERROR_FETCHING_BOOKS = "Error fetching available books. Please try again later.";
-const ERROR_FETCHING_USER = "Error fetching user. Please try again later.";
-const NO_BOOKS_FOUND = 'No available books found.';
-const AVAILABEL_BOOKS = "Available Books:";
-
 exports.start = (message, connection) => {
     const id = message.author.id;
     const QUERY = `SELECT * FROM library.users WHERE id = ${id}`;
     connection.query(QUERY, (error, result) => {
         if (error) {
-            message.reply(ERROR_FETCHING_USER);
+            message.reply(constants.ERROR_FETCHING_USER);
             return;
         }
         const user = result;
@@ -30,22 +24,23 @@ function addUserInfo(id, author, connection){
 }
 
 exports.getAvailableBooks = (message, connection) => {
+    const QUERY = 'SELECT * FROM library.books WHERE quantity_available > 0';
     try {
         connection.query(QUERY, (error, results) => {
             if (error) {
-                message.reply(ERROR_FETCHING_BOOKS);
+                message.reply(constants.ERROR_FETCHING_BOOKS);
                 return;
             }
             const books = results;
             if (books.length === 0) {
-                message.reply(NO_BOOKS_FOUND);
+                message.reply(constants.NO_BOOKS_FOUND);
                 return;
             }
             const bookList = books.map((book) => `- ${book.title}`).join('\n');
-            message.reply(`${AVAILABEL_BOOKS}\n${bookList}`);
+            message.reply(`${constants.AVAILABEL_BOOKS}\n${bookList}`);
         });
     } catch (error) {
         console.error('Error:', error);
-        message.reply(ERROR_FETCHING_BOOKS);
+        message.reply(constants.ERROR_FETCHING_BOOKS);
     }
 };
