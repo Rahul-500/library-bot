@@ -7,6 +7,7 @@ describe('menu', () => {
     let mockMessage;
     let mockConnection;
     let bookMap;
+    let checkedOutBooks;
     beforeEach(() => {
         mockMessage = {
             reply: jest.fn(),
@@ -17,6 +18,7 @@ describe('menu', () => {
         };
 
         bookMap = new Map();
+        checkedOutBooks = new Map();
     });
     afterEach(() => {
         jest.clearAllMocks();
@@ -54,5 +56,20 @@ describe('menu', () => {
         await menuController.menu(dependencies);
 
         expect(commandsController.getAvailableBooks).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap);
+    });
+
+    test('On /2 getUserBooks method should be invoked', async () => {
+        commandsController.getUserBooks = jest.fn();
+        const mockMessage = {
+            reply: jest.fn(),
+            author: { username: 'TestUser', bot: false },
+            content: '/2'
+        };
+
+        let dependencies = { message: mockMessage, commandsController, connection: mockConnection, validateUser, checkedOutBooks };
+
+        await menuController.menu(dependencies);
+
+        expect(commandsController.getUserBooks).toHaveBeenCalledWith(mockMessage, mockConnection, checkedOutBooks);
     });
 });
