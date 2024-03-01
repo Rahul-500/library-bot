@@ -5,7 +5,7 @@ exports.start = (message) => {
     message.reply(constants.MENU_OPTIONS);
 }
 
-exports.getAvailableBooks = async (message, connection) => {
+exports.getAvailableBooks = (message, connection) => {
     try {
         const QUERY = 'SELECT * FROM library.books WHERE quantity_available > 0';
         const ERROR_FETCHING_BOOKS = "Error fetching available books. Please try again later.";
