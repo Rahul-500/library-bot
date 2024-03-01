@@ -49,6 +49,20 @@ describe('/start command', () => {
         start(mockMessage, mockConnection);
         expect(mockConnection.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO library.users'));
     })
+
+    test('should reply with "Error fetching available books" when there is an error', () => {
+        const mockError = new Error('Test error');
+
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+            callback(mockError, null);
+        });
+
+        start(mockMessage, mockConnection);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            'Error fetching user. Please try again later.'
+        );
+    });
 });
 
 describe('getAvailableBooks', () => {
