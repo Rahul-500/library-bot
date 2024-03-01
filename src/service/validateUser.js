@@ -11,10 +11,8 @@ exports.checkForExistingUser = async (message, connection) => {
 
             const user = result;
             if (user.length === 0) {
-                console.log("User does not exist");
                 resolve(false);
             } else {
-                console.log("User exists");
                 resolve(true);
             }
         });
