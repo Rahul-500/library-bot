@@ -1,10 +1,11 @@
 const menuController = require('../../src/controllers/menuController');
 const commandsController = require('../../src/controllers/commandsController');
+const validateUser = require('../../src/service/validateUser')
+
 
 describe('menu', () => {
     let mockMessage;
     let mockConnection;
-
     beforeEach(() => {
         mockMessage = {
             reply: jest.fn(),
@@ -18,16 +19,19 @@ describe('menu', () => {
         jest.clearAllMocks();
     });
 
-    test('On /start start method should be invoked', () => {
+    test('On /start start method should be invoked', async () => {
+
         commandsController.start = jest.fn()
+        validateUser.checkForExistingUser = jest.fn()
         const mockMessage = {
             reply: jest.fn(),
             author: { username: 'TestUser', bot: false },
             content: '/start'
         };
 
+        validateUser.checkForExistingUser.mockResolvedValue(true);
 
-        menuController.menu(mockMessage, commandsController, mockConnection);
+        await menuController.menu(mockMessage, commandsController, mockConnection, validateUser);
 
         expect(commandsController.start).toHaveBeenCalledWith(mockMessage, mockConnection);
     });

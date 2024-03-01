@@ -5,3 +5,5 @@ exports.ERROR_FETCHING_BOOKS = "Error fetching available books. Please try again
 exports.ERROR_FETCHING_USER = "Error fetching user. Please try again later.";
 exports.NO_BOOKS_FOUND = 'No available books found.';
 exports.AVAILABEL_BOOKS = "Available Books:";
+exports.USE_START_COMMAND_MESSAGE = 'Please start with `/start` before using other commands.';
+exports.ERROR_DURING_USER_CHECK = "An error occurred during user check. Please try again later.";
