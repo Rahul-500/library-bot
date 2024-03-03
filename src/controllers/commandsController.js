@@ -1,5 +1,7 @@
 const constants = require('../constants/constant')
 const transactions = require('../service/transactions')
+const {validateCheckout, validateReturn} = require('../service/validateBook')
+
 exports.start = (message, connection) => {
     const id = message.author.id;
     const QUERY = `SELECT * FROM library.users WHERE id = ${id}`;
@@ -174,45 +176,3 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
         message.reply(constants.ERROR_RETURN_MESSAGE);
     }
 };
-
-const validateCheckout = (connection, userId, bookId) => {
-    const QUERY = `SELECT COUNT(book_id) AS bookCount
-    FROM (
-        SELECT book_id
-        FROM library.transactions
-        WHERE user_id = ${userId}
-        GROUP BY book_id
-    ) AS subquery
-    WHERE book_id = ${bookId};
-    `;
-    return new Promise((resolve, reject) => {
-        connection.query(QUERY, (error, result) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(result[0].bookCount == 0);
-            }
-        });
-    });
-}
-
-const validateReturn = (connection, userId, bookId) => {
-    const QUERY = `SELECT COUNT(book_id) AS bookCount
-    FROM (
-        SELECT book_id
-        FROM library.transactions
-        WHERE user_id = ${userId}
-        GROUP BY book_id
-    ) AS subquery
-    WHERE book_id = ${bookId};
-    `;
-    return new Promise((resolve, reject) => {
-        connection.query(QUERY, (error, result) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(result[0].bookCount > 0);
-            }
-        });
-    });
-}
