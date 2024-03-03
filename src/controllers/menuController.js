@@ -1,5 +1,5 @@
 const constants = require('../constants/constant')
-
+const { isAdmin } = require('../service/validateUser');
 exports.menu = async (dependencies) => {
 
     const { message, commandsController, connection, validateUser, bookMap, checkedOutBooks } = dependencies;

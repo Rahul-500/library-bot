@@ -1,3 +1,4 @@
+require('dotenv').config();
 exports.checkForExistingUser = async (message, connection) => {
     const id = message.author.id;
     const QUERY = `SELECT * FROM library.users WHERE id = ${id}`;
@@ -18,3 +19,9 @@ exports.checkForExistingUser = async (message, connection) => {
         });
     });
 };
+
+exports.isAdmin = (message) => {
+    const BOT_OWNER_USER_NAME = process.env.BOT_OWNER_USER_NAME;
+
+    return message.author.username == (BOT_OWNER_USER_NAME);
+}
