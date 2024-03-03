@@ -18,3 +18,4 @@ exports.GET_AVAILABLE_BEFORE_RETURN_MESSAGE = "Please use `/2` command to get th
 exports.CANNOT_RETURN_BOOK_MESSAGE = "Unable to return. You have not yet checked out this book."
 exports.RETURN_BOOK_SUCCUESSFULLY_MESSAGE = "Book successfully returned. Thank you!"
 exports.ERROR_RETURN_MESSAGE ='Error during return. Please try again.'
+exports.BOOK_WITH_THAT_ID_NOT_FOUND_MESSAGE="The book with that ID was not found."

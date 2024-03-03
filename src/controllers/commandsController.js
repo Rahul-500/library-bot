@@ -66,6 +66,10 @@ exports.checkoutBook = async (message, connection, bookMap) => {
     const userId = message.author.id;
     const virtualId = parseInt(content.split(' ')[1]);
     const book = bookMap.get(virtualId);
+    if(!book){
+        message.reply(constants.BOOK_WITH_THAT_ID_NOT_FOUND_MESSAGE);
+        return;
+    }
     const bookId = book.id
 
     const result = await validateCheckout(connection, userId, bookId)
@@ -96,7 +100,6 @@ exports.checkoutBook = async (message, connection, bookMap) => {
         message.reply(`${constants.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE} ${book.title}`);
     } catch (error) {
         await transactions.rollbackTransaction(connection);
-        console.error('Error during checkout:', error);
         message.reply(constants.ERROR_CHECKED_OUT_MESSAGE);
     }
 };
@@ -142,6 +145,10 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
     const userId = message.author.id;
     const virtualId = parseInt(content.split(' ')[1]);
     const book = checkedOutBooks.get(virtualId);
+    if(!book){
+        message.reply(constants.BOOK_WITH_THAT_ID_NOT_FOUND_MESSAGE);
+        return;
+    }
     const bookId = book.id
 
     const result = await validateReturn(connection, userId, bookId)
@@ -166,13 +173,11 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
 
         await queryPromise;
 
-
         await transactions.commitTransaction(connection);
 
         message.reply(`${constants.RETURN_BOOK_SUCCUESSFULLY_MESSAGE}`);
     } catch (error) {
         await transactions.rollbackTransaction(connection);
-        console.error('Error during return:', error);
         message.reply(constants.ERROR_RETURN_MESSAGE);
     }
 };
