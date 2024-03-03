@@ -52,3 +52,34 @@ describe('checkForExistingUser', () => {
         await expect(validateUser.checkForExistingUser(mockMessage, mockConnection)).rejects.toThrow(mockError);
     });
 });
+
+describe('isAdmin', () => {
+    test('should return true for the bot owner user', () => {
+        const mockMessage = {
+            author: {
+                username: 'AdminUserName',
+            },
+        };
+
+        process.env.BOT_OWNER_USER_NAME = 'AdminUserName';
+        
+        const result = validateUser.isAdmin(mockMessage);
+
+        expect(result).toBe(true);
+    });
+
+    test('should return false for a non-bot owner user', () => {
+        const mockMessage = {
+            author: {
+                username: 'UserName',
+            },
+        };
+
+        process.env.BOT_OWNER_USER_NAME = 'AdminUserName';
+
+        const result = validateUser.isAdmin(mockMessage);
+
+        expect(result).toBe(false);
+    });
+
+});

@@ -1,6 +1,7 @@
 const constants = require('../constants/constant')
 const transactions = require('../service/transactions')
 const {validateCheckout, validateReturn} = require('../service/validateBook')
+const {isAdmin} = require('../service/validateUser')
 
 exports.start = (message, connection) => {
     const id = message.author.id;
@@ -16,6 +17,11 @@ exports.start = (message, connection) => {
             addUserInfo(id, author, connection);
         }
     });
+    if(isAdmin(message)){
+        message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!`);
+        message.reply(constants.ADMIN_OPTIONS);
+        return;
+    }
     message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!`);
     message.reply(constants.MENU_OPTIONS);
 }

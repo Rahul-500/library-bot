@@ -1,4 +1,5 @@
 exports.MENU_OPTIONS = 'Menu:\n1. Display all available books\n2. My Books'
+exports.ADMIN_OPTIONS = 'Menu:\n1. Display all available books\n2. My Books\n3. Add Book\n4. Remove Books'
 exports.WELCOME_MESSAGE = "Welcome to the Book Library"
 exports.QUERY = 'SELECT * FROM library.books WHERE quantity_available > 0';
 exports.ERROR_FETCHING_BOOKS = "Error fetching available books. Please try again later.";
@@ -19,3 +20,4 @@ exports.CANNOT_RETURN_BOOK_MESSAGE = "Unable to return. You have not yet checked
 exports.RETURN_BOOK_SUCCUESSFULLY_MESSAGE = "Book successfully returned. Thank you!"
 exports.ERROR_RETURN_MESSAGE ='Error during return. Please try again.'
 exports.BOOK_WITH_THAT_ID_NOT_FOUND_MESSAGE="The book with that ID was not found."
+exports.INVALID_COMMAND="Invalid command.!"

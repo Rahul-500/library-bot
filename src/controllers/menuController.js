@@ -46,6 +46,22 @@ exports.menu = async (dependencies) => {
             }
             await commandsController.returnBook(message, connection, checkedOutBooks);
             break;
+        case command === ('/3'):
+            if (!isAdmin(message)) {
+                message.reply(constants.INVALID_COMMAND);
+                message.reply(constants.HELP_MESSAGE);
+                break;
+            }
+            message.reply("add book functionality");
+            break;
+        case command === ('/4'):
+            if (!isAdmin(message)) {
+                message.reply(constants.INVALID_COMMAND);
+                message.reply(constants.HELP_MESSAGE);
+                break;
+            }
+            message.reply("delete book functionality");
+            break;
         default:
             message.reply(constants.HELP_MESSAGE);
     }
