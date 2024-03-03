@@ -106,8 +106,7 @@ describe('menu', () => {
     test('should invoke checkoutBook if bookMap is not empty and command matches checkoutPattern', async () => {
         const mockCommand = '/checkout 1';
         mockMessage.content = mockCommand;
-        menuController.commandsController = commandsController;
-        commandsController.checkoutBook = jest.fn();
+        commandsController.reut = jest.fn();
 
         bookMap.set(1, { id: 1, title: 'Sample Book', author: 'Sample Author', published_year: 2022, quantity_available: 5 });
 
@@ -121,5 +120,43 @@ describe('menu', () => {
 
         expect(mockMessage.reply).not.toHaveBeenCalledWith(expect.stringContaining(constants.GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE));
         expect(commandsController.checkoutBook).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap);
+    });
+
+    test('should reply with GET_AVAILABLE_BEFORE_RETURN_MESSAGE if checkedOutBooks is empty', async () => {
+        const command = '/return 1';
+        mockMessage.content = command;
+        commandsController.returnBook = jest.fn();
+
+        await menuController.menu({
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            checkedOutBooks,
+        });
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            expect.stringContaining(constants.GET_AVAILABLE_BEFORE_RETURN_MESSAGE)
+        );
+        expect(commandsController.returnBook).not.toHaveBeenCalled();
+    });
+
+    test('should invoke returnBook if checkedOutBooks is not empty and command matches returnPattern', async () => {
+        const mockCommand = '/return 1';
+        mockMessage.content = mockCommand;
+        commandsController.returnBook = jest.fn();
+
+        checkedOutBooks.set(1, { id: 1, title: 'Sample Book'});
+
+        await menuController.menu({
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            checkedOutBooks,
+        });
+
+        expect(mockMessage.reply).not.toHaveBeenCalledWith(expect.stringContaining(constants.GET_AVAILABLE_BEFORE_RETURN_MESSAGE));
+        expect(commandsController.returnBook).toHaveBeenCalledWith(mockMessage, mockConnection, checkedOutBooks);
     });
 });
