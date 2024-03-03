@@ -78,7 +78,7 @@ exports.checkoutBook = async (message, connection, bookMap) => {
         return;
     }
 
-    const QUERY = `INSERT INTO library.transactions (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
+    const QUERY = `INSERT INTO library.issued_books (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
     try {
         await transactions.beginTransaction(connection);
 
@@ -106,7 +106,7 @@ exports.checkoutBook = async (message, connection, bookMap) => {
 
 exports.getUserBooks = async (message, connection, checkedOutBooks) => {
     const userId = message.author.id;
-    const QUERY = `SELECT * FROM library.books WHERE id in (SELECT book_id FROM library.transactions WHERE user_id = ${userId} GROUP BY book_id)`;
+    const QUERY = `SELECT * FROM library.books WHERE id in (SELECT book_id FROM library.issued_books WHERE user_id = ${userId} GROUP BY book_id)`;
     try {
         const queryPromise = new Promise((resolve, reject) => {
             connection.query(QUERY, (error, results) => {
@@ -157,7 +157,7 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
         return;
     }
 
-    const QUERY = `DELETE FROM library.transactions WHERE user_id = ${userId} AND book_id = ${bookId}`;
+    const QUERY = `DELETE FROM library.issued_books WHERE user_id = ${userId} AND book_id = ${bookId}`;
     try {
         await transactions.beginTransaction(connection);
 

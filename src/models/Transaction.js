@@ -3,7 +3,7 @@ const { dbConfig } = require('../../config/db.config');
 
 const sequelize = new Sequelize(dbConfig);
 
-const Transaction = sequelize.define('Transaction', {
+const IssuedBook = sequelize.define('IssuedBook', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -29,13 +29,9 @@ const Transaction = sequelize.define('Transaction', {
         type: DataTypes.DATE,
         allowNull: false,
     },
-    return_date: {
-        type: DataTypes.DATE,
-        defaultValue: null,
-    },
 }, {
-    tableName: 'transactions',
+    tableName: 'issued_books',
     timestamps: false
 });
 
-module.exports = Transaction;
+module.exports = IssuedBook;

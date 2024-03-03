@@ -2,7 +2,7 @@ exports.validateCheckout = (connection, userId, bookId) => {
     const QUERY = `SELECT COUNT(book_id) AS bookCount
     FROM (
         SELECT book_id
-        FROM library.transactions
+        FROM library.issued_books
         WHERE user_id = ${userId}
         GROUP BY book_id
     ) AS subquery
@@ -23,7 +23,7 @@ exports.validateReturn = (connection, userId, bookId) => {
     const QUERY = `SELECT COUNT(book_id) AS bookCount
     FROM (
         SELECT book_id
-        FROM library.transactions
+        FROM library.issued_books
         WHERE user_id = ${userId}
         GROUP BY book_id
     ) AS subquery
