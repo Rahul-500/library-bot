@@ -1,12 +1,14 @@
+require('dotenv').config()
 const constants = require('../constants/constant')
 const transactions = require('../service/transactions')
 const { validateCheckout, validateReturn } = require('../service/validateBook')
 const { isAdmin } = require('../service/validateUser')
 const { addBookToDatabase } = require('../service/databaseService')
+const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS } = process.env;
 
 exports.start = (message, connection) => {
     const id = message.author.id;
-    const QUERY = `SELECT * FROM library.users WHERE id = ${id}`;
+    const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE id = ${id}`;
     connection.query(QUERY, (error, result) => {
         if (error) {
             message.reply(constants.ERROR_FETCHING_USER);
@@ -28,7 +30,7 @@ exports.start = (message, connection) => {
 }
 
 function addUserInfo(id, author, connection) {
-    const QUERY = `INSERT INTO library.users (id, name) VALUES (${id}, '${author}')`;
+    const QUERY = `INSERT INTO ${DB_NAME}.${TABLE_NAME_USERS} (id, name) VALUES (${id}, '${author}')`;
     connection.query(QUERY);
 }
 
@@ -85,7 +87,7 @@ exports.checkoutBook = async (message, connection, bookMap) => {
         return;
     }
 
-    const QUERY = `INSERT INTO library.issued_books (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
+    const QUERY = `INSERT INTO ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
     try {
         await transactions.beginTransaction(connection);
 
@@ -113,7 +115,7 @@ exports.checkoutBook = async (message, connection, bookMap) => {
 
 exports.getUserBooks = async (message, connection, checkedOutBooks) => {
     const userId = message.author.id;
-    const QUERY = `SELECT * FROM library.books WHERE id in (SELECT book_id FROM library.issued_books WHERE user_id = ${userId} GROUP BY book_id)`;
+    const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_BOOKS} WHERE id in (SELECT book_id FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} WHERE user_id = ${userId} GROUP BY book_id)`;
     try {
         const queryPromise = new Promise((resolve, reject) => {
             connection.query(QUERY, (error, results) => {
@@ -164,7 +166,7 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
         return;
     }
 
-    const QUERY = `DELETE FROM library.issued_books WHERE user_id = ${userId} AND book_id = ${bookId}`;
+    const QUERY = `DELETE FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} WHERE user_id = ${userId} AND book_id = ${bookId}`;
     try {
         await transactions.beginTransaction(connection);
 

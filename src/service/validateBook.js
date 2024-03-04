@@ -1,8 +1,11 @@
+require('dotenv').config()
+const { DB_NAME, TABLE_NAME_ISSUED_BOOKS } = process.env;
+
 exports.validateCheckout = (connection, userId, bookId) => {
     const QUERY = `SELECT COUNT(book_id) AS bookCount
     FROM (
         SELECT book_id
-        FROM library.issued_books
+        FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS}
         WHERE user_id = ${userId}
         GROUP BY book_id
     ) AS subquery
@@ -23,7 +26,7 @@ exports.validateReturn = (connection, userId, bookId) => {
     const QUERY = `SELECT COUNT(book_id) AS bookCount
     FROM (
         SELECT book_id
-        FROM library.issued_books
+        FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS}
         WHERE user_id = ${userId}
         GROUP BY book_id
     ) AS subquery
