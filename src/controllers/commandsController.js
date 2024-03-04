@@ -21,12 +21,11 @@ exports.start = (message, connection) => {
         }
     });
     if (isAdmin(message)) {
-        message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!`);
-        message.reply(constants.ADMIN_OPTIONS);
+        message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!\n${constants.ADMIN_OPTIONS}`);
         return;
     }
-    message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!`);
-    message.reply(constants.MENU_OPTIONS);
+    message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!\n${constants.MENU_OPTIONS}`);
+
 }
 
 function addUserInfo(id, author, connection) {
