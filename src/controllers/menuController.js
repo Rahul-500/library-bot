@@ -1,8 +1,7 @@
 const constants = require('../constants/constant')
-const { isAdmin } = require('../service/validateUser');
 exports.menu = async (dependencies) => {
 
-    const { message, commandsController, connection, validateUser, bookMap, checkedOutBooks } = dependencies;
+    const { message, commandsController, connection, validateUser, bookMap, checkedOutBooks, messageCreateHandler, client } = dependencies;
 
     if (message.author.bot) return;
 
@@ -18,6 +17,7 @@ exports.menu = async (dependencies) => {
             return;
         }
     }
+
     const command = message.content;
     const checkoutPattern = /^\/checkout\s\d{1,}$/;
     const returnPattern = /^\/return\s\d{1,}$/;
@@ -47,20 +47,14 @@ exports.menu = async (dependencies) => {
             await commandsController.returnBook(message, connection, checkedOutBooks);
             break;
         case command === ('/3'):
-            if (!isAdmin(message)) {
-                message.reply(constants.INVALID_COMMAND);
+            if (!validateUser.isAdmin(message)) {
                 message.reply(constants.HELP_MESSAGE);
                 break;
             }
-            message.reply("add book functionality");
+            await commandsController.addBook(message, connection, messageCreateHandler, client)
             break;
-        case command === ('/4'):
-            if (!isAdmin(message)) {
-                message.reply(constants.INVALID_COMMAND);
-                message.reply(constants.HELP_MESSAGE);
-                break;
-            }
-            message.reply("delete book functionality");
+        case command === '!help':
+            commandsController.help(message,validateUser.isAdmin(message));
             break;
         default:
             message.reply(constants.HELP_MESSAGE);

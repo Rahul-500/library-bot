@@ -213,4 +213,29 @@ describe('menu', () => {
         expect(validateUser.isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(commandsController.addBook).not.toHaveBeenCalledWith(mockMessage, mockConnection, messageCreateHandler, client);
     });
+    test('should call helpCommand when command is !help', async () => {
+        const mockCommand = '!help';
+        mockMessage.content = mockCommand;
+        commandsController.help = jest.fn();
+        const checkedOutBooks = new Map();
+        const messageCreateHandler = jest.fn();
+        const client = {};
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(true),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+        await menuController.menu({
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap,
+            checkedOutBooks,
+            messageCreateHandler,
+            client,
+        });
+
+        expect(commandsController.help).toHaveBeenCalledWith(mockMessage, true);
+    });
 });
+
