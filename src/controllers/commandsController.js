@@ -1,7 +1,8 @@
 const constants = require('../constants/constant')
 const transactions = require('../service/transactions')
-const {validateCheckout, validateReturn} = require('../service/validateBook')
-const {isAdmin} = require('../service/validateUser')
+const { validateCheckout, validateReturn } = require('../service/validateBook')
+const { isAdmin } = require('../service/validateUser')
+const { addBookToDatabase } = require('../service/databaseService')
 
 exports.start = (message, connection) => {
     const id = message.author.id;
@@ -17,7 +18,7 @@ exports.start = (message, connection) => {
             addUserInfo(id, author, connection);
         }
     });
-    if(isAdmin(message)){
+    if (isAdmin(message)) {
         message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!`);
         message.reply(constants.ADMIN_OPTIONS);
         return;
@@ -72,7 +73,7 @@ exports.checkoutBook = async (message, connection, bookMap) => {
     const userId = message.author.id;
     const virtualId = parseInt(content.split(' ')[1]);
     const book = bookMap.get(virtualId);
-    if(!book){
+    if (!book) {
         message.reply(constants.BOOK_WITH_THAT_ID_NOT_FOUND_MESSAGE);
         return;
     }
@@ -151,7 +152,7 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
     const userId = message.author.id;
     const virtualId = parseInt(content.split(' ')[1]);
     const book = checkedOutBooks.get(virtualId);
-    if(!book){
+    if (!book) {
         message.reply(constants.BOOK_WITH_THAT_ID_NOT_FOUND_MESSAGE);
         return;
     }
@@ -186,4 +187,53 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
         await transactions.rollbackTransaction(connection);
         message.reply(constants.ERROR_RETURN_MESSAGE);
     }
+};
+
+exports.addBook = async (message, connection, messageCreateHandler, client) => {
+    try {
+
+        await message.reply(constants.BOOK_DETAILS_PROMPT_MESSAGE);
+
+        const collector = message.channel.createMessageCollector();
+        let bookDetails = {};
+
+        client.off('messageCreate', messageCreateHandler);
+
+        collector.on('collect', async (response) => {
+            const details = response.content.split(';').map(detail => detail.trim());
+            const [title, author, publishedYear, quantityAvailable] = details;
+            const parsedPublishedYear = parseInt(publishedYear);
+            const parsedQuantityAvailable = parseInt(quantityAvailable);
+
+            if ((title && author && publishedYear && quantityAvailable) && !Number.isNaN(parsedPublishedYear) && !Number.isNaN(parsedQuantityAvailable)) {
+                bookDetails = {
+                    title,
+                    author,
+                    published_year: parsedPublishedYear,
+                    quantity_available: parsedQuantityAvailable,
+                };
+
+                message.reply(constants.BOOK_DETAILS_RECEIVED_MESSAGE);
+                await addBookToDatabase(message, connection, bookDetails);
+            } else {
+                message.reply(constants.INVALID_DETAILS_MESSAGE);
+            }
+            collector.stop();
+            client.on('messageCreate', messageCreateHandler);
+        });
+
+    } catch (error) {
+        message.reply(constants.UNEXPECTED_ERROR_MESSAGE);
+    }
+};
+
+exports.help = (message, isAdmin) => {
+    let helpMessage = '';
+
+    if (isAdmin) {
+        helpMessage = constants.ADMIN_COMMANDS;
+    }
+
+    helpMessage += constants.USER_COMMANDS
+    message.reply(helpMessage);
 };

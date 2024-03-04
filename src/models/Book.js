@@ -1,7 +1,10 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const { dbConfig } = require('../../config/db.config')
 
-const sequelize = new Sequelize(dbConfig);
+const sequelize = new Sequelize({
+    ...dbConfig,
+    dialect: 'mysql',
+});
 
 const Book = sequelize.define('Book', {
     id: {

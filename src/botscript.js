@@ -12,18 +12,22 @@ connect()
         client.on('ready', () => {
             console.log(`Logged in as ${client.user.tag}!`);
         });
-
-        client.on('messageCreate', (message) => {
+        
+        const messageCreateHandler = (message) => {
             const dependencies = {
                 message,
                 commandsController,
                 connection,
                 validateUser,
                 bookMap,
-                checkedOutBooks
+                checkedOutBooks,
+                messageCreateHandler,
+                client
             }
             menu(dependencies)
-        });
+        }
+
+        client.on('messageCreate', messageCreateHandler);
 
         client.login(process.env.DISCORD_TOKEN);
     })
