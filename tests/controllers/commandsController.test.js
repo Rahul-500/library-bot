@@ -1,5 +1,5 @@
 const { start } = require('../../src/controllers/commandsController')
-const { getAvailableBooks, checkoutBook, getUserBooks, returnBook } = require('../../src/controllers/commandsController')
+const { getAvailableBooks, checkoutBook, getUserBooks, returnBook, addBook } = require('../../src/controllers/commandsController')
 const constants = require('../../src/constants/constant')
 describe('/start command', () => {
     let mockMessage;
@@ -375,4 +375,114 @@ describe('returnBook', () => {
             expect.stringContaining(constants.CANNOT_RETURN_BOOK_MESSAGE)
         );
     });
+});
+
+describe('addBook function', () => {
+    let mockMessage;
+    let mockConnection;
+    let mockClient;
+    let mockMessageCreateHandler;
+
+    beforeEach(() => {
+        mockMessage = {
+            reply: jest.fn(),
+            channel: {
+                createMessageCollector: jest.fn(),
+            },
+        };
+
+        mockConnection = {
+            query: jest.fn(),
+            beginTransaction: jest.fn(),
+            commit: jest.fn(),
+            rollback: jest.fn(),
+        };
+
+        mockClient = {
+            on: jest.fn(),
+            off: jest.fn(),
+        };
+
+        mockMessageCreateHandler = jest.fn();
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('should handle book details collection and add book to the database', async () => {
+        const mockUserResponse = { content: 'Title; Author; 2022; 5' };
+
+        const { EventEmitter } = require('events');
+
+        const collector = new EventEmitter();
+        collector.stop = jest.fn();
+
+        mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+        jest.spyOn(collector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                callback(mockUserResponse);
+            }
+        });
+
+        mockConnection.beginTransaction.mockImplementation((callback) => {
+            callback(null);
+        });
+        mockConnection.query.mockResolvedValueOnce([{ insertId: 5 }]);
+        mockConnection.commit.mockResolvedValue();
+
+
+        await addBook(mockMessage, mockConnection, mockMessageCreateHandler, mockClient);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_DETAILS_PROMPT_MESSAGE);
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_DETAILS_RECEIVED_MESSAGE);
+    });
+    
+    test('should handle unexpected error', async () => {
+        const mockUserResponse = { content: 'Title; Author; 2022; 5' };
+
+        const { EventEmitter } = require('events');
+
+        const collector = new EventEmitter();
+        collector.stop = jest.fn();
+
+        mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+        jest.spyOn(collector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                throw new Error('Simulated error');
+            }
+        });
+
+        mockConnection.beginTransaction.mockResolvedValue();
+        mockConnection.query.mockResolvedValueOnce([{ insertId: 5 }]);
+        mockConnection.commit.mockResolvedValue();
+
+        await addBook(mockMessage, mockConnection, mockMessageCreateHandler, mockClient);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.UNEXPECTED_ERROR_MESSAGE);
+    });
+
+    test('should handle parsing errors during book details collection', async () => {
+        const mockUserResponse = { content: 'Title; Author; 2022; invalidQuantity' };
+
+        const { EventEmitter } = require('events');
+
+        const collector = new EventEmitter();
+        collector.stop = jest.fn();
+
+        mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+        jest.spyOn(collector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                callback(mockUserResponse);
+            }
+        });
+
+        await addBook(mockMessage, mockConnection, mockMessageCreateHandler, mockClient);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DETAILS_MESSAGE);
+    });
+
 });
