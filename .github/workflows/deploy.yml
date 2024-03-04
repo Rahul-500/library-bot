@@ -20,12 +20,12 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-      
+
     - name: Install PM2
       run: npm install pm2 -g
 
     - name: Deploy application
       run: |
-        chmod +x scirpt.sh
+        chmod +x script.sh
         ./script.sh
       
