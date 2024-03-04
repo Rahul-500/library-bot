@@ -34,12 +34,12 @@ describe('menu', () => {
 
         validateUser.checkForExistingUser.mockResolvedValue(true);
 
-        let dependencies = { 
-            message: mockMessage, 
-            commandsController, 
-            connection: mockConnection, 
-            validateUser, 
-            bookMap 
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap
         };
 
         await menuController.menu(dependencies);
@@ -52,12 +52,12 @@ describe('menu', () => {
         commandsController.getAvailableBooks = jest.fn();
         mockMessage.content = command
 
-        let dependencies = { 
-            message: mockMessage, 
-            commandsController, 
-            connection: mockConnection, 
-            validateUser, 
-            bookMap 
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap
         };
 
         await menuController.menu(dependencies);
@@ -70,12 +70,12 @@ describe('menu', () => {
         const command = '/2'
         mockMessage.content = command
 
-        let dependencies = { 
-            message: mockMessage, 
-            commandsController, 
-            connection: mockConnection, 
-            validateUser, 
-            checkedOutBooks 
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            checkedOutBooks
         };
 
         await menuController.menu(dependencies);
@@ -146,7 +146,7 @@ describe('menu', () => {
         mockMessage.content = mockCommand;
         commandsController.returnBook = jest.fn();
 
-        checkedOutBooks.set(1, { id: 1, title: 'Sample Book'});
+        checkedOutBooks.set(1, { id: 1, title: 'Sample Book' });
 
         await menuController.menu({
             message: mockMessage,
@@ -158,5 +158,59 @@ describe('menu', () => {
 
         expect(mockMessage.reply).not.toHaveBeenCalledWith(expect.stringContaining(constants.GET_AVAILABLE_BEFORE_RETURN_MESSAGE));
         expect(commandsController.returnBook).toHaveBeenCalledWith(mockMessage, mockConnection, checkedOutBooks);
+    });
+    test('should invoke addBook for admin with command /3', async () => {
+        const mockCommand = '/3';
+        mockMessage.content = mockCommand;
+        commandsController.addBook = jest.fn();
+        const checkedOutBooks = new Map();
+        const messageCreateHandler = jest.fn();
+        const client = {};
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(true),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+
+        await menuController.menu({
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap,
+            checkedOutBooks,
+            messageCreateHandler,
+            client,
+        });
+
+
+        expect(validateUser.isAdmin).toHaveBeenCalledWith(mockMessage);
+        expect(commandsController.addBook).toHaveBeenCalledWith(mockMessage, mockConnection, messageCreateHandler, client);
+    });
+
+    test('should not invoke addBook for non-admin with command /3', async () => {
+        const mockCommand = '/3';
+        mockMessage.content = mockCommand;
+        commandsController.addBook = jest.fn();
+        const checkedOutBooks = new Map();
+        const messageCreateHandler = jest.fn();
+        const client = {};
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(false),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+
+        await menuController.menu({
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap,
+            checkedOutBooks,
+            messageCreateHandler,
+            client,
+        });
+        
+        expect(validateUser.isAdmin).toHaveBeenCalledWith(mockMessage);
+        expect(commandsController.addBook).not.toHaveBeenCalledWith(mockMessage, mockConnection, messageCreateHandler, client);
     });
 });
