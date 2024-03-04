@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/botscript.js",
+    "start": "nodemon botscript.js",
     "test": "jest"
   },
   "keywords": [],

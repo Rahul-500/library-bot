@@ -1,9 +1,9 @@
 require('dotenv').config();
-const { connect } = require('./database');
+const { connect } = require('./src/database');
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
-const { menu } = require('./controllers/menuController');
-const commandsController = require('../src/controllers/commandsController');
-const validateUser = require('../src/service/validateUser');
+const { menu } = require('./src/controllers/menuController');
+const commandsController = require('./src/controllers/commandsController');
+const validateUser = require('./src/service/validateUser');
 const bookMap = new Map();
 const checkedOutBooks = new Map();
 const client = new Client({
