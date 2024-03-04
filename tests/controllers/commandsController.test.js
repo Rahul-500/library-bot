@@ -1,5 +1,5 @@
 const { start } = require('../../src/controllers/commandsController')
-const { getAvailableBooks, checkoutBook, getUserBooks, returnBook, addBook } = require('../../src/controllers/commandsController')
+const { getAvailableBooks, checkoutBook, getUserBooks, returnBook, addBook, help } = require('../../src/controllers/commandsController')
 const constants = require('../../src/constants/constant')
 describe('/start command', () => {
     let mockMessage;
@@ -438,7 +438,7 @@ describe('addBook function', () => {
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_DETAILS_PROMPT_MESSAGE);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_DETAILS_RECEIVED_MESSAGE);
     });
-    
+
     test('should handle unexpected error', async () => {
         const mockUserResponse = { content: 'Title; Author; 2022; 5' };
 
@@ -485,4 +485,48 @@ describe('addBook function', () => {
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DETAILS_MESSAGE);
     });
 
+});
+
+describe('help function', () => {
+    let mockMessage;
+
+    beforeEach(() => {
+        mockMessage = {
+            reply: jest.fn(),
+        };
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('should send help message for admin', () => {
+        const isAdmin = true;
+
+        help(mockMessage, isAdmin);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('Admin Commands'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/3'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('Available Commands'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/start'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/1'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/checkout [Book ID]'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/2'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/return [Book ID]'));
+    });
+
+    test('should send help message for non-admin', () => {
+        const isAdmin = false;
+
+        help(mockMessage, isAdmin);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.not.stringContaining('Admin Commands'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.not.stringContaining('/3'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('Available Commands'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/start'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/1'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/checkout [Book ID]'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/2'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/return [Book ID]'));
+    });
 });
