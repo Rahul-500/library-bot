@@ -25,4 +25,4 @@ jobs:
         run: npm install -g pm2
 
       - name: Restart pm2
-        run: pm2 restart ../../botscript.js
+        run: pm2 start botscript.js
