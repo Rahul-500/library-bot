@@ -21,3 +21,6 @@ else
         exit 1
     fi
 fi
+
+# Save the current PM2 process list
+pm2 save
