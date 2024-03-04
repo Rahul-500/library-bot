@@ -53,13 +53,6 @@ exports.menu = async (dependencies) => {
             }
             await commandsController.addBook(message, connection, messageCreateHandler, client)
             break;
-        case command === ('/4'):
-            if (!validateUser.isAdmin(message)) {
-                message.reply(constants.HELP_MESSAGE);
-                break;
-            }
-            await message.reply("Delete book functionality");
-            break;
         case command === '!help':
             commandsController.help(message, validateUser.isAdmin(message));
             break;
