@@ -1,5 +1,5 @@
 exports.MENU_OPTIONS = 'Menu:\n1. Display all available books\n2. My Books'
-exports.ADMIN_OPTIONS = 'Menu:\n1. Display all available books\n2. My Books\n3. Add Book\n4. Remove Books'
+exports.ADMIN_OPTIONS = 'Menu:\n1. Display all available books\n2. My Books\n3. Add Book\n4. Remove Book'
 exports.WELCOME_MESSAGE = "Welcome to the Book Library"
 exports.QUERY = 'SELECT * FROM library.books WHERE quantity_available > 0';
 exports.ERROR_FETCHING_BOOKS = "Error fetching available books. Please try again later.";
@@ -25,7 +25,7 @@ exports.BOOK_DETAILS_PROMPT_MESSAGE = "Please provide book details in the follow
 exports.ADD_BOOK_DETAILS_RECEIVED_MESSAGE = "Book details received. Adding the book to the database...";
 exports.INVALID_DETAILS_MESSAGE = "Please provide all required details in the specified format.";
 exports.UNEXPECTED_ERROR_MESSAGE = "An unexpected error occurred while processing the command.";
-exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/3\`: Add a new book to the library.\n\n`;
+exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/3\`: Add a new book to the library.\n2. \`/4\`: Remove a book from the library\n\n`;
 exports.USER_COMMANDS = `**Available Commands:**\n1. \`/start\`: Start the bot.\n2. \`/1\`: Get available books.\n3. \`/checkout [Book ID]\`: Checkout a book by providing its ID.\n4. \`/2\`: Get a list of books checked out by the user.\n5. \`/return [Book ID]\`: Return a checked-out book by providing its ID.\n\n**Note:**\n- Ensure to get available books (\`/1\`) before checking out.\n- Ensure to get checked out books (\`/2\`) before returning.`;
 exports.DELETE_BOOK_PROMPT_MESSAGE = "Please provide book details in the following format: Id; quantity"
 exports.INVALID_BOOK_ID_MESSAGE = 'Invalid book ID. Please provide a valid ID from the list of available books.';
