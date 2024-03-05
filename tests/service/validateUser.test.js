@@ -54,15 +54,19 @@ describe('checkForExistingUser', () => {
 });
 
 describe('isAdmin', () => {
+    beforeEach(() => {
+        process.env.BOT_OWNER_USER_NAME = '';
+    });
+
     test('should return true for the bot owner user', () => {
         const mockMessage = {
             author: {
-                username: 'AdminUserNam',
+                username: 'AdminUserName',
             },
         };
 
         process.env.BOT_OWNER_USER_NAME = 'AdminUserName';
-
+        
         const result = validateUser.isAdmin(mockMessage);
 
         expect(result).toBe(true);
@@ -82,4 +86,16 @@ describe('isAdmin', () => {
         expect(result).toBe(false);
     });
 
+    test('should return false when BOT_OWNER_USER_NAME is not set', () => {
+        const mockMessage = {
+            author: {
+                username: 'AdminUserName',
+            },
+        };
+
+        const result = validateUser.isAdmin(mockMessage);
+
+        expect(result).toBe(false);
+    });
 });
+
