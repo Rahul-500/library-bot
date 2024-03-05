@@ -1,5 +1,5 @@
 const constants = require('../../src/constants/constant');
-const { displayAvailableBooks, displayUserBooks } = require('../../src/utils/display'); 
+const { availableBooks, userBooks } = require('../../src/utils/display'); 
 
 describe('Book Display Functions', () => {
     test('displayAvailableBooks should reply with "No books found" when the book list is empty', () => {
@@ -8,7 +8,7 @@ describe('Book Display Functions', () => {
         };
         const books = [];
 
-        displayAvailableBooks(message, books);
+        availableBooks(message, books);
 
         expect(message.reply).toHaveBeenCalledWith(constants.NO_BOOKS_FOUND);
     });
@@ -22,7 +22,7 @@ describe('Book Display Functions', () => {
             { title: 'Book 2' },
         ];
 
-        displayAvailableBooks(message, books);
+        availableBooks(message, books);
 
         const expectedReply = `${constants.AVAILABEL_BOOKS}\n1 - Book 1\n2 - Book 2`;
         expect(message.reply).toHaveBeenCalledWith(expectedReply);
@@ -34,7 +34,7 @@ describe('Book Display Functions', () => {
         };
         const books = [];
 
-        displayUserBooks(message, books);
+        userBooks(message, books);
 
         expect(message.reply).toHaveBeenCalledWith(constants.NO_BOOKS_FOUND);
     });
@@ -48,7 +48,7 @@ describe('Book Display Functions', () => {
             { title: 'Book B' },
         ];
 
-        displayUserBooks(message, books);
+        userBooks(message, books);
 
         const expectedReply = `${constants.MY_BOOKS}\n1 - Book A\n2 - Book B`;
         expect(message.reply).toHaveBeenCalledWith(expectedReply);

@@ -1,6 +1,6 @@
 const constants = require('../constants/constant');
 
-exports.displayAvailableBooks = (message, books) => {
+exports.availableBooks = (message, books) => {
     if (books.length === 0) {
         message.reply(constants.NO_BOOKS_FOUND);
         return;
@@ -12,7 +12,7 @@ exports.displayAvailableBooks = (message, books) => {
     message.reply(`${constants.AVAILABEL_BOOKS}\n${bookList}`);
 }
 
-exports.displayUserBooks = (message, books) => {
+exports.userBooks = (message, books) => {
     if (books.length === 0) {
         message.reply(constants.NO_BOOKS_FOUND);
         return;
