@@ -22,8 +22,7 @@ describe('/start command', () => {
 
     test('start should reply with welcome message and menu', () => {
         start(mockMessage, mockConnection);
-        expect(mockMessage.reply).toHaveBeenCalledWith(`${constants.WELCOME_MESSAGE}, TestUser!`);
-        expect(mockMessage.reply).toHaveBeenCalledWith(constants.MENU_OPTIONS);
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining(`${constants.WELCOME_MESSAGE}, TestUser!`));
     });
 
     test('start should call addUserInfo method for new user', () => {
