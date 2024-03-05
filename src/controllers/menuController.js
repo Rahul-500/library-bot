@@ -30,9 +30,9 @@ exports.menu = async (dependencies) => {
             break;
 
         case command === ('/1'):
-            const books = await commandsController.getAvailableBooks(message, connection, bookMap);
-            if (!books) return
-            display.availableBooks(message, books)
+            const availableBooks = await commandsController.getAvailableBooks(message, connection, bookMap);
+            if (!availableBooks) return
+            display.availableBooks(message, availableBooks)
             break;
 
         case checkoutPattern.test(command):
@@ -70,7 +70,10 @@ exports.menu = async (dependencies) => {
                 message.reply(constants.HELP_MESSAGE);
                 break;
             }
-            await commandsController.getAvailableBooks(message, connection, bookMap)
+            
+            const books = await commandsController.getAvailableBooks(message, connection, bookMap)
+            if (!books) return
+            display.availableBooksWithQuantity(message, books)
             await commandsController.deleteBook(message, connection, bookMap, messageCreateHandler, client)
             break;
 

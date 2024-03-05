@@ -23,3 +23,15 @@ exports.userBooks = (message, books) => {
 
     message.reply(`${constants.MY_BOOKS}\n${bookList}`);
 }
+
+exports.availableBooksWithQuantity = (message, books) => {
+    if (books.length === 0) {
+        message.reply(constants.NO_BOOKS_FOUND);
+        return;
+    }
+
+    let count = 1;
+    const bookList = books.map((book) => `${count++} - ${book.title} - ${book.quantity_available}`).join('\n');
+
+    message.reply(`${constants.MY_BOOKS}\n${bookList}`);
+}
