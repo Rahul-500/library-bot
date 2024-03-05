@@ -1,5 +1,6 @@
 const { start } = require('../../src/controllers/commandsController')
-const { getAvailableBooks, checkoutBook, getUserBooks, returnBook, addBook, help } = require('../../src/controllers/commandsController')
+const sinon = require('sinon');
+const { getAvailableBooks, checkoutBook, getUserBooks, returnBook, addBook, deleteBook, help } = require('../../src/controllers/commandsController')
 const constants = require('../../src/constants/constant')
 describe('/start command', () => {
     let mockMessage;
@@ -429,7 +430,7 @@ describe('addBook function', () => {
         await addBook(mockMessage, mockConnection, mockMessageCreateHandler, mockClient);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_DETAILS_PROMPT_MESSAGE);
-        expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_DETAILS_RECEIVED_MESSAGE);
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.ADD_BOOK_DETAILS_RECEIVED_MESSAGE);
     });
 
     test('should handle unexpected error', async () => {
@@ -475,6 +476,86 @@ describe('addBook function', () => {
 
         await addBook(mockMessage, mockConnection, mockMessageCreateHandler, mockClient);
 
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DETAILS_MESSAGE);
+    });
+
+});
+describe('deleteBook function', () => {
+    let mockMessage;
+    let mockConnection;
+    let mockBookMap;
+    let mockClient;
+    let mockMessageCreateHandler;
+
+    beforeEach(() => {
+        mockMessage = {
+            reply: jest.fn(),
+            channel: {
+                createMessageCollector: jest.fn(),
+            },
+        };
+
+        mockConnection = {
+            query: jest.fn(),
+            beginTransaction: jest.fn(),
+            commit: jest.fn(),
+            rollback: jest.fn(),
+        };
+
+        mockBookMap = new Map();
+        mockBookMap.set(1, { title: 'Book 1', quantity_available: 5 });
+
+        mockClient = {
+            on: jest.fn(),
+            off: jest.fn(),
+        };
+
+        mockMessageCreateHandler = jest.fn();
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('should handle book deletion', async () => {
+        const mockUserResponse = { content: '1; 2' }; 
+
+        const { EventEmitter } = require('events');
+
+        const collector = new EventEmitter();
+        collector.stop = jest.fn();
+
+        mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+        jest.spyOn(collector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                callback(mockUserResponse);
+            }
+        });
+
+        await deleteBook(mockMessage, mockConnection, mockBookMap, mockMessageCreateHandler, mockClient);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.DELETE_BOOK_PROMPT_MESSAGE);
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.DELETE_BOOK_DETAILS_RECEIVED_MESSAGE);
+    });
+
+    test('should handle parsing errors during book deletion', async () => {
+        const mockUserResponse = { content: 'invalidID; invalidQuantity' };
+
+        const { EventEmitter } = require('events');
+
+        const collector = new EventEmitter();
+        collector.stop = jest.fn();
+
+        mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+        jest.spyOn(collector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                callback(mockUserResponse);
+            }
+        });
+
+        await deleteBook(mockMessage, mockConnection, mockBookMap, mockMessageCreateHandler, mockClient);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DETAILS_MESSAGE);
     });
 
