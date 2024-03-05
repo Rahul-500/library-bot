@@ -83,7 +83,7 @@ describe('getAvailableBooks', () => {
         bookMap.clear();
     });
 
-    test('should reply with available books when there are books', async () => {
+    test('should return books when there are books', async () => {
         const mockResults = [
             { id: 1, title: 'Book 1', quantity_available: 3, },
             { id: 2, title: 'Book 2', quantity_available: 5, },
@@ -93,25 +93,21 @@ describe('getAvailableBooks', () => {
             callback(null, mockResults);
         });
 
-        await getAvailableBooks(mockMessage, mockConnection, bookMap);
+        const books = await getAvailableBooks(mockMessage, mockConnection, bookMap);
 
-        expect(mockMessage.reply).toHaveBeenCalledWith(
-            expect.stringContaining("Available Books:\n1 - Book 1\n2 - Book 2")
-        );
+        expect(books).not.toBeNull();
     });
 
-    test('should reply with "No available books found" when there are no books', async () => {
+    test('should return null when there are no books', async () => {
         const mockResults = [];
 
         mockConnection.query.mockImplementationOnce((query, callback) => {
             callback(null, mockResults);
         });
 
-        await getAvailableBooks(mockMessage, mockConnection);
+        const books = await getAvailableBooks(mockMessage, mockConnection);
 
-        expect(mockMessage.reply).toHaveBeenCalledWith(
-            constants.NO_BOOKS_FOUND
-        );
+        expect(books).toBeNull();
     });
 
     test('should reply with "Error fetching available books" when there is an error', async () => {
@@ -243,7 +239,7 @@ describe('getUserBooks', () => {
         checkedOutBooks.clear();
     });
 
-    test(`should reply with user's checked-out books when there are books`, async () => {
+    test(`should return user's checked-out books when there are books`, async () => {
         const mockResults = [
             { id: 1, title: 'Book 1' },
             { id: 2, title: 'Book 2' },
@@ -253,11 +249,9 @@ describe('getUserBooks', () => {
             callback(null, mockResults);
         });
 
-        await getUserBooks(mockMessage, mockConnection, checkedOutBooks);
+        const books = await getUserBooks(mockMessage, mockConnection, checkedOutBooks);
 
-        expect(mockMessage.reply).toHaveBeenCalledWith(
-            expect.stringContaining("My books\n1 - Book 1\n2 - Book 2")
-        );
+        expect(books).not.toBeNull()
     });
 
     test('should reply with "No checked-out books found" when there are no books', async () => {

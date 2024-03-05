@@ -1,4 +1,6 @@
 const constants = require('../constants/constant')
+const { displayAvailableBooks, displayUserBooks } = require('../utils/display')
+
 exports.menu = async (dependencies) => {
 
     const { message, commandsController, connection, validateUser, bookMap, checkedOutBooks, messageCreateHandler, client } = dependencies;
@@ -26,9 +28,13 @@ exports.menu = async (dependencies) => {
         case command === ('/start'):
             commandsController.start(message, connection);
             break;
+
         case command === ('/1'):
-            await commandsController.getAvailableBooks(message, connection, bookMap);
+            const books = await commandsController.getAvailableBooks(message, connection, bookMap);
+            if (!books) return
+            displayAvailableBooks(message, books)
             break;
+
         case checkoutPattern.test(command):
             if ((bookMap).size == 0) {
                 message.reply(constants.GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE);
@@ -36,9 +42,13 @@ exports.menu = async (dependencies) => {
             }
             await commandsController.checkoutBook(message, connection, bookMap);
             break;
+
         case command === ('/2'):
-            await commandsController.getUserBooks(message, connection, checkedOutBooks)
+            const userBooks = await commandsController.getUserBooks(message, connection, checkedOutBooks)
+            if (!userBooks) return
+            displayUserBooks(message, userBooks)
             break;
+
         case returnPattern.test(command):
             if ((checkedOutBooks).size == 0) {
                 message.reply(constants.GET_AVAILABLE_BEFORE_RETURN_MESSAGE);
@@ -46,6 +56,7 @@ exports.menu = async (dependencies) => {
             }
             await commandsController.returnBook(message, connection, checkedOutBooks);
             break;
+
         case command === ('/3'):
             if (!validateUser.isAdmin(message)) {
                 message.reply(constants.HELP_MESSAGE);
@@ -53,16 +64,20 @@ exports.menu = async (dependencies) => {
             }
             await commandsController.addBook(message, connection, messageCreateHandler, client)
             break;
+
         case command === ('/4'):
             if (!validateUser.isAdmin(message)) {
                 message.reply(constants.HELP_MESSAGE);
                 break;
             }
-            await message.reply("Test delete book option")
+            await commandsController.getAvailableBooks(message, connection, bookMap)
+            await commandsController.deleteBook(message, connection, bookMap, messageCreateHandler, client)
             break;
+
         case command === '!help':
             commandsController.help(message, validateUser.isAdmin(message));
             break;
+
         default:
             message.reply(constants.HELP_MESSAGE);
     }

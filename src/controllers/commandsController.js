@@ -46,26 +46,18 @@ exports.getAvailableBooks = async (message, connection, bookMap) => {
             });
         });
 
-        const results = await queryPromise;
-
-        const books = results;
-        if (books.length === 0) {
-            message.reply(constants.NO_BOOKS_FOUND);
-            return;
-        }
+        const books = await queryPromise;
 
         bookMap.clear()
         let count = 1;
-        const bookList = books.map((book) => `${count++} - ${book.title}`).join('\n');
-        count = 1;
-
         books.forEach((book) => {
             bookMap.set(count++, book);
         });
 
-        message.reply(`${constants.AVAILABEL_BOOKS}\n${bookList}`);
+        return books;
     } catch (error) {
         message.reply(constants.ERROR_FETCHING_BOOKS);
+        return null;
     }
 };
 
@@ -135,16 +127,14 @@ exports.getUserBooks = async (message, connection, checkedOutBooks) => {
 
         checkedOutBooks.clear()
         let count = 1;
-        const bookList = books.map((book) => `${count++} - ${book.title}`).join('\n');
-        count = 1;
-
         books.forEach((book) => {
             checkedOutBooks.set(count++, book);
         });
 
-        message.reply(`${constants.MY_BOOKS}\n${bookList}`);
+        return books
     } catch (error) {
         message.reply(constants.ERROR_FETCHING_BOOKS);
+        return null;
     }
 };
 
