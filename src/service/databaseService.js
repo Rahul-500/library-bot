@@ -35,7 +35,6 @@ exports.addBookToDatabase = async (message, connection, bookDetails) => {
 exports.deleteBookWithQuantity = async (message, connection, book, quantity) => {
 
     const QUERY = `UPDATE ${TABLE_NAME_BOOKS} SET quantity_available = quantity_available - ${quantity} where id = ${book.id}`
-    console.log(QUERY);
     try {
 
         await transactions.beginTransaction(connection)
@@ -43,10 +42,8 @@ exports.deleteBookWithQuantity = async (message, connection, book, quantity) => 
         const queryPromise = new Promise((resolve, reject) => {
             connection.query(QUERY, (error, result) => {
                 if (error) {
-                    console.log(error);
                     reject(error);
                 } else {
-                    console.log(result);
                     message.reply(`Book quantity deleted successfully!`);
                     resolve(result);
                 }
@@ -58,7 +55,6 @@ exports.deleteBookWithQuantity = async (message, connection, book, quantity) => 
         await transactions.commitTransaction(connection);
 
     } catch (error) {
-    
         await transactions.rollbackTransaction(connection);
         message.reply("An unexpected error occurred while processing the command.");
     }

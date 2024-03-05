@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +23,35 @@ jobs:
 
     - name: Run Tests
       run: npm test
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    needs: test
+
+    env:
+      DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      BOT_OWNER_USER_NAME: ${{ secrets.BOT_OWNER_USER_NAME }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      TABLE_NAME_BOOKS: ${{ secrets.TABLE_NAME_BOOKS }}
+      TABLE_NAME_ISSUED_BOOKS: ${{ secrets.TABLE_NAME_ISSUED_BOOKS }}
+      TABLE_NAME_USERS: ${{ secrets.TABLE_NAME_USERS }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Node.js and npm
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20.11.1'
+
+    - name: Install dependencies
+      run: npm install
 
     - name: Install PM2 and deploy
       run: |

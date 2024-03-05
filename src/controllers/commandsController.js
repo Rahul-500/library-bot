@@ -3,7 +3,7 @@ const constants = require('../constants/constant')
 const transactions = require('../service/transactions')
 const { validateCheckout, validateReturn } = require('../service/validateBook')
 const { isAdmin } = require('../service/validateUser')
-const { addBookToDatabase } = require('../service/databaseService')
+const { addBookToDatabase, deleteBookWithQuantity } = require('../service/databaseService')
 const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS } = process.env;
 
 exports.start = (message, connection) => {
@@ -204,11 +204,52 @@ exports.addBook = async (message, connection, messageCreateHandler, client) => {
                     quantity_available: parsedQuantityAvailable,
                 };
 
-                message.reply(constants.BOOK_DETAILS_RECEIVED_MESSAGE);
+                message.reply(constants.ADD_BOOK_DETAILS_RECEIVED_MESSAGE);
                 await addBookToDatabase(message, connection, bookDetails);
             } else {
                 message.reply(constants.INVALID_DETAILS_MESSAGE);
             }
+            collector.stop();
+            client.on('messageCreate', messageCreateHandler);
+        });
+
+    } catch (error) {
+        message.reply(constants.UNEXPECTED_ERROR_MESSAGE);
+    }
+};
+
+exports.deleteBook = async (message, connection, bookMap, messageCreateHandler, client) => {
+    try {
+
+        await message.reply(constants.DELETE_BOOK_PROMPT_MESSAGE);
+
+        const collector = message.channel.createMessageCollector();
+
+        client.off('messageCreate', messageCreateHandler);
+
+        collector.on('collect', async (response) => {
+            const details = response.content.split(';').map(detail => detail.trim());
+            const [virtualId, quantity] = details;
+            const parsedVirtualId = parseInt(virtualId);
+            const parsedQuantity = parseInt(quantity);
+
+            const book = bookMap.get(parsedVirtualId)
+
+            if (Number.isNaN(parsedVirtualId) || Number.isNaN(parsedQuantity)) {
+                message.reply(constants.INVALID_DETAILS_MESSAGE);
+            }
+            else if (!bookMap.has(parsedVirtualId)) {
+                message.reply(constants.INVALID_BOOK_ID_MESSAGE);
+            }
+            else if (parsedQuantity > book.quantity_available) {
+                message.reply(constants.QUANTITY_NOT_IN_LIMIT_MESSAGE);
+            }
+            else {
+                message.reply(constants.DELETE_BOOK_DETAILS_RECEIVED_MESSAGE);
+
+                await deleteBookWithQuantity(message, connection, book, parsedQuantity)
+            }
+
             collector.stop();
             client.on('messageCreate', messageCreateHandler);
         });
@@ -228,3 +269,4 @@ exports.help = (message, isAdmin) => {
     helpMessage += constants.USER_COMMANDS
     message.reply(helpMessage);
 };
+
