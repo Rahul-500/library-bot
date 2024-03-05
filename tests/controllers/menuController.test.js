@@ -73,7 +73,7 @@ describe('menu', () => {
         expect(display.availableBooks).toHaveBeenCalled();
 
     });
-    
+
     test('On /1 display availableBooks method should not be invoked', async () => {
         const command = '/1';
 
@@ -304,5 +304,68 @@ describe('menu', () => {
 
         expect(commandsController.help).toHaveBeenCalledWith(mockMessage, true);
     });
+
+    test('should invoke deleteBook for admin with command /4', async () => {
+        const mockCommand = '/4';
+        mockMessage.content = mockCommand;
+        commandsController.deleteBook = jest.fn();
+        const checkedOutBooks = new Map();
+        const messageCreateHandler = jest.fn();
+        const client = {};
+        display.availableBooksWithQuantity = jest.fn();
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(true),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+
+
+        commandsController.getAvailableBooks.mockImplementationOnce((message, connection, checkedOutBooks) => {
+            return Promise.resolve([]);
+        });
+
+        await menuController.menu({
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap,
+            checkedOutBooks,
+            messageCreateHandler,
+            client,
+            display,
+        });
+
+        expect(validateUser.isAdmin).toHaveBeenCalledWith(mockMessage);
+        expect(display.availableBooksWithQuantity).toHaveBeenCalled();
+        expect(commandsController.deleteBook).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap, messageCreateHandler, client);
+    });
+
+    test('should not invoke deleteBook for non-admin with command /4', async () => {
+        const mockCommand = '/4';
+        mockMessage.content = mockCommand;
+        commandsController.deleteBook = jest.fn();
+        const checkedOutBooks = new Map();
+        const messageCreateHandler = jest.fn();
+        const client = {};
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(false),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+
+        await menuController.menu({
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap,
+            checkedOutBooks,
+            messageCreateHandler,
+            client,
+        });
+
+        expect(validateUser.isAdmin).toHaveBeenCalledWith(mockMessage);
+        expect(commandsController.deleteBook).not.toHaveBeenCalledWith(mockMessage, mockConnection, bookMap, messageCreateHandler, client);
+    });
+
 });
 

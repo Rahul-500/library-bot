@@ -74,6 +74,7 @@ exports.menu = async (dependencies) => {
             const books = await commandsController.getAvailableBooks(message, connection, bookMap)
             if (!books) return
             display.availableBooksWithQuantity(message, books)
+            
             await commandsController.deleteBook(message, connection, bookMap, messageCreateHandler, client)
             break;
 
