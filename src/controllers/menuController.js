@@ -1,9 +1,9 @@
+const { user } = require('../../config/db.config');
 const constants = require('../constants/constant')
-const { displayAvailableBooks, displayUserBooks } = require('../utils/display')
 
 exports.menu = async (dependencies) => {
 
-    const { message, commandsController, connection, validateUser, bookMap, checkedOutBooks, messageCreateHandler, client } = dependencies;
+    const { message, commandsController, connection, validateUser, bookMap, checkedOutBooks, messageCreateHandler, client, display } = dependencies;
 
     if (message.author.bot) return;
 
@@ -32,7 +32,7 @@ exports.menu = async (dependencies) => {
         case command === ('/1'):
             const books = await commandsController.getAvailableBooks(message, connection, bookMap);
             if (!books) return
-            displayAvailableBooks(message, books)
+            display.availableBooks(message, books)
             break;
 
         case checkoutPattern.test(command):
@@ -46,7 +46,7 @@ exports.menu = async (dependencies) => {
         case command === ('/2'):
             const userBooks = await commandsController.getUserBooks(message, connection, checkedOutBooks)
             if (!userBooks) return
-            displayUserBooks(message, userBooks)
+            display.userBooks(message, userBooks)
             break;
 
         case returnPattern.test(command):

@@ -2,6 +2,7 @@ const menuController = require('../../src/controllers/menuController');
 const commandsController = require('../../src/controllers/commandsController');
 const validateUser = require('../../src/service/validateUser')
 const constants = require('../../src/constants/constant')
+const display = require('../../src/utils/display')
 
 describe('menu', () => {
     let mockMessage;
@@ -47,26 +48,65 @@ describe('menu', () => {
         expect(commandsController.start).toHaveBeenCalledWith(mockMessage, mockConnection);
     });
 
-    test('On /1 getAvailableBooks method should be invoked', async () => {
-        const command = '/1'
+    test('On /1 display availableBooks method should be invoked', async () => {
+        const command = '/1';
+
         commandsController.getAvailableBooks = jest.fn();
-        mockMessage.content = command
+        commandsController.getAvailableBooks.mockImplementationOnce((message, connection, bookMap) => {
+            return Promise.resolve([]);
+        });
+
+        display.availableBooks = jest.fn();
+        mockMessage.content = command;
 
         let dependencies = {
             message: mockMessage,
             commandsController,
             connection: mockConnection,
             validateUser,
-            bookMap
+            bookMap,
+            display,
         };
 
         await menuController.menu(dependencies);
-
         expect(commandsController.getAvailableBooks).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap);
+        expect(display.availableBooks).toHaveBeenCalled();
+
+    });
+    
+    test('On /1 display availableBooks method should not be invoked', async () => {
+        const command = '/1';
+
+        commandsController.getAvailableBooks = jest.fn();
+        commandsController.getAvailableBooks.mockImplementationOnce((message, connection, bookMap) => {
+            return Promise.resolve(null);
+        });
+
+        display.availableBooks = jest.fn();
+        mockMessage.content = command;
+
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            bookMap,
+            display,
+        };
+
+        await menuController.menu(dependencies);
+        expect(commandsController.getAvailableBooks).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap);
+        expect(display.availableBooks).not.toHaveBeenCalled();
+
     });
 
     test('On /2 getUserBooks method should be invoked', async () => {
         commandsController.getUserBooks = jest.fn();
+        commandsController.getUserBooks.mockImplementationOnce((message, connection, checkedOutBooks) => {
+            return Promise.resolve([]);
+        });
+        display.userBooks = jest.fn();
+
         const command = '/2'
         mockMessage.content = command
 
@@ -75,12 +115,39 @@ describe('menu', () => {
             commandsController,
             connection: mockConnection,
             validateUser,
-            checkedOutBooks
+            checkedOutBooks,
+            display
         };
 
         await menuController.menu(dependencies);
 
         expect(commandsController.getUserBooks).toHaveBeenCalledWith(mockMessage, mockConnection, checkedOutBooks);
+        expect(display.userBooks).toHaveBeenCalled()
+    });
+
+    test('On /2 getUserBooks method should not be invoked', async () => {
+        commandsController.getUserBooks = jest.fn();
+        commandsController.getUserBooks.mockImplementationOnce((message, connection, checkedOutBooks) => {
+            return Promise.resolve(null);
+        });
+        display.userBooks = jest.fn();
+
+        const command = '/2'
+        mockMessage.content = command
+
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            checkedOutBooks,
+            display
+        };
+
+        await menuController.menu(dependencies);
+
+        expect(commandsController.getUserBooks).toHaveBeenCalledWith(mockMessage, mockConnection, checkedOutBooks);
+        expect(display.userBooks).not.toHaveBeenCalled()
     });
 
     test('should reply with GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE if bookMap is empty', async () => {
@@ -209,7 +276,7 @@ describe('menu', () => {
             messageCreateHandler,
             client,
         });
-        
+
         expect(validateUser.isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(commandsController.addBook).not.toHaveBeenCalledWith(mockMessage, mockConnection, messageCreateHandler, client);
     });

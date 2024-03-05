@@ -4,6 +4,8 @@ const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const { menu } = require('./src/controllers/menuController');
 const commandsController = require('./src/controllers/commandsController');
 const validateUser = require('./src/service/validateUser');
+const display = require("./src/utils/display")
+
 const bookMap = new Map();
 const checkedOutBooks = new Map();
 const client = new Client({
@@ -29,7 +31,8 @@ connect()
                 bookMap,
                 checkedOutBooks,
                 messageCreateHandler,
-                client
+                client,
+                display
             }
             menu(dependencies)
         }
