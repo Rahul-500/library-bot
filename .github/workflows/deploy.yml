@@ -18,9 +18,14 @@ jobs:
       with:
         node-version: '20.11.1'
 
-    - name: Install dependencies and deploy
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Tests
+      run: npm test
+
+    - name: Install PM2 and deploy
       run: |
-        npm install
         npm install pm2 -g
         chmod +x script.sh
         ./script.sh
