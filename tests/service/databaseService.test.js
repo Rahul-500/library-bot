@@ -57,3 +57,57 @@ describe('addBookToDatabase', () => {
         rollbackTransactionStub.restore();
     });
 });
+
+describe('deleteBookWithQuantity', () => {
+    let mockMessage;
+    let mockConnection;
+    let mockBook;
+    let mockQuantity;
+
+    beforeEach(() => {
+        mockMessage = { reply: sinon.spy() };
+        mockConnection = {
+            query: sinon.stub(),
+        };
+        mockBook = { id: 1, title: 'Test Book' };
+        mockQuantity = 5;
+    });
+
+    it('should delete book quantity successfully', async () => {
+        const beginTransactionStub = sinon.stub(transactions, 'beginTransaction');
+        const commitTransactionStub = sinon.stub(transactions, 'commitTransaction');
+        const rollbackTransactionStub = sinon.stub(transactions, 'rollbackTransaction');
+        mockConnection.query.callsArgWith(1, null, {}); // simulate successful query
+
+        await bookService.deleteBookWithQuantity(mockMessage, mockConnection, mockBook, mockQuantity);
+
+        assert.ok(beginTransactionStub.calledOnce);
+        assert.ok(commitTransactionStub.calledOnce);
+        assert.ok(!rollbackTransactionStub.called);
+        assert.ok(mockMessage.reply.calledWith('Book quantity deleted successfully!'));
+
+        beginTransactionStub.restore();
+        commitTransactionStub.restore();
+        rollbackTransactionStub.restore();
+    });
+
+    it('should handle errors and rollback transaction', async () => {
+        const beginTransactionStub = sinon.stub(transactions, 'beginTransaction');
+        const commitTransactionStub = sinon.stub(transactions, 'commitTransaction');
+        const rollbackTransactionStub = sinon.stub(transactions, 'rollbackTransaction');
+        mockConnection.query.callsArgWith(1, new Error('Fake database error'));
+
+        await bookService.deleteBookWithQuantity(mockMessage, mockConnection, mockBook, mockQuantity);
+
+        assert.ok(beginTransactionStub.calledOnce);
+        assert.ok(!commitTransactionStub.called);
+        assert.ok(rollbackTransactionStub.calledOnce);
+        assert.ok(mockMessage.reply.calledWith('An unexpected error occurred while processing the command.'));
+
+        beginTransactionStub.restore();
+        commitTransactionStub.restore();
+        rollbackTransactionStub.restore();
+    });
+});
+
+
