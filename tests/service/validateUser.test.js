@@ -57,12 +57,12 @@ describe('isAdmin', () => {
     test('should return true for the bot owner user', () => {
         const mockMessage = {
             author: {
-                username: 'AdminUserName',
+                username: 'AdminUserNam',
             },
         };
 
         process.env.BOT_OWNER_USER_NAME = 'AdminUserName';
-        
+
         const result = validateUser.isAdmin(mockMessage);
 
         expect(result).toBe(true);

@@ -518,7 +518,7 @@ describe('deleteBook function', () => {
     });
 
     test('should handle book deletion', async () => {
-        const mockUserResponse = { content: '1; 2' }; 
+        const mockUserResponse = { content: '1; 2' };
 
         const { EventEmitter } = require('events');
 

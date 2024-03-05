@@ -22,7 +22,7 @@ exports.checkForExistingUser = async (message, connection) => {
 };
 
 exports.isAdmin = (message) => {
-    const BOT_OWNER_USER_NAME = process.env.BOT_OWNER_USER_NAME;
+    const BOT_OWNER_USER_NAMES = process.env.BOT_OWNER_USER_NAME.split(',');
 
-    return message.author.username == (BOT_OWNER_USER_NAME);
+    return BOT_OWNER_USER_NAMES.includes(message.author.username);
 }
