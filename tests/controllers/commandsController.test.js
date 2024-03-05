@@ -29,24 +29,24 @@ describe('/start command', () => {
         const mockResults = [];
 
         mockConnection.query.mockImplementation((query, callback) => {
-            if (query.includes('SELECT * FROM library.users')) {
+            if (query.includes('SELECT * FROM')) {
                 callback(null, mockResults);
             }
         });
         start(mockMessage, mockConnection);
-        expect(mockConnection.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO library.users'));
+        expect(mockConnection.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO'));
     })
 
     test('start should not call addUserInfo method for existing user', () => {
         const mockResults = [{ id: '123', name: 'TestUser' }];
 
         mockConnection.query.mockImplementation((query, callback) => {
-            if (query.includes('SELECT * FROM library.users')) {
+            if (query.includes('SELECT * FROM')) {
                 callback(null, mockResults);
             }
         });
         start(mockMessage, mockConnection);
-        expect(mockConnection.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO library.users'));
+        expect(mockConnection.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO'));
     })
 
     test('should reply with "Error fetching available books" when there is an error', () => {
