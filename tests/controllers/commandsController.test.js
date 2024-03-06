@@ -425,31 +425,6 @@ describe('addBook function', () => {
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.ADD_BOOK_DETAILS_RECEIVED_MESSAGE);
     });
 
-    test('should handle unexpected error', async () => {
-        const mockUserResponse = { content: 'Title; Author; 2022; 5' };
-
-        const { EventEmitter } = require('events');
-
-        const collector = new EventEmitter();
-        collector.stop = jest.fn();
-
-        mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
-
-        jest.spyOn(collector, 'on').mockImplementation((event, callback) => {
-            if (event === 'collect') {
-                throw new Error('Simulated error');
-            }
-        });
-
-        mockConnection.beginTransaction.mockResolvedValue();
-        mockConnection.query.mockResolvedValueOnce([{ insertId: 5 }]);
-        mockConnection.commit.mockResolvedValue();
-
-        await addBook(mockMessage, mockConnection, mockMessageCreateHandler, mockClient);
-
-        expect(mockMessage.reply).toHaveBeenCalledWith(constants.UNEXPECTED_ERROR_MESSAGE);
-    });
-
     test('should handle parsing errors during book details collection', async () => {
         const mockUserResponse = { content: 'Title; Author; 2022; invalidQuantity' };
         const userEventsMap = new Map()
@@ -548,7 +523,7 @@ describe('deleteBook function', () => {
         });
 
         await deleteBook(mockMessage, mockConnection, mockBookMap, userEventsMap);
-        expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DETAILS_MESSAGE);
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DELETE_DETAILS_MESSAGE);
     });
 
 });

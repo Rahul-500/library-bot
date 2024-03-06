@@ -6,7 +6,7 @@ const { isAdmin } = require('../service/validateUser')
 const { addBookToDatabase, deleteBookWithQuantity } = require('../service/databaseService')
 const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS } = process.env;
 
-exports.start = async(message, connection) => {
+exports.start = async (message, connection) => {
     try {
         const id = message.author.id;
         const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE id = ${id}`;
@@ -25,7 +25,7 @@ exports.start = async(message, connection) => {
             addUserInfo(id, author, connection);
         }
         return user;
-    }catch (error){
+    } catch (error) {
         message.reply(constants.ERROR_FETCHING_USER);
         return null;
     }
@@ -185,16 +185,21 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
 
 exports.addBook = async (message, connection, userEventsMap) => {
     try {
-
         const authorId = message.author.id;
         await message.reply(constants.BOOK_DETAILS_PROMPT_MESSAGE);
 
         const collector = message.channel.createMessageCollector();
-        let bookDetails = {}
+        let bookDetails = {};
 
         userEventsMap.get(authorId).messageCreate = false;
 
         collector.on('collect', async (response) => {
+            if (response.content.toLowerCase() === 'exit') {
+                message.reply(constants.EXIT_ADD_MESSAGE);
+                collector.stop();
+                return;
+            }
+
             const details = response.content.split(';').map(detail => detail.trim());
             const [title, author, publishedYear, quantityAvailable] = details;
             const parsedPublishedYear = parseInt(publishedYear);
@@ -213,12 +218,16 @@ exports.addBook = async (message, connection, userEventsMap) => {
             } else {
                 message.reply(constants.INVALID_DETAILS_MESSAGE);
             }
-            collector.stop();
+            collector.stop()
+        });
+
+        collector.on('end', () => {
             userEventsMap.get(authorId).messageCreate = true;
         });
 
     } catch (error) {
         message.reply(constants.UNEXPECTED_ERROR_MESSAGE);
+        collector.stop();
     }
 };
 
@@ -232,7 +241,14 @@ exports.deleteBook = async (message, connection, bookMap, userEventsMap) => {
 
         userEventsMap.get(authorId).messageCreate = false;
 
+        const regexPatternForNumber = /^\d+$/;
         collector.on('collect', async (response) => {
+            if (response.content.toLowerCase() === 'exit') {
+                message.reply(constants.EXIT_REMOVE_MESSAGE);
+                collector.stop();
+                return;
+            }
+
             const details = response.content.split(';').map(detail => detail.trim());
             const [virtualId, quantity] = details;
             const parsedVirtualId = parseInt(virtualId);
@@ -240,8 +256,8 @@ exports.deleteBook = async (message, connection, bookMap, userEventsMap) => {
 
             const book = bookMap.get(parsedVirtualId)
 
-            if (Number.isNaN(parsedVirtualId) || Number.isNaN(parsedQuantity)) {
-                message.reply(constants.INVALID_DETAILS_MESSAGE);
+            if (!regexPatternForNumber.test(virtualId) || !regexPatternForNumber.test(quantity)) {
+                message.reply(constants.INVALID_DELETE_DETAILS_MESSAGE);
             }
             else if (!bookMap.has(parsedVirtualId)) {
                 message.reply(constants.INVALID_BOOK_ID_MESSAGE);
@@ -256,11 +272,15 @@ exports.deleteBook = async (message, connection, bookMap, userEventsMap) => {
             }
 
             collector.stop();
+        });
+
+        collector.on('end', () => {
             userEventsMap.get(authorId).messageCreate = true;
         });
 
     } catch (error) {
         message.reply(constants.UNEXPECTED_ERROR_MESSAGE);
+        collector.stop();
     }
 };
 
