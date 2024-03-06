@@ -22,6 +22,7 @@ describe('menu', () => {
 
         bookMap = new Map();
         checkedOutBooks = new Map();
+
     });
     afterEach(() => {
         jest.clearAllMocks();
@@ -32,7 +33,7 @@ describe('menu', () => {
         commandsController.start = jest.fn()
         validateUser.checkForExistingUser = jest.fn()
         mockMessage.content = command
-
+        display.welcomeMessage = jest.fn();
         validateUser.checkForExistingUser.mockResolvedValue(true);
 
         let dependencies = {
@@ -40,12 +41,17 @@ describe('menu', () => {
             commandsController,
             connection: mockConnection,
             validateUser,
-            bookMap
+            bookMap,
+            display
         };
 
+        commandsController.start.mockImplementationOnce((message, connection) => {
+            return Promise.resolve([]);
+        });
         await menuController.menu(dependencies);
 
         expect(commandsController.start).toHaveBeenCalledWith(mockMessage, mockConnection);
+        expect(display.welcomeMessage).toHaveBeenCalledWith(mockMessage);
     });
 
     test('On /1 display availableBooks method should be invoked', async () => {

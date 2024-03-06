@@ -21,24 +21,8 @@ describe('/start command', () => {
         jest.clearAllMocks();
     });
 
-    test('start should reply with welcome message and menu', () => {
-        start(mockMessage, mockConnection);
-        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining(`${constants.WELCOME_MESSAGE}, TestUser!`));
-    });
-
-    test('start should call addUserInfo method for new user', () => {
-        const mockResults = [];
-
-        mockConnection.query.mockImplementation((query, callback) => {
-            if (query.includes('SELECT * FROM')) {
-                callback(null, mockResults);
-            }
-        });
-        start(mockMessage, mockConnection);
-        expect(mockConnection.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO'));
-    })
-
     test('start should not call addUserInfo method for existing user', () => {
+
         const mockResults = [{ id: '123', name: 'TestUser' }];
 
         mockConnection.query.mockImplementation((query, callback) => {
@@ -50,14 +34,26 @@ describe('/start command', () => {
         expect(mockConnection.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO'));
     })
 
-    test('should reply with "Error fetching available books" when there is an error', () => {
+    test('start should  call addUserInfo method for new user', async () => {
+        const mockResults = [];
+
+        mockConnection.query.mockImplementation((query, callback) => {
+            if (query.includes('SELECT * FROM')) {
+                callback(null, mockResults);
+            }
+        });
+        await start(mockMessage, mockConnection);
+        expect(mockConnection.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO'));
+    })
+
+    test('should reply with "Error fetching available books" when there is an error', async () => {
         const mockError = new Error('Test error');
 
         mockConnection.query.mockImplementationOnce((query, callback) => {
             callback(mockError, null);
         });
 
-        start(mockMessage, mockConnection);
+        await start(mockMessage, mockConnection);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
             constants.ERROR_FETCHING_USER

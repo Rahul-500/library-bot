@@ -4,29 +4,31 @@ const transactions = require('../service/transactions')
 const { validateCheckout, validateReturn } = require('../service/validateBook')
 const { isAdmin } = require('../service/validateUser')
 const { addBookToDatabase, deleteBookWithQuantity } = require('../service/databaseService')
-const { log } = require('console')
 const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS } = process.env;
 
-exports.start = (message, connection) => {
-    const id = message.author.id;
-    const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE id = ${id}`;
-    connection.query(QUERY, (error, result) => {
-        if (error) {
-            message.reply(constants.ERROR_FETCHING_USER);
-            return;
-        }
-        const user = result;
+exports.start = async(message, connection) => {
+    try {
+        const id = message.author.id;
+        const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE id = ${id}`;
+        const queryPromise = new Promise((resolve, reject) => {
+            connection.query(QUERY, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+        const user = await queryPromise;
         if (user.length == 0) {
             const author = message.author.username;
             addUserInfo(id, author, connection);
         }
-    });
-    if (isAdmin(message)) {
-        message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!\n${constants.ADMIN_OPTIONS}`);
-        return;
+        return user;
+    }catch (error){
+        message.reply(constants.ERROR_FETCHING_USER);
+        return null;
     }
-    message.reply(`${constants.WELCOME_MESSAGE}, ${message.author.username}!\n${constants.MENU_OPTIONS}`);
-
 }
 
 function addUserInfo(id, author, connection) {
