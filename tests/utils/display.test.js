@@ -1,81 +1,202 @@
+const display = require('../../src/utils/display');
 const constants = require('../../src/constants/constant');
-const { availableBooks, userBooks, availableBooksWithQuantity } = require('../../src/utils/display');
+const { EmbedBuilder } = require('discord.js');
+const validateUser = require('../../src/service/validateUser')
 
-describe('Book Display Functions', () => {
-    test('displayAvailableBooks should reply with "No books found" when the book list is empty', () => {
-        const message = {
-            reply: jest.fn(),
+describe('welcomeMessage', () => {
+    let message;
+
+
+    beforeEach(() => {
+        message = {
+            author: { username: 'test_user' },
+            reply: jest.fn()
         };
-        const books = [];
 
-        availableBooks(message, books);
+        validateUser.isAdmin = jest.fn()
 
-        expect(message.reply).toHaveBeenCalledWith(constants.NO_BOOKS_FOUND);
     });
 
-    test('displayAvailableBooks should reply with the list of available books', () => {
-        const message = {
-            reply: jest.fn(),
-        };
-        const books = [
-            { title: 'Book 1' },
-            { title: 'Book 2' },
-        ];
-
-        availableBooks(message, books);
-
-        const expectedReply = `${constants.AVAILABEL_BOOKS}\n1 - Book 1\n2 - Book 2`;
-        expect(message.reply).toHaveBeenCalledWith(expectedReply);
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
-    test('displayUserBooks should reply with "No books found" when the user\'s book list is empty', () => {
-        const message = {
-            reply: jest.fn(),
-        };
-        const books = [];
+    it('should send a welcome message with menu options for a regular user', () => {
+        validateUser.isAdmin.mockReturnValue(false);
+        display.welcomeMessage(message, validateUser);
 
-        userBooks(message, books);
 
-        expect(message.reply).toHaveBeenCalledWith(constants.NO_BOOKS_FOUND);
+        const menuOptions = constants.MENU_OPTIONS;
+        const welcomeMessage = `${constants.WELCOME_MESSAGE}, ${message.author.username}!`;
+
+        const embed = new EmbedBuilder()
+            .setColor(constants.EMBED_COLOR)
+            .setTitle(constants.MENU_TITLE)
+            .setDescription(welcomeMessage)
+            .addFields(
+                { name: 'Options', value: menuOptions, inline: false },
+                { name: 'How to use', value: constants.HELP_MESSAGE }
+            )
+            .setFooter({ text: constants.FOOTER_TEXT });
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
     });
 
-    test('displayUserBooks should reply with the list of user\'s books', () => {
-        const message = {
-            reply: jest.fn(),
-        };
-        const books = [
-            { title: 'Book A' },
-            { title: 'Book B' },
-        ];
+    it('should send a welcome message with admin menu options for a admin user', () => {
+        validateUser.isAdmin.mockReturnValue(true);
+        display.welcomeMessage(message, validateUser);
 
-        userBooks(message, books);
 
-        const expectedReply = `${constants.MY_BOOKS}\n1 - Book A\n2 - Book B`;
-        expect(message.reply).toHaveBeenCalledWith(expectedReply);
+        const menuOptions = constants.ADMIN_OPTIONS;
+        const welcomeMessage = `${constants.WELCOME_MESSAGE}, ${message.author.username}!`;
+
+        const embed = new EmbedBuilder()
+            .setColor(constants.EMBED_COLOR)
+            .setTitle(constants.MENU_TITLE)
+            .setDescription(welcomeMessage)
+            .addFields(
+                { name: 'Options', value: menuOptions, inline: false },
+                { name: 'How to use', value: constants.HELP_MESSAGE }
+            )
+            .setFooter({ text: constants.FOOTER_TEXT });
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
     });
 });
 
-describe('availableBooksWithQuantity', () => {
-    it('should return a formatted list of available books with quantity', () => {
-        const message = { reply: jest.fn() };
-        const books = [
-            { title: 'Book 1', quantity_available: 5 },
-            { title: 'Book 2', quantity_available: 3 },
-        ];
+describe('available books', () => {
+    let message;
 
-        availableBooksWithQuantity(message, books);
+    beforeEach(() => {
+        message = {
+            author: { username: 'test_user' },
+            reply: jest.fn()
+        };
 
-        expect(message.reply).toHaveBeenCalledWith(expect.stringContaining('My books'));
-        expect(message.reply).toHaveBeenCalledWith(expect.stringContaining('1 - Book 1 - 5'));
-        expect(message.reply).toHaveBeenCalledWith(expect.stringContaining('2 - Book 2 - 3'));
     });
 
-    it('should reply with NO_BOOKS_FOUND if no books are available', () => {
-        const message = { reply: jest.fn() };
-        const books = [];
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
 
-        availableBooksWithQuantity(message, books);
+    it('should send SORRY_MESSAGE', () => {
+        const books = []
+        const embed = new EmbedBuilder()
+            .setTitle(constants.NO_BOOKS_FOUND)
+            .setColor('#FF0000')
+            .setDescription(constants.SORRY_MESSAGE);
 
-        expect(message.reply).toHaveBeenCalledWith(constants.NO_BOOKS_FOUND);
+        display.availableBooks(message, books);
+
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
+    });
+
+    it('should send list of avialable books', () => {
+        const books = [{ title: 'Title' }]
+        const formattedBooks = books.map((book, index) => `${index + 1}. \u2003\u2003${book.title}`).join('\n');
+
+        const embed = new EmbedBuilder()
+            .setTitle(constants.AVAILABEL_BOOKS)
+            .setColor('#00FF00')
+            .addFields({
+                name: `ID\u2003\u2003Title`,
+                value: formattedBooks,
+                inline: true
+            });
+
+        display.availableBooks(message, books);
+
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
+    });
+});
+
+describe('user books', () => {
+    let message;
+
+    beforeEach(() => {
+        message = {
+            author: { username: 'test_user' },
+            reply: jest.fn()
+        };
+
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should send SORRY_MESSAGE', () => {
+        const books = []
+        const embed = new EmbedBuilder()
+            .setTitle(constants.NO_BOOKS_FOUND)
+            .setColor('#FF0000')
+            .setDescription(constants.SORRY_MESSAGE);
+
+        display.userBooks(message, books);
+
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
+    });
+
+    it('should send list of user books', () => {
+        const books = [{ title: 'Title' }]
+        const formattedBooks = books.map((book, index) => `${index + 1}. \u2003\u2003${book.title}`).join('\n');
+
+        const embed = new EmbedBuilder()
+            .setTitle(constants.MY_BOOKS)
+            .setColor('#00FF00')
+            .addFields({
+                name: `ID\u2003\u2003Title`,
+                value: formattedBooks,
+                inline: true
+            });
+
+        display.userBooks(message, books);
+
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
+    });
+});
+
+describe('get available books with quantity', () => {
+    let message;
+
+    beforeEach(() => {
+        message = {
+            author: { username: 'test_user' },
+            reply: jest.fn()
+        };
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should send SORRY_MESSAGE', () => {
+        const books = []
+        const embed = new EmbedBuilder()
+            .setTitle(constants.NO_BOOKS_FOUND)
+            .setColor('#FF0000')
+            .setDescription(constants.SORRY_MESSAGE);
+
+        display.availableBooksWithQuantity(message, books);
+
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
+    });
+
+    it('should send list of avialable books with quantity', () => {
+        const books = [{ title: 'Title', quantity_available: 10 }]
+        const formattedBooks = books.map((book, index) => `${index + 1}. \u2003\u2003${book.title}`).join('\n');
+        const data = [];
+        data.push(['ID', 'Title', 'Quantity']);
+
+        books.forEach((book, index) => {
+            data.push([`${index + 1}.`, book.title, book.quantity_available]);
+        });
+
+        const embed = new EmbedBuilder()
+            .setTitle(constants.AVAILABEL_BOOKS)
+            .setColor('#00FF00')
+            .addFields({ name: '\u200B', value: '```\n' + display.createTable(data) + '```' });
+
+        display.availableBooksWithQuantity(message, books);
+
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
     });
 });

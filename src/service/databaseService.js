@@ -15,7 +15,7 @@ exports.addBookToDatabase = async (message, connection, bookDetails) => {
                 if (error) {
                     reject(error);
                 } else {
-                    message.reply(`Book added successfully! ID: ${result.insertId}, Title: ${title}`);
+                    message.reply(`Book added successfully! Title: ${title}`);
                     resolve(result);
                 }
             });

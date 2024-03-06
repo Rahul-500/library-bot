@@ -27,8 +27,8 @@ exports.menu = async (dependencies) => {
     switch (true) {
         case command === ('/start'):
             const result = await commandsController.start(message, connection);
-            if(!result) return;
-            display.welcomeMessage(message);
+            if (!result) return;
+            display.welcomeMessage(message, validateUser);
             break;
 
         case command === ('/1'):

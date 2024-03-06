@@ -1,61 +1,122 @@
 const constants = require('../constants/constant');
-const {isAdmin} = require('../service/validateUser')
-const {EmbedBuilder} = require('discord.js')
+const { EmbedBuilder } = require('discord.js')
 
-exports.welcomeMessage = (message,) =>{
+exports.welcomeMessage = (message, validateUser) => {
 
-        const embedColor = 0x0099FF;
-        const menuOptions = isAdmin(message)
-            ? constants.ADMIN_OPTIONS
-            : constants.MENU_OPTIONS;
+    const menuOptions = validateUser.isAdmin(message) ? constants.ADMIN_OPTIONS : constants.MENU_OPTIONS;
+    const welcomeMessage = `${constants.WELCOME_MESSAGE}, ${message.author.username}!`;
 
-        const welcomeMessage = `${constants.WELCOME_MESSAGE}, ${message.author.username}!`;
+    const embed = new EmbedBuilder()
+        .setColor(constants.EMBED_COLOR)
+        .setTitle(constants.MENU_TITLE)
+        .setDescription(welcomeMessage)
+        .addFields(
+            { name: 'Options', value: menuOptions, inline: false },
+            { name: 'How to use', value: constants.HELP_MESSAGE }
+        )
+        .setFooter({ text: constants.FOOTER_TEXT });
 
-        const embed = new EmbedBuilder()
-            .setColor(embedColor)
-            .setTitle('📚 Book Library Menu')
-            .setDescription(welcomeMessage)
-            .addFields(
-                { name: 'Options', value: menuOptions, inline: false },
-                { name: 'How to use', value: 'Type `!help` to get list of commands' }
-            )
-            .setFooter({ text: 'Enjoy your time in the Book Library!' });
+    message.reply({ embeds: [embed] });
+};
 
-        message.reply({ embeds: [embed] });
-}
 
 exports.availableBooks = (message, books) => {
     if (books.length === 0) {
-        message.reply(constants.NO_BOOKS_FOUND);
+        const embed = new EmbedBuilder()
+            .setTitle(constants.NO_BOOKS_FOUND)
+            .setColor('#FF0000')
+            .setDescription(constants.SORRY_MESSAGE);
+
+        message.reply({ embeds: [embed] });
         return;
     }
 
-    let count = 1;
-    const bookList = books.map((book) => `${count++} - ${book.title}`).join('\n');
+    const formattedBooks = books.map((book, index) => `${index + 1}. \u2003\u2003${book.title}`).join('\n');
 
-    message.reply(`${constants.AVAILABEL_BOOKS}\n${bookList}`);
+    const embed = new EmbedBuilder()
+        .setTitle(constants.AVAILABEL_BOOKS)
+        .setColor('#00FF00')
+        .addFields({
+            name: `ID\u2003\u2003Title`,
+            value: formattedBooks,
+            inline: true
+        });
+
+    message.reply({ embeds: [embed] });
 }
 
 exports.userBooks = (message, books) => {
     if (books.length === 0) {
-        message.reply(constants.NO_BOOKS_FOUND);
+        const embed = new EmbedBuilder()
+            .setTitle(constants.NO_BOOKS_FOUND)
+            .setColor('#FF0000')
+            .setDescription(constants.SORRY_MESSAGE);
+
+        message.reply({ embeds: [embed] });
         return;
     }
 
-    let count = 1;
-    const bookList = books.map((book) => `${count++} - ${book.title}`).join('\n');
+    const formattedBooks = books.map((book, index) => `${index + 1}. \u2003\u2003${book.title}`).join('\n');
 
-    message.reply(`${constants.MY_BOOKS}\n${bookList}`);
+    const embed = new EmbedBuilder()
+        .setTitle(constants.MY_BOOKS)
+        .setColor('#00FF00')
+        .addFields({
+            name: `ID\u2003\u2003Title`,
+            value: formattedBooks,
+            inline: true
+        });
+
+    message.reply({ embeds: [embed] });
 }
 
 exports.availableBooksWithQuantity = (message, books) => {
     if (books.length === 0) {
-        message.reply(constants.NO_BOOKS_FOUND);
+        const embed = new EmbedBuilder()
+            .setTitle(constants.NO_BOOKS_FOUND)
+            .setColor('#FF0000')
+            .setDescription(constants.SORRY_MESSAGE);
+
+        message.reply({ embeds: [embed] });
         return;
     }
 
-    let count = 1;
-    const bookList = books.map((book) => `${count++} - ${book.title} - ${book.quantity_available}`).join('\n');
+    const data = [];
+    data.push(['ID', 'Title', 'Quantity']);
 
-    message.reply(`${constants.MY_BOOKS}\n${bookList}`);
+    books.forEach((book, index) => {
+        data.push([`${index + 1}.`, book.title, book.quantity_available]);
+    });
+
+    const embed = new EmbedBuilder()
+        .setTitle(constants.AVAILABEL_BOOKS)
+        .setColor('#00FF00')
+        .addFields({ name: '\u200B', value: '```\n' + this.createTable(data) + '```' });
+
+    message.reply({ embeds: [embed] });
+}
+
+exports.createTable = (data) => {
+    const columnWidths = [];
+    for (let i = 0; i < data[0].length; i++) {
+        let maxWidth = 0;
+        for (let j = 0; j < data.length; j++) {
+            const cellWidth = data[j][i].toString().length;
+            if (cellWidth > maxWidth) {
+                maxWidth = cellWidth;
+            }
+        }
+        columnWidths.push(maxWidth);
+    }
+
+    let table = '';
+    for (let i = 0; i < data.length; i++) {
+        for (let j = 0; j < data[i].length; j++) {
+            const cell = data[i][j].toString().padEnd(columnWidths[j], ' ');
+            table += cell + ' '.repeat(2);
+        }
+        table += '\n';
+    }
+
+    return table;
 }

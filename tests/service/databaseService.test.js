@@ -31,7 +31,7 @@ describe('addBookToDatabase', () => {
         assert.ok(beginTransactionStub.calledOnce);
         assert.ok(commitTransactionStub.calledOnce);
         assert.ok(!rollbackTransactionStub.called);
-        assert.ok(mockMessage.reply.calledWith('Book added successfully! ID: 1, Title: Test Book'));
+        assert.ok(mockMessage.reply.calledWith('Book added successfully! Title: Test Book'));
 
         beginTransactionStub.restore();
         commitTransactionStub.restore();

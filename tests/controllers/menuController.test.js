@@ -51,7 +51,7 @@ describe('menu', () => {
         await menuController.menu(dependencies);
 
         expect(commandsController.start).toHaveBeenCalledWith(mockMessage, mockConnection);
-        expect(display.welcomeMessage).toHaveBeenCalledWith(mockMessage);
+        expect(display.welcomeMessage).toHaveBeenCalledWith(mockMessage, validateUser);
     });
 
     test('On /1 display availableBooks method should be invoked', async () => {
