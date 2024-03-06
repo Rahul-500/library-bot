@@ -4,6 +4,7 @@ const transactions = require('../service/transactions')
 const { validateCheckout, validateReturn } = require('../service/validateBook')
 const { isAdmin } = require('../service/validateUser')
 const { addBookToDatabase, deleteBookWithQuantity } = require('../service/databaseService')
+const { log } = require('console')
 const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS } = process.env;
 
 exports.start = (message, connection) => {
@@ -180,15 +181,16 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
     }
 };
 
-exports.addBook = async (message, connection, messageCreateHandler, client) => {
+exports.addBook = async (message, connection, userEventsMap) => {
     try {
 
+        const authorId = message.author.id;
         await message.reply(constants.BOOK_DETAILS_PROMPT_MESSAGE);
 
         const collector = message.channel.createMessageCollector();
-        let bookDetails = {};
+        let bookDetails = {}
 
-        client.off('messageCreate', messageCreateHandler);
+        userEventsMap.get(authorId).messageCreate = false;
 
         collector.on('collect', async (response) => {
             const details = response.content.split(';').map(detail => detail.trim());
@@ -210,7 +212,7 @@ exports.addBook = async (message, connection, messageCreateHandler, client) => {
                 message.reply(constants.INVALID_DETAILS_MESSAGE);
             }
             collector.stop();
-            client.on('messageCreate', messageCreateHandler);
+            userEventsMap.get(authorId).messageCreate = true;
         });
 
     } catch (error) {
@@ -218,14 +220,15 @@ exports.addBook = async (message, connection, messageCreateHandler, client) => {
     }
 };
 
-exports.deleteBook = async (message, connection, bookMap, messageCreateHandler, client) => {
+exports.deleteBook = async (message, connection, bookMap, userEventsMap) => {
     try {
+        const authorId = message.author.id;
 
         await message.reply(constants.DELETE_BOOK_PROMPT_MESSAGE);
 
         const collector = message.channel.createMessageCollector();
 
-        client.off('messageCreate', messageCreateHandler);
+        userEventsMap.get(authorId).messageCreate = false;
 
         collector.on('collect', async (response) => {
             const details = response.content.split(';').map(detail => detail.trim());
@@ -251,7 +254,7 @@ exports.deleteBook = async (message, connection, bookMap, messageCreateHandler, 
             }
 
             collector.stop();
-            client.on('messageCreate', messageCreateHandler);
+            userEventsMap.get(authorId).messageCreate = true;
         });
 
     } catch (error) {

@@ -379,6 +379,7 @@ describe('addBook function', () => {
 
     beforeEach(() => {
         mockMessage = {
+            author: { id: 'test' },
             reply: jest.fn(),
             channel: {
                 createMessageCollector: jest.fn(),
@@ -391,13 +392,6 @@ describe('addBook function', () => {
             commit: jest.fn(),
             rollback: jest.fn(),
         };
-
-        mockClient = {
-            on: jest.fn(),
-            off: jest.fn(),
-        };
-
-        mockMessageCreateHandler = jest.fn();
     });
 
     afterEach(() => {
@@ -408,6 +402,8 @@ describe('addBook function', () => {
         const mockUserResponse = { content: 'Title; Author; 2022; 5' };
 
         const { EventEmitter } = require('events');
+        const userEventsMap = new Map()
+        userEventsMap.set('test', { messageCreate: true });
 
         const collector = new EventEmitter();
         collector.stop = jest.fn();
@@ -427,7 +423,7 @@ describe('addBook function', () => {
         mockConnection.commit.mockResolvedValue();
 
 
-        await addBook(mockMessage, mockConnection, mockMessageCreateHandler, mockClient);
+        await addBook(mockMessage, mockConnection, userEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_DETAILS_PROMPT_MESSAGE);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.ADD_BOOK_DETAILS_RECEIVED_MESSAGE);
@@ -460,6 +456,8 @@ describe('addBook function', () => {
 
     test('should handle parsing errors during book details collection', async () => {
         const mockUserResponse = { content: 'Title; Author; 2022; invalidQuantity' };
+        const userEventsMap = new Map()
+        userEventsMap.set('test', { messageCreate: true });
 
         const { EventEmitter } = require('events');
 
@@ -474,7 +472,7 @@ describe('addBook function', () => {
             }
         });
 
-        await addBook(mockMessage, mockConnection, mockMessageCreateHandler, mockClient);
+        await addBook(mockMessage, mockConnection, userEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DETAILS_MESSAGE);
     });
@@ -489,6 +487,7 @@ describe('deleteBook function', () => {
 
     beforeEach(() => {
         mockMessage = {
+            author: { id: 'test' },
             reply: jest.fn(),
             channel: {
                 createMessageCollector: jest.fn(),
@@ -504,13 +503,6 @@ describe('deleteBook function', () => {
 
         mockBookMap = new Map();
         mockBookMap.set(1, { title: 'Book 1', quantity_available: 5 });
-
-        mockClient = {
-            on: jest.fn(),
-            off: jest.fn(),
-        };
-
-        mockMessageCreateHandler = jest.fn();
     });
 
     afterEach(() => {
@@ -521,6 +513,8 @@ describe('deleteBook function', () => {
         const mockUserResponse = { content: '1; 2' };
 
         const { EventEmitter } = require('events');
+        const userEventsMap = new Map()
+        userEventsMap.set('test', { messageCreate: true });
 
         const collector = new EventEmitter();
         collector.stop = jest.fn();
@@ -533,7 +527,7 @@ describe('deleteBook function', () => {
             }
         });
 
-        await deleteBook(mockMessage, mockConnection, mockBookMap, mockMessageCreateHandler, mockClient);
+        await deleteBook(mockMessage, mockConnection, mockBookMap, userEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.DELETE_BOOK_PROMPT_MESSAGE);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.DELETE_BOOK_DETAILS_RECEIVED_MESSAGE);
@@ -541,6 +535,8 @@ describe('deleteBook function', () => {
 
     test('should handle parsing errors during book deletion', async () => {
         const mockUserResponse = { content: 'invalidID; invalidQuantity' };
+        const userEventsMap = new Map()
+        userEventsMap.set('test', { messageCreate: true });
 
         const { EventEmitter } = require('events');
 
@@ -555,7 +551,7 @@ describe('deleteBook function', () => {
             }
         });
 
-        await deleteBook(mockMessage, mockConnection, mockBookMap, mockMessageCreateHandler, mockClient);
+        await deleteBook(mockMessage, mockConnection, mockBookMap, userEventsMap);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DETAILS_MESSAGE);
     });
 

@@ -231,8 +231,7 @@ describe('menu', () => {
         mockMessage.content = mockCommand;
         commandsController.addBook = jest.fn();
         const checkedOutBooks = new Map();
-        const messageCreateHandler = jest.fn();
-        const client = {};
+        const userEventsMap = new Map();
         const validateUser = {
             isAdmin: jest.fn().mockReturnValue(true),
             checkForExistingUser: jest.fn().mockReturnValue(true)
@@ -245,13 +244,12 @@ describe('menu', () => {
             validateUser,
             bookMap,
             checkedOutBooks,
-            messageCreateHandler,
-            client,
+            userEventsMap
         });
 
 
         expect(validateUser.isAdmin).toHaveBeenCalledWith(mockMessage);
-        expect(commandsController.addBook).toHaveBeenCalledWith(mockMessage, mockConnection, messageCreateHandler, client);
+        expect(commandsController.addBook).toHaveBeenCalledWith(mockMessage, mockConnection, userEventsMap);
     });
 
     test('should not invoke addBook for non-admin with command /3', async () => {
@@ -310,8 +308,7 @@ describe('menu', () => {
         mockMessage.content = mockCommand;
         commandsController.deleteBook = jest.fn();
         const checkedOutBooks = new Map();
-        const messageCreateHandler = jest.fn();
-        const client = {};
+        const userEventsMap = new Map()
         display.availableBooksWithQuantity = jest.fn();
         const validateUser = {
             isAdmin: jest.fn().mockReturnValue(true),
@@ -330,14 +327,13 @@ describe('menu', () => {
             validateUser,
             bookMap,
             checkedOutBooks,
-            messageCreateHandler,
-            client,
+            userEventsMap,
             display,
         });
 
         expect(validateUser.isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(display.availableBooksWithQuantity).toHaveBeenCalled();
-        expect(commandsController.deleteBook).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap, messageCreateHandler, client);
+        expect(commandsController.deleteBook).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap, userEventsMap);
     });
 
     test('should not invoke deleteBook for non-admin with command /4', async () => {

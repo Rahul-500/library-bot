@@ -3,7 +3,7 @@ const constants = require('../constants/constant')
 
 exports.menu = async (dependencies) => {
 
-    const { message, commandsController, connection, validateUser, bookMap, checkedOutBooks, messageCreateHandler, client, display } = dependencies;
+    const { message, commandsController, connection, validateUser, bookMap, checkedOutBooks, display, userEventsMap } = dependencies;
 
     if (message.author.bot) return;
 
@@ -62,7 +62,8 @@ exports.menu = async (dependencies) => {
                 message.reply(constants.HELP_MESSAGE);
                 break;
             }
-            await commandsController.addBook(message, connection, messageCreateHandler, client)
+            await commandsController.addBook(message, connection, userEventsMap)
+
             break;
 
         case command === ('/4'):
@@ -70,12 +71,11 @@ exports.menu = async (dependencies) => {
                 message.reply(constants.HELP_MESSAGE);
                 break;
             }
-            
+
             const books = await commandsController.getAvailableBooks(message, connection, bookMap)
             if (!books) return
             display.availableBooksWithQuantity(message, books)
-            
-            await commandsController.deleteBook(message, connection, bookMap, messageCreateHandler, client)
+            await commandsController.deleteBook(message, connection, bookMap, userEventsMap)
             break;
 
         case command === '!help':

@@ -12,6 +12,7 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages],
     partials: [Partials.Channel, Partials.Message]
 });
+const userEventsMap = new Map()
 connect()
     .then((connection) => {
         client.on('ready', () => {
@@ -19,10 +20,16 @@ connect()
         });
 
         const messageCreateHandler = (message) => {
-            if (!message.channel.type) {
+            if (message.author.bot || !message.channel.type) return;
+          
+            const authorId = message.author.id;
+            if (!userEventsMap.has(authorId)) {
+                userEventsMap.set(authorId, { messageCreate: true });
+            }
+            if (!((userEventsMap.get(authorId)).messageCreate)) {
                 return;
             }
-            
+
             const dependencies = {
                 message,
                 commandsController,
@@ -30,9 +37,8 @@ connect()
                 validateUser,
                 bookMap,
                 checkedOutBooks,
-                messageCreateHandler,
-                client,
-                display
+                display,
+                userEventsMap
             }
             menu(dependencies)
         }
