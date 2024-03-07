@@ -90,17 +90,18 @@ describe('available books', () => {
     });
 
     it('should send list of avialable books', () => {
-        const books = [{ title: 'Title' }]
-        const formattedBooks = books.map((book, index) => `${index + 1}. \u2003\u2003${book.title}`).join('\n');
+        const books = [{ title: 'Title', author: 'Author' }]
+        const data = [];
+        data.push(['ID', 'Title', 'Author']);
+
+        books.forEach((book, index) => {
+            data.push([`${index + 1}.`, book.title, book.author]);
+        });
 
         const embed = new EmbedBuilder()
             .setTitle(constants.AVAILABEL_BOOKS)
             .setColor('#00FF00')
-            .addFields({
-                name: `ID\u2003\u2003Title`,
-                value: formattedBooks,
-                inline: true
-            });
+            .addFields({ name: '\u200B', value: '```\n' + display.createTable(data) + '```' });
 
         display.availableBooks(message, books);
 
@@ -182,7 +183,6 @@ describe('get available books with quantity', () => {
 
     it('should send list of avialable books with quantity', () => {
         const books = [{ title: 'Title', quantity_available: 10 }]
-        const formattedBooks = books.map((book, index) => `${index + 1}. \u2003\u2003${book.title}`).join('\n');
         const data = [];
         data.push(['ID', 'Title', 'Quantity']);
 
