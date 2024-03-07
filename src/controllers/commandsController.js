@@ -226,7 +226,7 @@ exports.addBook = async (message, connection, userEventsMap) => {
         });
 
     } catch (error) {
-        message.reply(constants.UNEXPECTED_ERROR_MESSAGE);
+        message.reply(constants.UNEXPECTED_ADD_ERROR_MESSAGE);
         collector.stop();
     }
 };
@@ -260,7 +260,7 @@ exports.deleteBook = async (message, connection, bookMap, userEventsMap) => {
                 message.reply(constants.INVALID_DELETE_DETAILS_MESSAGE);
             }
             else if (!bookMap.has(parsedVirtualId)) {
-                message.reply(constants.INVALID_BOOK_ID_MESSAGE);
+                message.reply(constants.INVALID_DELETE_BOOK_ID_MESSAGE);
             }
             else if (parsedQuantity > book.quantity_available) {
                 message.reply(constants.QUANTITY_NOT_IN_LIMIT_MESSAGE);
@@ -279,7 +279,7 @@ exports.deleteBook = async (message, connection, bookMap, userEventsMap) => {
         });
 
     } catch (error) {
-        message.reply(constants.UNEXPECTED_ERROR_MESSAGE);
+        message.reply(constants.UNEXPECTED_DELETE_ERROR_MESSAGE);
         collector.stop();
     }
 };
