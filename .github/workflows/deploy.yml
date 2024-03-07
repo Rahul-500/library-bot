@@ -40,14 +40,3 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-
-    - name: Deploy using SSH
-      uses: appleboy/ssh-action@master
-      with:
-        host: 192.168.88.100
-        username: odroid
-        password: 12345
-        script: |
-          cd /home/odroid/library-bot
-          chmod +x script.sh
-          ./script.sh
