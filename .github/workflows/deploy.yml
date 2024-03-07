@@ -29,18 +29,6 @@ jobs:
 
     needs: test
 
-    env:
-      DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_DATABASE: ${{ secrets.DB_DATABASE }}
-      BOT_OWNER_USER_NAME: ${{ secrets.BOT_OWNER_USER_NAME }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      TABLE_NAME_BOOKS: ${{ secrets.TABLE_NAME_BOOKS }}
-      TABLE_NAME_ISSUED_BOOKS: ${{ secrets.TABLE_NAME_ISSUED_BOOKS }}
-      TABLE_NAME_USERS: ${{ secrets.TABLE_NAME_USERS }}
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -53,8 +41,13 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Install PM2 and deploy
-      run: |
-        npm install pm2 -g
-        chmod +x script.sh
-        ./script.sh
+    - name: Deploy using SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: 192.168.88.100
+        username: odroid
+        password: 12345
+        script: |
+          cd /home/odroid/library-bot
+          chmod +x script.sh
+          ./script.sh
