@@ -21,6 +21,10 @@ connect()
 
         const messageCreateHandler = (message) => {
             if (message.author.bot || !message.channel.type) return;
+            if (message.guild) {
+                const isGeneralChannelOrThread = message.channel.isThread() || message.channel.name === 'general';
+                if (isGeneralChannelOrThread) return;
+              }
           
             const authorId = message.author.id;
             if (!userEventsMap.has(authorId)) {
