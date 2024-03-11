@@ -5,7 +5,6 @@ const { menu } = require('./src/controllers/menuController');
 const commandsController = require('./src/controllers/commandsController');
 const validateUser = require('./src/service/validateUser');
 const display = require("./src/utils/display")
-
 const bookMap = new Map();
 const checkedOutBooks = new Map();
 const client = new Client({
@@ -24,8 +23,8 @@ connect()
             if (message.guild) {
                 const isGeneralChannelOrThread = message.channel.isThread() || message.channel.name === 'general';
                 if (isGeneralChannelOrThread) return;
-              }
-          
+            }
+
             const authorId = message.author.id;
             if (!userEventsMap.has(authorId)) {
                 userEventsMap.set(authorId, { messageCreate: true });

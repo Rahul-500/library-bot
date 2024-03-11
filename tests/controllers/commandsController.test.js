@@ -1,6 +1,6 @@
 const { start } = require('../../src/controllers/commandsController')
 const sinon = require('sinon');
-const { getAvailableBooks, checkoutBook, getUserBooks, returnBook, addBook, deleteBook, help } = require('../../src/controllers/commandsController')
+const { getAvailableBooks, checkoutBook, getUserBooks, returnBook, addBook, deleteBook, help, getLibraryHistory } = require('../../src/controllers/commandsController')
 const constants = require('../../src/constants/constant')
 describe('/start command', () => {
     let mockMessage;
@@ -569,5 +569,56 @@ describe('help function', () => {
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/checkout [Book ID]'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/my-books'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/return [Book ID]'));
+    });
+});
+
+describe('getLibraryHistory function', () => {
+    let mockMessage;
+    let mockConnection;
+
+    beforeEach(() => {
+        mockMessage = {
+            reply: jest.fn(),
+        };
+
+        mockConnection = {
+            query: jest.fn(),
+        };
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('should return library history when query is successful', async () => {
+        const mockResults = [
+            { name: 'User1', title: 'Book1', checked_out: '2022-01-01', returned: '2022-01-10' },
+            { name: 'User2', title: 'Book2', checked_out: '2022-02-01', returned: '2022-02-10' },
+        ];
+
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+            callback(null, mockResults);
+        });
+
+        const result = await getLibraryHistory(mockMessage, mockConnection);
+
+
+        expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
+        expect(result).toEqual(mockResults);
+        expect(mockMessage.reply).not.toHaveBeenCalled();
+    });
+
+    test('should handle error and reply with an error message', async () => {
+        const mockError = new Error('Database error');
+
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+            callback(mockError, null);
+        });
+
+        const result = await getLibraryHistory(mockMessage, mockConnection);
+
+        expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
+        expect(result).toBeNull();
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.ERROR_FETCHING_LIBRARY_HISTORY);
     });
 });

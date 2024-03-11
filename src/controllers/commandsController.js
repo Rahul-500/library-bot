@@ -4,7 +4,7 @@ const transactions = require('../service/transactions')
 const { validateCheckout, validateReturn } = require('../service/validateBook')
 const { isAdmin } = require('../service/validateUser')
 const { addBookToDatabase, deleteBookWithQuantity } = require('../service/databaseService')
-const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS } = process.env;
+const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_LIBRARY_HISTORY } = process.env;
 
 exports.start = async (message, connection) => {
     try {
@@ -37,8 +37,8 @@ function addUserInfo(id, author, connection) {
 }
 
 exports.getAvailableBooks = async (message, connection, bookMap) => {
-    const QUERY = 'SELECT * FROM library.books WHERE quantity_available > 0';
     try {
+        const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_BOOKS} WHERE quantity_available > 0`;
         const queryPromise = new Promise((resolve, reject) => {
             connection.query(QUERY, (error, results) => {
                 if (error) {
@@ -287,6 +287,42 @@ exports.deleteBook = async (message, connection, bookMap, userEventsMap) => {
         collector.stop();
     }
 };
+
+exports.getLibraryHistory = async (message, connection) => {
+    try {
+
+        const QUERY = `SELECT
+        ${TABLE_NAME_USERS}.name,
+        ${TABLE_NAME_BOOKS}.title,
+        ${TABLE_NAME_LIBRARY_HISTORY}.checked_out,
+        ${TABLE_NAME_LIBRARY_HISTORY}.returned
+    FROM
+        ${DB_NAME}.${TABLE_NAME_LIBRARY_HISTORY}
+    JOIN
+        books ON ${TABLE_NAME_LIBRARY_HISTORY}.book_id = ${TABLE_NAME_BOOKS}.id
+    JOIN
+        users ON ${TABLE_NAME_LIBRARY_HISTORY}.user_id = ${TABLE_NAME_USERS}.id;
+    `;
+        const queryPromise = new Promise((resolve, reject) => {
+            connection.query(QUERY, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+
+        const libraryHistory = await queryPromise;
+
+
+        return libraryHistory;
+
+    } catch (error) {
+        message.reply(constants.ERROR_FETCHING_LIBRARY_HISTORY);
+        return null;
+    }
+}
 
 exports.help = (message, isAdmin) => {
     let helpMessage = '';

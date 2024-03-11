@@ -369,5 +369,61 @@ describe('menu', () => {
         expect(commandsController.deleteBook).not.toHaveBeenCalledWith(mockMessage, mockConnection, bookMap, messageCreateHandler, client);
     });
 
+    test('On /library-history, libraryHistory method should be invoked', async () => {
+        const command = '/library-history';
+        display.libraryHistory = jest.fn();
+        mockMessage.content = command;
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(true),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+        commandsController.getLibraryHistory = jest.fn();
+        commandsController.getLibraryHistory.mockImplementationOnce((message, connection) => {
+            return Promise.resolve([]);
+        });
+
+
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            display,
+        };
+
+        await menuController.menu(dependencies);
+        expect(commandsController.getLibraryHistory).toHaveBeenCalledWith(mockMessage, mockConnection);
+        expect(display.libraryHistory).toHaveBeenCalled();
+
+    });
+
+    test('On /library-history, libraryHistory method should not be invoked', async () => {
+        const command = '/library-history';
+        display.libraryHistory = jest.fn();
+        mockMessage.content = command;
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(true),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+        commandsController.getLibraryHistory = jest.fn();
+        commandsController.getLibraryHistory.mockImplementationOnce((message, connection) => {
+            return Promise.resolve(null);
+        });
+
+
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            display,
+        };
+
+        await menuController.menu(dependencies);
+        expect(commandsController.getLibraryHistory).toHaveBeenCalledWith(mockMessage, mockConnection);
+        expect(display.libraryHistory).not.toHaveBeenCalled();
+
+    });
+
 });
 

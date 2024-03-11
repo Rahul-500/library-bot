@@ -80,6 +80,16 @@ exports.menu = async (dependencies) => {
             await commandsController.deleteBook(message, connection, bookMap, userEventsMap)
             break;
 
+        case command === '/library-history':
+            if (!validateUser.isAdmin(message)) {
+                message.reply(constants.HELP_MESSAGE);
+                break;
+            }
+            const library_history = await commandsController.getLibraryHistory(message, connection);
+            if (!library_history) return;
+            display.libraryHistory(message, library_history);
+            break;
+
         case command === '!help':
             commandsController.help(message, validateUser.isAdmin(message));
             break;

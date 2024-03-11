@@ -145,10 +145,10 @@ describe('user books', () => {
                 day: 'numeric',
                 year: 'numeric',
             });
-    
+
             return `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Author:**\t${book.author}\n**Checked-Out-Date:**\t${checkedOutDate}`;
         }).join('\n');
-        
+
         const embed = new EmbedBuilder()
             .setTitle(constants.MY_BOOKS)
             .setColor(constants.EMBED_COLOR)
@@ -199,6 +199,62 @@ describe('get available books with quantity', () => {
             .setDescription(formattedBooks)
 
         display.availableBooksWithQuantity(message, books);
+
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
+    });
+});
+
+describe('library history', () => {
+    let message;
+
+    beforeEach(() => {
+        message = {
+            author: { username: 'test_user' },
+            reply: jest.fn()
+        };
+
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should send SORRY_MESSAGE', () => {
+        const embed = new EmbedBuilder()
+            .setTitle(constants.NO_HISTORY_FOUND)
+            .setColor('#FF0000')
+            .setDescription(constants.SORRY_MESSAGE_FOR_NO_HISTORY);
+
+        message.reply({ embeds: [embed] });
+
+        const libraryHistory = []
+
+        display.libraryHistory(message, libraryHistory);
+
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
+    });
+
+    it('should display library history', () => {
+        display.formatDate = jest.fn((date) => new Date(date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        }))
+        
+        const libraryHistory = [{ title: 'Title', name: 'name', checked_out: '2022-01-01', returned: '2022-01-10' }]
+        let formattedLibraryhistory = '';
+        libraryHistory.forEach((history, index) => {
+            const checkedOut = display.formatDate(history.checked_out)
+            const returned = display.formatDate(history.returned)
+
+            formattedLibraryhistory += `**ID:**\t${index + 1}\n**User:**\t${history.name}\n**Book:**\t${history.title}\n**Checked-out:**\t${checkedOut}\n**Returned:**\t${returned}\n\n`;
+        });
+
+        const embed = new EmbedBuilder()
+            .setTitle(constants.LIBRARY_HISTORY)
+            .setColor('#00FF00')
+            .setDescription(formattedLibraryhistory);
+        display.libraryHistory(message, libraryHistory);
 
         expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
     });
