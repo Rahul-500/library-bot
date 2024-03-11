@@ -547,12 +547,12 @@ describe('help function', () => {
         help(mockMessage, isAdmin);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('Admin Commands'));
-        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/3'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/add-book'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('Available Commands'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/start'));
-        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/1'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/available-books'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/checkout [Book ID]'));
-        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/2'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/my-books'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/return [Book ID]'));
     });
 
@@ -562,12 +562,12 @@ describe('help function', () => {
         help(mockMessage, isAdmin);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.not.stringContaining('Admin Commands'));
-        expect(mockMessage.reply).toHaveBeenCalledWith(expect.not.stringContaining('/3'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.not.stringContaining('/add-book'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('Available Commands'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/start'));
-        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/1'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/available-books'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/checkout [Book ID]'));
-        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/2'));
+        expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/my-books'));
         expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining('/return [Book ID]'));
     });
 });

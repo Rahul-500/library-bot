@@ -31,7 +31,7 @@ exports.menu = async (dependencies) => {
             display.welcomeMessage(message, validateUser);
             break;
 
-        case command === ('/1'):
+        case command === ('/available-books'):
             const availableBooks = await commandsController.getAvailableBooks(message, connection, bookMap);
             if (!availableBooks) return
             display.availableBooks(message, availableBooks)
@@ -45,7 +45,7 @@ exports.menu = async (dependencies) => {
             await commandsController.checkoutBook(message, connection, bookMap);
             break;
 
-        case command === ('/2'):
+        case command === ('/my-books'):
             const userBooks = await commandsController.getUserBooks(message, connection, checkedOutBooks)
             if (!userBooks) return
             display.userBooks(message, userBooks)
@@ -59,7 +59,7 @@ exports.menu = async (dependencies) => {
             await commandsController.returnBook(message, connection, checkedOutBooks);
             break;
 
-        case command === ('/3'):
+        case command === ('/add-book'):
             if (!validateUser.isAdmin(message)) {
                 message.reply(constants.HELP_MESSAGE);
                 break;
@@ -68,7 +68,7 @@ exports.menu = async (dependencies) => {
 
             break;
 
-        case command === ('/4'):
+        case command === ('/delete-book'):
             if (!validateUser.isAdmin(message)) {
                 message.reply(constants.HELP_MESSAGE);
                 break;

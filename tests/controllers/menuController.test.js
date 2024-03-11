@@ -54,8 +54,8 @@ describe('menu', () => {
         expect(display.welcomeMessage).toHaveBeenCalledWith(mockMessage, validateUser);
     });
 
-    test('On /1 display availableBooks method should be invoked', async () => {
-        const command = '/1';
+    test('On /available-books display availableBooks method should be invoked', async () => {
+        const command = '/available-books';
 
         commandsController.getAvailableBooks = jest.fn();
         commandsController.getAvailableBooks.mockImplementationOnce((message, connection, bookMap) => {
@@ -80,8 +80,8 @@ describe('menu', () => {
 
     });
 
-    test('On /1 display availableBooks method should not be invoked', async () => {
-        const command = '/1';
+    test('On /available-books display availableBooks method should not be invoked', async () => {
+        const command = '/available-books';
 
         commandsController.getAvailableBooks = jest.fn();
         commandsController.getAvailableBooks.mockImplementationOnce((message, connection, bookMap) => {
@@ -106,14 +106,14 @@ describe('menu', () => {
 
     });
 
-    test('On /2 getUserBooks method should be invoked', async () => {
+    test('On /my-books getUserBooks method should be invoked', async () => {
         commandsController.getUserBooks = jest.fn();
         commandsController.getUserBooks.mockImplementationOnce((message, connection, checkedOutBooks) => {
             return Promise.resolve([]);
         });
         display.userBooks = jest.fn();
 
-        const command = '/2'
+        const command = '/my-books'
         mockMessage.content = command
 
         let dependencies = {
@@ -131,14 +131,14 @@ describe('menu', () => {
         expect(display.userBooks).toHaveBeenCalled()
     });
 
-    test('On /2 getUserBooks method should not be invoked', async () => {
+    test('On /my-books getUserBooks method should not be invoked', async () => {
         commandsController.getUserBooks = jest.fn();
         commandsController.getUserBooks.mockImplementationOnce((message, connection, checkedOutBooks) => {
             return Promise.resolve(null);
         });
         display.userBooks = jest.fn();
 
-        const command = '/2'
+        const command = '/my-books'
         mockMessage.content = command
 
         let dependencies = {
@@ -232,8 +232,8 @@ describe('menu', () => {
         expect(mockMessage.reply).not.toHaveBeenCalledWith(expect.stringContaining(constants.GET_AVAILABLE_BEFORE_RETURN_MESSAGE));
         expect(commandsController.returnBook).toHaveBeenCalledWith(mockMessage, mockConnection, checkedOutBooks);
     });
-    test('should invoke addBook for admin with command /3', async () => {
-        const mockCommand = '/3';
+    test('should invoke addBook for admin with command /add-book', async () => {
+        const mockCommand = '/add-book';
         mockMessage.content = mockCommand;
         commandsController.addBook = jest.fn();
         const checkedOutBooks = new Map();
@@ -258,8 +258,8 @@ describe('menu', () => {
         expect(commandsController.addBook).toHaveBeenCalledWith(mockMessage, mockConnection, userEventsMap);
     });
 
-    test('should not invoke addBook for non-admin with command /3', async () => {
-        const mockCommand = '/3';
+    test('should not invoke addBook for non-admin with command /add-book', async () => {
+        const mockCommand = '/add-book';
         mockMessage.content = mockCommand;
         commandsController.addBook = jest.fn();
         const checkedOutBooks = new Map();
@@ -309,8 +309,8 @@ describe('menu', () => {
         expect(commandsController.help).toHaveBeenCalledWith(mockMessage, true);
     });
 
-    test('should invoke deleteBook for admin with command /4', async () => {
-        const mockCommand = '/4';
+    test('should invoke deleteBook for admin with command /delete-book', async () => {
+        const mockCommand = '/delete-book';
         mockMessage.content = mockCommand;
         commandsController.deleteBook = jest.fn();
         const checkedOutBooks = new Map();
@@ -342,8 +342,8 @@ describe('menu', () => {
         expect(commandsController.deleteBook).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap, userEventsMap);
     });
 
-    test('should not invoke deleteBook for non-admin with command /4', async () => {
-        const mockCommand = '/4';
+    test('should not invoke deleteBook for non-admin with command /delete-book', async () => {
+        const mockCommand = '/delete-book';
         mockMessage.content = mockCommand;
         commandsController.deleteBook = jest.fn();
         const checkedOutBooks = new Map();
