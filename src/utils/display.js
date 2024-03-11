@@ -34,7 +34,7 @@ exports.availableBooks = async (message, books) => {
 
     let formattedBooks = '';
     books.forEach((book, index) => {
-        formattedBooks += `ID: ${index + 1}\nTitle: ${book.title}\nAuthor: ${book.author}\n\n`;
+        formattedBooks += `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Author:**\t${book.author}\n\n`;
     });
 
     const embed = new EmbedBuilder()
@@ -44,6 +44,7 @@ exports.availableBooks = async (message, books) => {
 
     await message.channel.send({ embeds: [embed] });
 };
+
 exports.userBooks = (message, books) => {
     if (books.length === 0) {
         const embed = new EmbedBuilder()
@@ -56,16 +57,23 @@ exports.userBooks = (message, books) => {
     }
 
     const formattedBooks = books.map((book, index) => {
-        return `ID: ${index + 1}\nTitle: ${book.title}\nAuthor: ${book.author}\n`;
+        const checkedOutDate = new Date(book.checked_out).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        });
+
+        return `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Author:**\t${book.author}\n**Checked-Out-Date:**\t${checkedOutDate}`;
     }).join('\n');
 
     const embed = new EmbedBuilder()
         .setTitle(constants.MY_BOOKS)
-        .setColor('#00FF00')
+        .setColor(constants.EMBED_COLOR)
         .setDescription(formattedBooks);
 
     message.reply({ embeds: [embed] });
-}
+};
+
 
 
 exports.availableBooksWithQuantity = (message, books) => {
@@ -81,13 +89,13 @@ exports.availableBooksWithQuantity = (message, books) => {
 
     let formattedBooks = '';
     books.forEach((book, index) => {
-        formattedBooks += `ID: ${index + 1}\nTitle: ${book.title}\nQuantity: ${book.quantity_available}\n\n`;
+        formattedBooks += `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Quantity:**\t${book.quantity_available}\n\n`;
     });
 
     const embed = new EmbedBuilder()
         .setTitle(constants.AVAILABEL_BOOKS)
         .setColor('#00FF00')
         .setDescription(formattedBooks);
-        
+
     message.reply({ embeds: [embed] });
 }

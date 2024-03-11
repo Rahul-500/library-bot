@@ -109,7 +109,13 @@ exports.checkoutBook = async (message, connection, bookMap) => {
 
 exports.getUserBooks = async (message, connection, checkedOutBooks) => {
     const userId = message.author.id;
-    const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_BOOKS} WHERE id in (SELECT book_id FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} WHERE user_id = ${userId} GROUP BY book_id)`;
+    const QUERY = `
+    SELECT b.*, i.checked_out 
+    FROM ${DB_NAME}.${TABLE_NAME_BOOKS} AS b
+    INNER JOIN ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} AS i
+    ON b.id = i.book_id
+    WHERE i.user_id = ${userId}
+`;
     try {
         const queryPromise = new Promise((resolve, reject) => {
             connection.query(QUERY, (error, results) => {
@@ -121,13 +127,11 @@ exports.getUserBooks = async (message, connection, checkedOutBooks) => {
             });
         });
 
-        const results = await queryPromise;
-        const books = results;
+        const books = await queryPromise;
         if (books.length === 0) {
             message.reply(constants.NO_CHECKED_OUT_BOOK_MESSAGE);
             return;
         }
-
         checkedOutBooks.clear()
         let count = 1;
         books.forEach((book) => {

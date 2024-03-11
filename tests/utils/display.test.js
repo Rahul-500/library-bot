@@ -94,7 +94,7 @@ describe('available books', () => {
         const books = [{ title: 'Title', author: 'Author' }];
         let formattedBooks = '';
         books.forEach((book, index) => {
-            formattedBooks += `ID: ${index + 1}\nTitle: ${book.title}\nAuthor: ${book.author}\n\n`;
+            formattedBooks += `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Author:**\t${book.author}\n\n`;
         });
 
         const embed = new EmbedBuilder()
@@ -140,12 +140,18 @@ describe('user books', () => {
         const books = [{ title: 'Title' }]
 
         const formattedBooks = books.map((book, index) => {
-            return `ID: ${index + 1}\nTitle: ${book.title}\nAuthor: ${book.author}\n`;
+            const checkedOutDate = new Date(book.checked_out).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+            });
+    
+            return `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Author:**\t${book.author}\n**Checked-Out-Date:**\t${checkedOutDate}`;
         }).join('\n');
         
         const embed = new EmbedBuilder()
             .setTitle(constants.MY_BOOKS)
-            .setColor('#00FF00')
+            .setColor(constants.EMBED_COLOR)
             .setDescription(formattedBooks)
 
         display.userBooks(message, books);
@@ -184,7 +190,7 @@ describe('get available books with quantity', () => {
         const books = [{ title: 'Title', quantity_available: 10 }]
         let formattedBooks = '';
         books.forEach((book, index) => {
-            formattedBooks += `ID: ${index + 1}\nTitle: ${book.title}\nQuantity: ${book.quantity_available}\n\n`;
+            formattedBooks += `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Quantity:**\t${book.quantity_available}\n\n`;
         });
 
         const embed = new EmbedBuilder()
