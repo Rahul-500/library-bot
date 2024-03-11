@@ -45,3 +45,4 @@ exports.NO_HISTORY_FOUND = 'No history found.'
 exports.SORRY_MESSAGE_FOR_NO_HISTORY = 'Sorry, history is currently unavailable.'
 exports.LIBRARY_HISTORY = 'Library history'
 exports.ERROR_FETCHING_LIBRARY_HISTORY = 'Error fetching library history.'
+exports.itemsPerPage = 5;

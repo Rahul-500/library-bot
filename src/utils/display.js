@@ -1,8 +1,6 @@
-const { format } = require('mysql2');
 const constants = require('../constants/constant');
-
-const { ActionRowBuilder, EmbedBuilder, ButtonStyle, ComponentType } = require('discord.js')
-
+const { EmbedBuilder } = require('discord.js')
+const { pagination } = require('../utils/pagination')
 
 exports.welcomeMessage = (message, validateUser) => {
 
@@ -22,7 +20,8 @@ exports.welcomeMessage = (message, validateUser) => {
     message.reply({ embeds: [embed] });
 };
 
-exports.availableBooks = async (message, books) => {
+exports.availableBooks = async (message, books, page = pagination) => {
+
     if (books.length === 0) {
         const embed = new EmbedBuilder()
             .setTitle(constants.NO_BOOKS_FOUND)
@@ -32,21 +31,30 @@ exports.availableBooks = async (message, books) => {
         message.reply({ embeds: [embed] });
         return;
     }
+    const itemsPerPage = constants.itemsPerPage
+    const totalPages = Math.ceil(books.length / itemsPerPage);
+    const embeds = [];
 
-    let formattedBooks = '';
-    books.forEach((book, index) => {
-        formattedBooks += `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Author:**\t${book.author}\n\n`;
-    });
+    for (let i = 0; i < books.length; i += itemsPerPage) {
+        const currentBooks = books.slice(i, i + itemsPerPage);
+        const fields = currentBooks.map((book, index) => ({
+            name: `**ID: ${i + index + 1}**`,
+            value: `**Title:** ${book.title}\n**Author:** ${book.author}`,
+            inline: false,
+        }));
 
-    const embed = new EmbedBuilder()
-        .setTitle(constants.AVAILABEL_BOOKS)
-        .setColor('#00FF00')
-        .setDescription(formattedBooks);
+        const embed = new EmbedBuilder()
+            .setTitle(`${constants.AVAILABEL_BOOKS} (Page ${Math.floor(i / itemsPerPage) + 1}/${totalPages})`)
+            .setColor('#00FF00')
+            .addFields(fields);
 
-    await message.channel.send({ embeds: [embed] });
+        embeds.push(embed);
+    }
+
+    await page(message, embeds)
 };
 
-exports.userBooks = (message, books) => {
+exports.userBooks = async (message, books, page = pagination) => {
     if (books.length === 0) {
         const embed = new EmbedBuilder()
             .setTitle(constants.NO_BOOKS_FOUND)
@@ -57,22 +65,34 @@ exports.userBooks = (message, books) => {
         return;
     }
 
-    const formattedBooks = books.map((book, index) => {
-        const checkedOutDate = formatDate(book.checked_out)
-        return `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Author:**\t${book.author}\n**Checked-Out-Date:**\t${checkedOutDate}`;
-    }).join('\n');
+    const itemsPerPage = constants.itemsPerPage;
+    const totalPages = Math.ceil(books.length / itemsPerPage);
+    const embeds = [];
 
-    const embed = new EmbedBuilder()
-        .setTitle(constants.MY_BOOKS)
-        .setColor(constants.EMBED_COLOR)
-        .setDescription(formattedBooks);
+    for (let i = 0; i < books.length; i += itemsPerPage) {
+        const currentBooks = books.slice(i, i + itemsPerPage);
+        const fields = currentBooks.map((book, index) => {
+            const checkedOutDate = formatDate(book.checked_out);
+            return {
+                name: `**ID: ${i + index + 1}**`,
+                value: `**Title:** ${book.title}\n**Author:** ${book.author}\n**Checked-Out-Date:** ${checkedOutDate}`,
+                inline: false,
+            };
+        });
 
-    message.reply({ embeds: [embed] });
+        const embed = new EmbedBuilder()
+            .setTitle(`${constants.MY_BOOKS} (Page ${Math.floor(i / itemsPerPage) + 1}/${totalPages})`)
+            .setColor(constants.EMBED_COLOR)
+            .addFields(fields);
+
+        embeds.push(embed);
+    }
+
+    await page(message, embeds);
 };
 
 
-
-exports.availableBooksWithQuantity = (message, books) => {
+exports.availableBooksWithQuantity = async (message, books, page = pagination) => {
     if (books.length === 0) {
         const embed = new EmbedBuilder()
             .setTitle(constants.NO_BOOKS_FOUND)
@@ -83,18 +103,29 @@ exports.availableBooksWithQuantity = (message, books) => {
         return;
     }
 
-    let formattedBooks = '';
-    books.forEach((book, index) => {
-        formattedBooks += `**ID:**\t${index + 1}\n**Title:**\t${book.title}\n**Quantity:**\t${book.quantity_available}\n\n`;
-    });
+    const itemsPerPage = constants.itemsPerPage;
+    const totalPages = Math.ceil(books.length / itemsPerPage);
+    const embeds = [];
 
-    const embed = new EmbedBuilder()
-        .setTitle(constants.AVAILABEL_BOOKS)
-        .setColor('#00FF00')
-        .setDescription(formattedBooks);
+    for (let i = 0; i < books.length; i += itemsPerPage) {
+        const currentBooks = books.slice(i, i + itemsPerPage);
+        let formattedBooks = '';
 
-    message.reply({ embeds: [embed] });
-}
+        currentBooks.forEach((book, index) => {
+            formattedBooks += `**ID:**\t${i + index + 1}\n**Title:**\t${book.title}\n**Quantity:**\t${book.quantity_available}\n\n`;
+        });
+
+        const embed = new EmbedBuilder()
+            .setTitle(`${constants.AVAILABEL_BOOKS} (Page ${Math.floor(i / itemsPerPage) + 1}/${totalPages})`)
+            .setColor('#00FF00')
+            .setDescription(formattedBooks);
+
+        embeds.push(embed);
+    }
+
+    await page(message, embeds);
+};
+
 
 function formatDate(date) {
     return new Date(date).toLocaleDateString('en-US', {
@@ -104,7 +135,7 @@ function formatDate(date) {
     });
 }
 
-exports.libraryHistory = (message, libraryhistory) => {
+exports.libraryHistory = async (message, libraryhistory, page = pagination) => {
     if (libraryhistory.length === 0) {
         const embed = new EmbedBuilder()
             .setTitle(constants.NO_HISTORY_FOUND)
@@ -115,18 +146,28 @@ exports.libraryHistory = (message, libraryhistory) => {
         return;
     }
 
-    let formattedLibraryhistory = '';
-    libraryhistory.forEach((history, index) => {
-        const checkedOut = formatDate(history.checked_out)
-        const returned = formatDate(history.returned)
+    const itemsPerPage = constants.itemsPerPage;
+    const totalPages = Math.ceil(libraryhistory.length / itemsPerPage);
+    const embeds = [];
 
-        formattedLibraryhistory += `**ID:**\t${index + 1}\n**User:**\t${history.name}\n**Book:**\t${history.title}\n**Checked-out:**\t${checkedOut}\n**Returned:**\t${returned}\n\n`;
-    });
+    for (let i = 0; i < libraryhistory.length; i += itemsPerPage) {
+        const currentHistory = libraryhistory.slice(i, i + itemsPerPage);
+        let formattedLibraryhistory = '';
 
-    const embed = new EmbedBuilder()
-        .setTitle(constants.LIBRARY_HISTORY)
-        .setColor('#00FF00')
-        .setDescription(formattedLibraryhistory);
+        currentHistory.forEach((history, index) => {
+            const checkedOut = formatDate(history.checked_out);
+            const returned = formatDate(history.returned);
 
-    message.reply({ embeds: [embed] });
-}
+            formattedLibraryhistory += `**ID:**\t${i + index + 1}\n**User:**\t${history.name}\n**Book:**\t${history.title}\n**Checked-out:**\t${checkedOut}\n**Returned:**\t${returned}\n\n`;
+        });
+
+        const embed = new EmbedBuilder()
+            .setTitle(`${constants.LIBRARY_HISTORY} (Page ${Math.floor(i / itemsPerPage) + 1}/${totalPages})`)
+            .setColor('#00FF00')
+            .setDescription(formattedLibraryhistory);
+
+        embeds.push(embed);
+    }
+
+    await page(message, embeds);
+};
