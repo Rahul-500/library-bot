@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@devraelfreeze/discordjs-pagination": "^2.7.6",
     "axios": "^1.6.7",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",

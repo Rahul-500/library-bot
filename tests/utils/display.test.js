@@ -10,7 +10,7 @@ describe('welcomeMessage', () => {
     beforeEach(() => {
         message = {
             author: { username: 'test_user' },
-            reply: jest.fn()
+            reply: jest.fn(),
         };
 
         validateUser.isAdmin = jest.fn()
@@ -68,9 +68,9 @@ describe('available books', () => {
     beforeEach(() => {
         message = {
             author: { username: 'test_user' },
-            reply: jest.fn()
+            reply: jest.fn(),
+            channel: { send: jest.fn() }
         };
-
     });
 
     afterEach(() => {
@@ -78,7 +78,7 @@ describe('available books', () => {
     });
 
     it('should send SORRY_MESSAGE', () => {
-        const books = []
+        const books = [];
         const embed = new EmbedBuilder()
             .setTitle(constants.NO_BOOKS_FOUND)
             .setColor('#FF0000')
@@ -86,26 +86,26 @@ describe('available books', () => {
 
         display.availableBooks(message, books);
 
-        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] });
+        expect(message.channel.send).not.toHaveBeenCalled();
     });
 
-    it('should send list of avialable books', () => {
-        const books = [{ title: 'Title', author: 'Author' }]
-        const data = [];
-        data.push(['ID', 'Title', 'Author']);
-
+    it('should send list of available books', () => {
+        const books = [{ title: 'Title', author: 'Author' }];
+        let formattedBooks = '';
         books.forEach((book, index) => {
-            data.push([`${index + 1}.`, book.title, book.author]);
+            formattedBooks += `ID: ${index + 1}\nTitle: ${book.title}\nAuthor: ${book.author}\n\n`;
         });
 
         const embed = new EmbedBuilder()
             .setTitle(constants.AVAILABEL_BOOKS)
             .setColor('#00FF00')
-            .addFields({ name: '\u200B', value: '```\n' + display.createTable(data) + '```' });
+            .setDescription(formattedBooks);
 
         display.availableBooks(message, books);
 
-        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] })
+        expect(message.reply).not.toHaveBeenCalled();
+        expect(message.channel.send).toHaveBeenCalledWith({ embeds: [embed] });
     });
 });
 
@@ -138,16 +138,15 @@ describe('user books', () => {
 
     it('should send list of user books', () => {
         const books = [{ title: 'Title' }]
-        const formattedBooks = books.map((book, index) => `${index + 1}. \u2003\u2003${book.title}`).join('\n');
 
+        const formattedBooks = books.map((book, index) => {
+            return `ID: ${index + 1}\nTitle: ${book.title}\nAuthor: ${book.author}\n`;
+        }).join('\n');
+        
         const embed = new EmbedBuilder()
             .setTitle(constants.MY_BOOKS)
             .setColor('#00FF00')
-            .addFields({
-                name: `ID\u2003\u2003Title`,
-                value: formattedBooks,
-                inline: true
-            });
+            .setDescription(formattedBooks)
 
         display.userBooks(message, books);
 
@@ -183,17 +182,15 @@ describe('get available books with quantity', () => {
 
     it('should send list of avialable books with quantity', () => {
         const books = [{ title: 'Title', quantity_available: 10 }]
-        const data = [];
-        data.push(['ID', 'Title', 'Quantity']);
-
+        let formattedBooks = '';
         books.forEach((book, index) => {
-            data.push([`${index + 1}.`, book.title, book.quantity_available]);
+            formattedBooks += `ID: ${index + 1}\nTitle: ${book.title}\nQuantity: ${book.quantity_available}\n\n`;
         });
 
         const embed = new EmbedBuilder()
             .setTitle(constants.AVAILABEL_BOOKS)
             .setColor('#00FF00')
-            .addFields({ name: '\u200B', value: '```\n' + display.createTable(data) + '```' });
+            .setDescription(formattedBooks)
 
         display.availableBooksWithQuantity(message, books);
 

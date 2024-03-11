@@ -1,5 +1,7 @@
 const constants = require('../constants/constant');
-const { EmbedBuilder } = require('discord.js')
+
+const { ActionRowBuilder, EmbedBuilder, ButtonStyle, ComponentType } = require('discord.js')
+
 
 exports.welcomeMessage = (message, validateUser) => {
 
@@ -19,8 +21,7 @@ exports.welcomeMessage = (message, validateUser) => {
     message.reply({ embeds: [embed] });
 };
 
-
-exports.availableBooks = (message, books) => {
+exports.availableBooks = async (message, books) => {
     if (books.length === 0) {
         const embed = new EmbedBuilder()
             .setTitle(constants.NO_BOOKS_FOUND)
@@ -31,21 +32,18 @@ exports.availableBooks = (message, books) => {
         return;
     }
 
-
-    const data = [];
-    data.push(['ID', 'Title', 'Author']);
-
+    let formattedBooks = '';
     books.forEach((book, index) => {
-        data.push([`${index + 1}.`, book.title, book.author]);
+        formattedBooks += `ID: ${index + 1}\nTitle: ${book.title}\nAuthor: ${book.author}\n\n`;
     });
 
     const embed = new EmbedBuilder()
         .setTitle(constants.AVAILABEL_BOOKS)
         .setColor('#00FF00')
-        .addFields({ name: '\u200B', value: '```\n' + this.createTable(data) + '```' });
-    message.reply({ embeds: [embed] });
-}
+        .setDescription(formattedBooks);
 
+    await message.channel.send({ embeds: [embed] });
+};
 exports.userBooks = (message, books) => {
     if (books.length === 0) {
         const embed = new EmbedBuilder()
@@ -57,19 +55,18 @@ exports.userBooks = (message, books) => {
         return;
     }
 
-    const formattedBooks = books.map((book, index) => `${index + 1}. \u2003\u2003${book.title}`).join('\n');
+    const formattedBooks = books.map((book, index) => {
+        return `ID: ${index + 1}\nTitle: ${book.title}\nAuthor: ${book.author}\n`;
+    }).join('\n');
 
     const embed = new EmbedBuilder()
         .setTitle(constants.MY_BOOKS)
         .setColor('#00FF00')
-        .addFields({
-            name: `ID\u2003\u2003Title`,
-            value: formattedBooks,
-            inline: true
-        });
+        .setDescription(formattedBooks);
 
     message.reply({ embeds: [embed] });
 }
+
 
 exports.availableBooksWithQuantity = (message, books) => {
     if (books.length === 0) {
@@ -82,42 +79,15 @@ exports.availableBooksWithQuantity = (message, books) => {
         return;
     }
 
-    const data = [];
-    data.push(['ID', 'Title', 'Quantity']);
-
+    let formattedBooks = '';
     books.forEach((book, index) => {
-        data.push([`${index + 1}.`, book.title, book.quantity_available]);
+        formattedBooks += `ID: ${index + 1}\nTitle: ${book.title}\nQuantity: ${book.quantity_available}\n\n`;
     });
 
     const embed = new EmbedBuilder()
         .setTitle(constants.AVAILABEL_BOOKS)
         .setColor('#00FF00')
-        .addFields({ name: '\u200B', value: '```\n' + this.createTable(data) + '```' });
-
+        .setDescription(formattedBooks);
+        
     message.reply({ embeds: [embed] });
-}
-
-exports.createTable = (data) => {
-    const columnWidths = [];
-    for (let i = 0; i < data[0].length; i++) {
-        let maxWidth = 0;
-        for (let j = 0; j < data.length; j++) {
-            const cellWidth = data[j][i].toString().length;
-            if (cellWidth > maxWidth) {
-                maxWidth = cellWidth;
-            }
-        }
-        columnWidths.push(maxWidth);
-    }
-
-    let table = '';
-    for (let i = 0; i < data.length; i++) {
-        for (let j = 0; j < data[i].length; j++) {
-            const cell = data[i][j].toString().padEnd(columnWidths[j], ' ');
-            table += cell + ' '.repeat(2);
-        }
-        table += '\n';
-    }
-
-    return table;
 }
