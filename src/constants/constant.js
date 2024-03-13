@@ -57,3 +57,4 @@ exports.EXIT_UPDATE_MESSAGE = "Exiting the book update process;";
 exports.UNEXPECTED_UPDATE_ERROR_MESSAGE = "An unexpected error occurred during the book update process. Please try again.";
 exports.UPDATE_BOOK_DETAILS_RECEIVED_MESSAGE = "Received book details. Updating...";
 exports.ERROR_UPDATE_BOOK_MESSAGE = "An error occurred while updating the book. Please try again later.";
+exports.TIME_INTERVAL_FOR_DUE_NOTIFICATION = 24 * 60 * 60 * 1000

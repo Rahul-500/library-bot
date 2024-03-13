@@ -1,13 +1,10 @@
 const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS } = process.env;
-
-
+const constants = require("../constants/constant");
 
 exports.checkOverdueBooks = async (dependencies) => {
   const { connection, client } = dependencies;
   intervalId = setInterval(async () => {
     try {
-      const currentDate = new Date();
-
       const QUERY = `
                 SELECT ib.*, b.title
                 FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} ib
@@ -37,5 +34,5 @@ exports.checkOverdueBooks = async (dependencies) => {
         } catch (error) {}
       });
     } catch (error) {}
-  }, 24 * 60 * 60 * 1000);
+  }, constants.TIME_INTERVAL_FOR_DUE_NOTIFICATION);
 };
