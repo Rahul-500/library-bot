@@ -5,6 +5,8 @@ const { menu } = require('./src/controllers/menuController');
 const commandsController = require('./src/controllers/commandsController');
 const validateUser = require('./src/service/validateUser');
 const display = require("./src/utils/display")
+const { checkOverdueBooks } = require('./src/service/notifier')
+
 const bookMap = new Map();
 const checkedOutBooks = new Map();
 const client = new Client({
@@ -12,10 +14,12 @@ const client = new Client({
     partials: [Partials.Channel, Partials.Message]
 });
 const userEventsMap = new Map()
+
 connect()
     .then((connection) => {
         client.on('ready', () => {
             console.log(`Logged in as ${client.user.tag}!`);
+            checkOverdueBooks({ connection, client })
         });
 
         const messageCreateHandler = (message) => {
