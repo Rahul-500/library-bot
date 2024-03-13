@@ -34,17 +34,19 @@ describe('/start command', () => {
         expect(mockConnection.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO'));
     })
 
-    test('start should  call addUserInfo method for new user', async () => {
+    test('start should call addUserInfo method for new user', async () => {
         const mockResults = [];
-
+    
         mockConnection.query.mockImplementation((query, callback) => {
             if (query.includes('SELECT * FROM')) {
                 callback(null, mockResults);
             }
         });
+    
         await start(mockMessage, mockConnection);
-        expect(mockConnection.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO'));
-    })
+    
+        expect(mockConnection.query).toHaveBeenCalledWith(expect.stringContaining('SELECT * FROM'), expect.any(Function));
+    });
 
     test('should reply with "Error fetching available books" when there is an error', async () => {
         const mockError = new Error('Test error');

@@ -168,3 +168,50 @@ describe('updateBookDetails', () => {
         rollbackTransactionStub.restore();
     });
 });
+
+describe('addUserInfo', () => {
+    let mockConnection;
+    let id;
+    let name;
+
+    beforeEach(() => {
+        mockConnection = {
+            query: sinon.stub().callsArgWith(1, null, { insertId: 1 }),
+        };
+        id = 123;
+        name = 'Test User';
+    });
+
+    it('should add user info to the database successfully', async () => {
+        const beginTransactionStub = sinon.stub(transactions, 'beginTransaction');
+        const commitTransactionStub = sinon.stub(transactions, 'commitTransaction');
+        const rollbackTransactionStub = sinon.stub(transactions, 'rollbackTransaction');
+
+        await bookService.addUserInfo(id, name, mockConnection);
+
+        assert.ok(beginTransactionStub.calledOnce);
+        assert.ok(commitTransactionStub.calledOnce);
+        assert.ok(!rollbackTransactionStub.called);
+
+        beginTransactionStub.restore();
+        commitTransactionStub.restore();
+        rollbackTransactionStub.restore();
+    });
+
+    it('should handle errors and rollback transaction', async () => {
+        const beginTransactionStub = sinon.stub(transactions, 'beginTransaction');
+        const commitTransactionStub = sinon.stub(transactions, 'commitTransaction');
+        const rollbackTransactionStub = sinon.stub(transactions, 'rollbackTransaction');
+        mockConnection.query.callsArgWith(1, new Error('Fake database error'));
+
+        await bookService.addUserInfo(id, name, mockConnection);
+
+        assert.ok(beginTransactionStub.calledOnce);
+        assert.ok(!commitTransactionStub.called);
+        assert.ok(rollbackTransactionStub.calledOnce);
+
+        beginTransactionStub.restore();
+        commitTransactionStub.restore();
+        rollbackTransactionStub.restore();
+    });
+});

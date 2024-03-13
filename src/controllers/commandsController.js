@@ -2,8 +2,7 @@ require('dotenv').config()
 const constants = require('../constants/constant')
 const transactions = require('../service/transactions')
 const { validateCheckout, validateReturn } = require('../service/validateBook')
-const { isAdmin } = require('../service/validateUser')
-const { addBookToDatabase, deleteBookWithQuantity, updateBookDetails } = require('../service/databaseService')
+const { addBookToDatabase, deleteBookWithQuantity, updateBookDetails,addUserInfo} = require('../service/databaseService')
 const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_LIBRARY_HISTORY } = process.env;
 
 exports.start = async (message, connection) => {
@@ -22,18 +21,13 @@ exports.start = async (message, connection) => {
         const user = await queryPromise;
         if (user.length == 0) {
             const author = message.author.username;
-            addUserInfo(id, author, connection);
+            await addUserInfo(id, author, connection);
         }
         return user;
     } catch (error) {
         message.reply(constants.ERROR_FETCHING_USER);
         return null;
     }
-}
-
-function addUserInfo(id, author, connection) {
-    const QUERY = `INSERT INTO ${DB_NAME}.${TABLE_NAME_USERS} (id, name) VALUES (${id}, '${author}')`;
-    connection.query(QUERY);
 }
 
 exports.getAvailableBooks = async (message, connection, bookMap) => {
