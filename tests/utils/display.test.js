@@ -273,7 +273,6 @@ describe('library history', () => {
         });
 
 
-
         const embed = new EmbedBuilder()
             .setTitle(`${constants.LIBRARY_HISTORY} (Page 1/1)`)
             .setColor('#00FF00')
@@ -282,5 +281,63 @@ describe('library history', () => {
 
         await display.libraryHistory(message, libraryhistory, pagination);
         expect(pagination).toHaveBeenCalledWith(message, [embed]);
+    });
+});
+
+describe('books', () => {
+    let message;
+
+    beforeEach(() => {
+        message = {
+            reply: jest.fn()
+        };
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should send SORRY_MESSAGE if no books are found', async () => {
+        const books = [];
+
+        await display.books(message, books);
+
+        const embed = new EmbedBuilder()
+            .setTitle(constants.NO_BOOKS_FOUND)
+            .setColor('#FF0000')
+            .setDescription(constants.SORRY_MESSAGE);
+
+        expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] });
+    });
+
+    it('should send list of available books with pagination', async () => {
+        const pagination = jest.fn();
+        const books = [
+            { title: 'Book1', author: 'Author1', published_year: 2022, quantity_available: 5 },
+            { title: 'Book2', author: 'Author2', published_year: 2023, quantity_available: 10 },
+            { title: 'Book3', author: 'Author3', published_year: 2024, quantity_available: 3 },
+        ];
+        const itemsPerPage = constants.itemsPerPage;
+        const totalPages = Math.ceil(books.length / itemsPerPage);
+        const embeds = [];
+
+        for (let i = 0; i < books.length; i += itemsPerPage) {
+            const currentBooks = books.slice(i, i + itemsPerPage);
+            const fields = currentBooks.map((book, index) => ({
+                name: `**ID: ${i + index + 1}**`,
+                value: `**Title:** ${book.title}\n**Author:** ${book.author}\n**Published Year:** ${book.published_year}\n**Quantity:** ${book.quantity_available}`,
+                inline: false,
+            }));
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${constants.AVAILABEL_BOOKS} (Page ${Math.floor(i / itemsPerPage) + 1}/${totalPages})`)
+                .setColor('#00FF00')
+                .addFields(fields);
+
+            embeds.push(embed);
+        }
+
+        await display.books(message, books, pagination);
+        expect(pagination).toHaveBeenCalledWith(message, embeds);
     });
 });
