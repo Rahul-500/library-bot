@@ -1,5 +1,6 @@
 const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS } = process.env;
 const constants = require("../constants/constant");
+let intervalId = null;
 
 exports.checkOverdueBooks = async (dependencies) => {
   const { connection, client } = dependencies;
@@ -27,7 +28,6 @@ exports.checkOverdueBooks = async (dependencies) => {
 
         try {
           const user = await client.users.fetch(userId);
-
           user.send(
             `Reminder: The book "${bookTitle}" you checked out is overdue. Please return it as soon as possible.`
           );

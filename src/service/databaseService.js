@@ -28,7 +28,7 @@ exports.addBookToDatabase = async (message, connection, bookDetails) => {
 
     } catch (error) {
         await transactions.rollbackTransaction(connection);
-        message.reply("An unexpected error occurred while processing the command.");
+        message.reply(constants.UNEXPECTED_ERROR_PROCESSING_COMMAND_MESSAGE);
     }
 }
 
@@ -56,7 +56,7 @@ exports.deleteBookWithQuantity = async (message, connection, book, quantity) => 
 
     } catch (error) {
         await transactions.rollbackTransaction(connection);
-        message.reply("An unexpected error occurred while processing the command.");
+        message.reply(constants.UNEXPECTED_ERROR_PROCESSING_COMMAND_MESSAGE);
     }
 }
 
