@@ -424,6 +424,56 @@ describe('menu', () => {
         expect(display.libraryHistory).not.toHaveBeenCalled();
 
     });
+    
+    test('On /update-book, updateBook method should be invoked', async () => {
+        const command = '/update-book';
+        display.books = jest.fn();
+        mockMessage.content = command;
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(true),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+        commandsController.getAvailableBooks = jest.fn();
+        commandsController.getAvailableBooks.mockImplementationOnce((message, connection, bookMap) => {
+            return Promise.resolve([]);
+        });
+        commandsController.updateBook = jest.fn();
 
+
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            display,
+        };
+
+        await menuController.menu(dependencies);
+        expect(commandsController.updateBook).toHaveBeenCalled();
+    });
+
+    test('On /update-book, updateBook method should not be invoked', async () => {
+        const command = '/update-book';
+        display.books = jest.fn();
+        mockMessage.content = command;
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(false),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+        commandsController.getAvailableBooks = jest.fn();
+        commandsController.updateBook = jest.fn();
+
+
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            display,
+        };
+
+        await menuController.menu(dependencies);
+        expect(commandsController.updateBook).not.toHaveBeenCalled();
+    });
 });
 

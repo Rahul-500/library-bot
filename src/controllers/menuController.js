@@ -68,6 +68,20 @@ exports.menu = async (dependencies) => {
 
             break;
 
+        case command === ('/update-book'):
+            if (!validateUser.isAdmin(message)) {
+                message.reply(constants.HELP_MESSAGE);
+                break;
+            }
+
+            const booksForUpdate = await commandsController.getAvailableBooks(message, connection, bookMap)
+
+            if (!booksForUpdate) return
+            display.books(message, booksForUpdate)
+
+            await commandsController.updateBook(message, connection, bookMap, userEventsMap)
+            break;
+
         case command === ('/delete-book'):
             if (!validateUser.isAdmin(message)) {
                 message.reply(constants.HELP_MESSAGE);

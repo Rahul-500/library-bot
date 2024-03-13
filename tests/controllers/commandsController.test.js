@@ -1,6 +1,6 @@
 const { start } = require('../../src/controllers/commandsController')
-const sinon = require('sinon');
-const { getAvailableBooks, checkoutBook, getUserBooks, returnBook, addBook, deleteBook, help, getLibraryHistory } = require('../../src/controllers/commandsController')
+const { EventEmitter } = require('events');
+const { getAvailableBooks, checkoutBook, getUserBooks, returnBook, addBook, deleteBook, help, getLibraryHistory, updateBook } = require('../../src/controllers/commandsController')
 const constants = require('../../src/constants/constant')
 describe('/start command', () => {
     let mockMessage;
@@ -370,8 +370,6 @@ describe('returnBook', () => {
 describe('addBook function', () => {
     let mockMessage;
     let mockConnection;
-    let mockClient;
-    let mockMessageCreateHandler;
 
     beforeEach(() => {
         mockMessage = {
@@ -397,7 +395,6 @@ describe('addBook function', () => {
     test('should handle book details collection and add book to the database', async () => {
         const mockUserResponse = { content: 'Title; Author; 2022; 5' };
 
-        const { EventEmitter } = require('events');
         const userEventsMap = new Map()
         userEventsMap.set('test', { messageCreate: true });
 
@@ -429,9 +426,6 @@ describe('addBook function', () => {
         const mockUserResponse = { content: 'Title; Author; 2022; invalidQuantity' };
         const userEventsMap = new Map()
         userEventsMap.set('test', { messageCreate: true });
-
-        const { EventEmitter } = require('events');
-
         const collector = new EventEmitter();
         collector.stop = jest.fn();
 
@@ -482,8 +476,6 @@ describe('deleteBook function', () => {
 
     test('should handle book deletion', async () => {
         const mockUserResponse = { content: '1; 2' };
-
-        const { EventEmitter } = require('events');
         const userEventsMap = new Map()
         userEventsMap.set('test', { messageCreate: true });
 
@@ -508,9 +500,6 @@ describe('deleteBook function', () => {
         const mockUserResponse = { content: 'invalidID; invalidQuantity' };
         const userEventsMap = new Map()
         userEventsMap.set('test', { messageCreate: true });
-
-        const { EventEmitter } = require('events');
-
         const collector = new EventEmitter();
         collector.stop = jest.fn();
 
@@ -620,5 +609,120 @@ describe('getLibraryHistory function', () => {
         expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
         expect(result).toBeNull();
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.ERROR_FETCHING_LIBRARY_HISTORY);
+    });
+});
+
+describe('updateBook function', () => {
+    let mockMessage;
+    let mockConnection;
+    let mockBooks;
+    let mockUserEventsMap;
+
+    beforeEach(() => {
+        mockMessage = {
+            author: { id: 'test' },
+            reply: jest.fn(),
+            channel: {
+                createMessageCollector: jest.fn(),
+            },
+        };
+
+        mockConnection = {
+            query: jest.fn(),
+            beginTransaction: jest.fn(),
+            commit: jest.fn(),
+            rollback: jest.fn(),
+        };
+
+        mockBooks = new Map();
+        mockBooks.set(1, { id: 1, title: 'Test Book', author: 'Test Author', published_year: 2022, quantity_available: 5 });
+
+        mockUserEventsMap = new Map();
+        mockUserEventsMap.set('test', { messageCreate: true });
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('should handle updating book details successfully', async () => {
+        const mockUserResponseForCollector = { content: '1' }
+        const mockUserResponseForUpdateCollector = { content: 'New Title; New Author; 2023; 10' };
+        const collector = new EventEmitter();
+        const updateCollector = new EventEmitter()
+        collector.stop = jest.fn();
+        updateCollector.stop = jest.fn()
+
+        mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector).mockReturnValueOnce(updateCollector);
+
+        jest.spyOn(collector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                callback(mockUserResponseForCollector);
+            }
+        });
+
+        jest.spyOn(updateCollector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                callback(mockUserResponseForUpdateCollector);
+            }
+        });
+        mockConnection.beginTransaction.mockImplementation((callback) => {
+            callback(null);
+        });
+        mockConnection.query.mockResolvedValueOnce([]);
+        mockConnection.commit.mockResolvedValue();
+
+        await updateBook(mockMessage, mockConnection, mockBooks, mockUserEventsMap);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.UPDATE_BOOK_ID_PROMPT_MESSAGE);
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.UPDATE_BOOK_PROMPT_MESSAGE);
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.UPDATE_BOOK_DETAILS_RECEIVED_MESSAGE);
+    });
+
+    test('should handle updating book details with invalid book ID', async () => {
+        const mockUserResponseForCollector = { content: '99' }
+        const collector = new EventEmitter();
+        collector.stop = jest.fn();
+
+        mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+        jest.spyOn(collector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                callback(mockUserResponseForCollector);
+            }
+        });
+
+        await updateBook(mockMessage, mockConnection, mockBooks, mockUserEventsMap);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.UPDATE_BOOK_ID_PROMPT_MESSAGE);
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_BOOK_ID_MESSAGE);
+    });
+
+    test('should handle updating book details with invalid update details', async () => {
+        const mockUserResponseForCollector = { content: '1' }
+        const mockUserResponseForUpdateCollector = { content: 'New Title; New Author; 2023; invalidQuantity' };
+        const collector = new EventEmitter();
+        const updateCollector = new EventEmitter()
+        collector.stop = jest.fn();
+        updateCollector.stop = jest.fn()
+
+        mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector).mockReturnValueOnce(updateCollector);
+
+        jest.spyOn(collector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                callback(mockUserResponseForCollector);
+            }
+        });
+
+        jest.spyOn(updateCollector, 'on').mockImplementation((event, callback) => {
+            if (event === 'collect') {
+                callback(mockUserResponseForUpdateCollector);
+            }
+        });
+
+        await updateBook(mockMessage, mockConnection, mockBooks, mockUserEventsMap);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.UPDATE_BOOK_PROMPT_MESSAGE);
+        expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_UPDATE_DETAILS_MESSAGE);
     });
 });
