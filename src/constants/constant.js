@@ -59,4 +59,3 @@ exports.UPDATE_BOOK_DETAILS_RECEIVED_MESSAGE = "Received book details. Updating.
 exports.ERROR_UPDATE_BOOK_MESSAGE = "An error occurred while updating the book. Please try again later.";
 exports.TIME_INTERVAL_FOR_DUE_NOTIFICATION = 24 * 60 * 60 * 1000
 exports.UNEXPECTED_ERROR_PROCESSING_COMMAND_MESSAGE="An unexpected error occurred while processing the command."
-

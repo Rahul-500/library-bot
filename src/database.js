@@ -1,4 +1,3 @@
-
 const mysql = require('mysql2');
 const dbConfig = require('../config/db.config');
 
@@ -6,13 +5,27 @@ exports.connect = () => {
   return new Promise((resolve, reject) => {
     const connection = mysql.createConnection(dbConfig);
 
+    const keepAlive = () => {
+      connection.query('SELECT 1', (error) => {
+        if (error) {
+          console.error('Error keeping connection alive:', error);
+        }
+      });
+    };
+
+    const keepAliveInterval = setInterval(keepAlive, 6 * 60 * 60 * 1000);
+
     connection.connect((error) => {
       if (error) {
         reject(error);
       } else {
-        console.log('Connected to MySQL database!');
         resolve(connection);
       }
+    });
+
+    process.on('exit', () => {
+      clearInterval(keepAliveInterval);
+      connection.end();
     });
   });
 };

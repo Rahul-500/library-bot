@@ -6,7 +6,7 @@ exports.menu = async (dependencies) => {
     const { message, commandsController, connection, validateUser, bookMap, checkedOutBooks, display, userEventsMap } = dependencies;
 
     if (message.author.bot) return;
-
+   
     if (message.content !== '/start') {
         try {
             const isUserExisting = await validateUser.checkForExistingUser(message, connection);
