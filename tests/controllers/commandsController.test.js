@@ -36,15 +36,15 @@ describe('/start command', () => {
 
     test('start should call addUserInfo method for new user', async () => {
         const mockResults = [];
-    
+
         mockConnection.query.mockImplementation((query, callback) => {
             if (query.includes('SELECT * FROM')) {
                 callback(null, mockResults);
             }
         });
-    
+
         await start(mockMessage, mockConnection);
-    
+
         expect(mockConnection.query).toHaveBeenCalledWith(expect.stringContaining('SELECT * FROM'), expect.any(Function));
     });
 
@@ -135,6 +135,7 @@ describe('checkoutBook', () => {
             content: '/checkout 1',
             author: {
                 id: 'user123',
+                username: 'test'
             },
             reply: jest.fn(),
         };
@@ -147,7 +148,7 @@ describe('checkoutBook', () => {
         };
 
         mockBookMap = new Map([
-            [1, { id: 1, title: 'Book 1' }],
+            [1, { id: 1, title: 'Book 1', quantity_available: 2 }],
         ]);
 
 
@@ -160,7 +161,7 @@ describe('checkoutBook', () => {
     test('should reply with success message when book is successfully checked out', async () => {
         mockConnection.query.mockImplementationOnce((query, callback) => {
 
-            callback(null, [{ bookCount: 0 }]);
+            callback(null, []);
         });
         mockConnection.query.mockImplementationOnce((query, callback) => {
 
@@ -183,7 +184,7 @@ describe('checkoutBook', () => {
     test('should reply with error message when there is an error during checkout', async () => {
         mockConnection.query.mockImplementationOnce((query, callback) => {
 
-            callback(null, [{ bookCount: 0 }]);
+            callback(null, []);
         });
 
         mockConnection.query.mockImplementationOnce((query, callback) => {
@@ -206,13 +207,41 @@ describe('checkoutBook', () => {
     test('should reply with message that book is already checked out', async () => {
         mockConnection.query.mockImplementationOnce((query, callback) => {
 
-            callback(null, [{ bookCount: 1 }]);
+            callback(null, [{ name: 'test' }]);
         });
 
         await checkoutBook(mockMessage, mockConnection, mockBookMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(
             expect.stringContaining(constants.ALREADY_CHECKED_OUT_BOOK_MESSAGE)
+        );
+    });
+
+    test('should reply with message that book is currently unavailable with users', async () => {
+        let book = mockBookMap.get(1);
+        book.quantity_available = 0;
+        mockBookMap.set(1, book)
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+
+            callback(null, [{ name: 'rahul' }]);
+        });
+
+        await checkoutBook(mockMessage, mockConnection, mockBookMap);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            expect.stringContaining(constants.BOOK_CURRENTLY_NOT_AVAILABLE_MESSAGE+'`rahul`')
+        );
+    });
+    test('should reply with message error validating checked-out book', async () => {
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+
+            callback(new Error('Query error'), null);
+        });
+
+        await checkoutBook(mockMessage, mockConnection, mockBookMap);
+
+        expect(mockMessage.reply).toHaveBeenCalledWith(
+            expect.stringContaining(constants.ERROR_VALIDATING_CHECKED_OUT_BOOK_MESSAGE)
         );
     });
 });

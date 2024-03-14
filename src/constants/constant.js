@@ -58,4 +58,6 @@ exports.UNEXPECTED_UPDATE_ERROR_MESSAGE = "An unexpected error occurred during t
 exports.UPDATE_BOOK_DETAILS_RECEIVED_MESSAGE = "Received book details. Updating...";
 exports.ERROR_UPDATE_BOOK_MESSAGE = "An error occurred while updating the book. Please try again later.";
 exports.TIME_INTERVAL_FOR_DUE_NOTIFICATION = 24 * 60 * 60 * 1000
-exports.UNEXPECTED_ERROR_PROCESSING_COMMAND_MESSAGE="An unexpected error occurred while processing the command."
+exports.UNEXPECTED_ERROR_PROCESSING_COMMAND_MESSAGE = "An unexpected error occurred while processing the command."
+exports.ERROR_VALIDATING_CHECKED_OUT_BOOK_MESSAGE = "Error validating checked-out book. Please try again later."
+exports.BOOK_CURRENTLY_NOT_AVAILABLE_MESSAGE = `Sorry, the book is currently not available. Users who have the book: `

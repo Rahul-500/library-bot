@@ -3,6 +3,7 @@ const sinon = require('sinon');
 const bookService = require('../../src/service/databaseService');
 const transactions = require('../../src/service/transactions');
 const constants = require('../../src/constants/constant')
+const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_USERS, TABLE_NAME_ISSUED_BOOKS } = process.env;
 
 describe('addBookToDatabase', () => {
     let mockMessage;
@@ -215,3 +216,38 @@ describe('addUserInfo', () => {
         rollbackTransactionStub.restore();
     });
 });
+
+describe('getCheckedOutUsers', () => {
+    let mockConnection;
+    let mockBook;
+    const mockUsers = [{ name: 'User1' }, { name: 'User2' }, { name: 'User3' }];
+
+    beforeEach(() => {
+        mockConnection = {
+            query: jest.fn(),
+        };
+        mockBook = { id: 1 };
+    });
+
+    it('should return the list of checked out users for a book', async () => {
+        mockConnection.query.mockImplementation((query, callback) => {
+            if (query.includes('SELECT name from')) {
+                callback(null, mockUsers);
+            }
+        });
+        const users = await bookService.getCheckedOutUsers(mockConnection, mockBook);
+        assert.strictEqual(users, mockUsers);
+    });
+
+    it('should handle errors and return null', async () => {
+        const errorMessage = 'Fake database error';
+        mockConnection.query.mockImplementation((query, callback) => {
+            if (query.includes('SELECT name from')) {
+                callback(new Error(errorMessage), null);
+            }
+        });
+
+        const users = await bookService.getCheckedOutUsers(mockConnection, mockBook);
+        assert.strictEqual(users, null);
+    });
+})

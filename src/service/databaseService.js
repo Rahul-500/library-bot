@@ -1,6 +1,6 @@
 require("dotenv").config();
 const transactions = require("../service/transactions");
-const { DB_NAME, TABLE_NAME_BOOKS ,TABLE_NAME_USERS} = process.env;
+const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_USERS, TABLE_NAME_ISSUED_BOOKS } = process.env;
 const constants = require("../constants/constant");
 
 exports.addBookToDatabase = async (message, connection, bookDetails) => {
@@ -127,3 +127,25 @@ exports.addUserInfo = async (id, name, connection) => {
         await transactions.rollbackTransaction(connection);
     }
 };
+
+exports.getCheckedOutUsers = async (connection, book) => {
+    try {
+        const bookId = book.id;
+
+        const QUERY = `SELECT name from ${DB_NAME}.${TABLE_NAME_USERS} where id IN (SELECT user_id FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} WHERE book_id = ${bookId})`;
+
+        const queryPromise = new Promise((resolve, reject) => {
+            connection.query(QUERY, (error, result) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+        const users = await queryPromise;
+        return users
+    } catch (error) {
+        return null
+    }
+}
