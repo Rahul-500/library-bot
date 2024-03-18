@@ -61,3 +61,7 @@ exports.TIME_INTERVAL_FOR_DUE_NOTIFICATION = 24 * 60 * 60 * 1000
 exports.UNEXPECTED_ERROR_PROCESSING_COMMAND_MESSAGE = "An unexpected error occurred while processing the command."
 exports.ERROR_VALIDATING_CHECKED_OUT_BOOK_MESSAGE = "Error validating checked-out book. Please try again later."
 exports.BOOK_CURRENTLY_NOT_AVAILABLE_MESSAGE = `Sorry, the book is currently not available. Users who have the book: `
+exports.UNEXPECTED_REQUEST_NEW_BOOK_ERROR_MESSAGE = "An unexpected error occurred during the request new book process. Please try again by entering `/request-new-book` command.";
+exports.ERROR_SENDING_TO_ADMIN_MESSAGE = 'Error sending message to admin. Please try again later.'
+exports.SUCCESSFULL_SENDING_TO_ADMIN_MESSAGE = 'Book request notification successfully sent to admin.'
+exports.EXIT_REQUEST_BOOK_MESSAGE = 'Exiting book request. Your request has been canceled.'

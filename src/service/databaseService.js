@@ -1,7 +1,8 @@
 require("dotenv").config();
 const transactions = require("../service/transactions");
-const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_USERS, TABLE_NAME_ISSUED_BOOKS } = process.env;
+const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_USERS } = process.env;
 const constants = require("../constants/constant");
+let intervalId = null;
 
 exports.addBookToDatabase = async (message, connection, bookDetails) => {
     const { title, author, published_year, quantity_available } = bookDetails;
@@ -149,3 +150,53 @@ exports.getCheckedOutUsers = async (connection, book) => {
         return null
     }
 }
+
+exports.getUserIdByUsername = async (connection, username) => {
+    const QUERY = `SELECT id FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE name IN (${username})`;
+    try {
+        const queryPromise = new Promise((resolve, reject) => {
+            connection.query(QUERY, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+
+        const userIdList = await queryPromise;
+        return userIdList
+    } catch (error) {
+        return null;
+    }
+}
+
+exports.getOverdueBooks = (connection) => {
+    return new Promise((resolve, reject) => {
+        const intervalId = setInterval(async () => {
+            try {
+                const QUERY = `
+                    SELECT ib.*, b.title
+                    FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} ib
+                    JOIN ${DB_NAME}.${TABLE_NAME_BOOKS} b ON ib.book_id = b.id
+                    WHERE ib.checked_out < DATE_SUB(NOW(), INTERVAL 30 DAY)
+                `;
+                const queryPromise = new Promise((innerResolve, innerReject) => {
+                    connection.query(QUERY, (error, results) => {
+                        if (error) {
+                            innerReject(error);
+                        } else {
+                            innerResolve(results);
+                        }
+                    });
+                });
+                const overdueBooks = await queryPromise;
+                clearInterval(intervalId);
+                resolve(overdueBooks);
+            } catch (error) {
+                clearInterval(intervalId);
+                reject(error);
+            }
+        }, constants.TIME_INTERVAL_FOR_DUE_NOTIFICATION);
+    });
+};

@@ -251,3 +251,49 @@ describe('getCheckedOutUsers', () => {
         assert.strictEqual(users, null);
     });
 })
+
+describe('getUserIdByUsername', () => {
+    let mockConnection;
+
+    beforeEach(() => {
+        mockConnection = {
+            query: jest.fn(),
+        };
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should return user ID list when query succeeds', async () => {
+        const mockUsername = 'user1,user2';
+        const mockQueryResult = [{ id: 1 }, { id: 2 }];
+
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+            if (query.includes(`SELECT id FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE name IN (${mockUsername})`)) {
+                callback(null, mockQueryResult);
+            }
+        });
+
+        const userIdList = await bookService.getUserIdByUsername(mockConnection, mockUsername);
+
+        expect(userIdList).toEqual(mockQueryResult);
+        expect(mockConnection.query).toHaveBeenCalled();
+    });
+
+    it('should return null when query fails', async () => {
+        const mockUsername = 'user1,user2';
+        const errorMessage = 'Fake database error';
+
+        mockConnection.query.mockImplementationOnce((query, callback) => {
+            if (query.includes(`SELECT id FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE name IN (${mockUsername})`)) {
+                callback(new Error(errorMessage), null);
+            }
+        });
+
+        const userIdList = await bookService.getUserIdByUsername(mockConnection, mockUsername);
+
+        expect(userIdList).toBeNull();
+        expect(mockConnection.query).toHaveBeenCalled();
+    });
+});

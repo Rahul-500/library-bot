@@ -4,6 +4,7 @@ const transactions = require('../service/transactions')
 const { validateReturn } = require('../service/validateBook')
 const { addBookToDatabase, deleteBookWithQuantity, updateBookDetails, addUserInfo, getCheckedOutUsers } = require('../service/databaseService')
 const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_LIBRARY_HISTORY } = process.env;
+const { notifyAdminNewBookRequest } = require('../service/notifier')
 
 exports.start = async (message, connection) => {
     try {
@@ -404,6 +405,35 @@ exports.getLibraryHistory = async (message, connection) => {
         return null;
     }
 }
+
+exports.requestBook = async (client, message, connection, userEventsMap) => {
+    try {
+        const authorId = message.author.id;
+        await message.reply("Enter the title or link of the book");
+
+        const collector = message.channel.createMessageCollector();
+        userEventsMap.get(authorId).messageCreate = false;
+
+        collector.on('collect', async (response) => {
+            if (response.content.toLowerCase() === 'exit') {
+                message.reply(constants.EXIT_REQUEST_BOOK_MESSAGE);
+                collector.stop();
+                return;
+            }
+
+            const bookRequest = response.content.trim();
+            collector.stop()
+            await notifyAdminNewBookRequest(client, message, connection, bookRequest)
+        });
+
+        collector.on('end', () => {
+            userEventsMap.get(authorId).messageCreate = true;
+        });
+    } catch (error) {
+        message.reply(constants.UNEXPECTED_REQUEST_NEW_BOOK_ERROR_MESSAGE);
+        collector.stop();
+    }
+};
 
 exports.help = (message, isAdmin) => {
     let helpMessage = '';

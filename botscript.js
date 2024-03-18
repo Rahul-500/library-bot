@@ -45,7 +45,8 @@ connect()
                 bookMap,
                 checkedOutBooks,
                 display,
-                userEventsMap
+                userEventsMap,
+                client
             }
             menu(dependencies)
         }

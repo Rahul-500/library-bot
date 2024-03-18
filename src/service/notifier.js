@@ -1,38 +1,46 @@
-const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS } = process.env;
+require('dotenv').config()
+const { getUserIdByUsername, getOverdueBooks } = require('../service/databaseService')
 const constants = require("../constants/constant");
-let intervalId = null;
 
 exports.checkOverdueBooks = async (dependencies) => {
   const { connection, client } = dependencies;
-  intervalId = setInterval(async () => {
-    try {
-      const QUERY = `
-                SELECT ib.*, b.title
-                FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} ib
-                JOIN ${DB_NAME}.${TABLE_NAME_BOOKS} b ON ib.book_id = b.id
-                WHERE ib.checked_out < DATE_SUB(NOW(), INTERVAL 30 DAY)
-            `;
-      const queryPromise = new Promise((resolve, reject) => {
-        connection.query(QUERY, (error, results) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(results);
-          }
-        });
-      });
-      const overdueBooks = await queryPromise;
-      overdueBooks.forEach(async (book) => {
-        const userId = book.user_id;
-        const bookTitle = book.title;
+  const overdueBooks = await getOverdueBooks(connection)
+  overdueBooks.forEach(async (book) => {
+    const userId = book.user_id;
+    const bookTitle = book.title;
 
-        try {
-          const user = await client.users.fetch(userId);
-          user.send(
-            `Reminder: The book "${bookTitle}" you checked out is overdue. Please return it as soon as possible.`
-          );
-        } catch (error) {}
-      });
-    } catch (error) {}
-  }, constants.TIME_INTERVAL_FOR_DUE_NOTIFICATION);
+    try {
+      const user = await client.users.fetch(userId);
+      user.send(
+        `Reminder: The book "${bookTitle}" you checked out is overdue. Please return it as soon as possible.`
+      );
+    } catch (error) { }
+  });
 };
+
+
+exports.notifyAdminNewBookRequest = async (client, message, connection, bookRequest) => {
+  try {
+    const botOwnerUsernames = process.env.BOT_OWNER_USER_NAME.split(',').map(username => `'${username.trim()}'`);
+    const usernamesString = botOwnerUsernames.join(',');
+    const userIdList = await getUserIdByUsername(connection, usernamesString);
+    if (userIdList == null) throw new Error("Error")
+    let isNotified = false;
+    await userIdList.forEach(async (userId) => {
+      try {
+        const user = await client.users.fetch(userId.id);
+      
+        user.send(`Book request by ${message.author.username} : ${bookRequest}`);
+        isNotified = true
+      } catch (error) { }
+    });
+    if (!isNotified) {
+      message.reply(constants.ERROR_SENDING_TO_ADMIN_MESSAGE);
+      return;
+    }
+    message.reply(constants.SUCCESSFULL_SENDING_TO_ADMIN_MESSAGE);
+
+  } catch (error) {
+    message.reply(constants.UNEXPECTED_REQUEST_NEW_BOOK_ERROR_MESSAGE);
+  }
+}; 

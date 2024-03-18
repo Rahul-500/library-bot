@@ -475,5 +475,30 @@ describe('menu', () => {
         await menuController.menu(dependencies);
         expect(commandsController.updateBook).not.toHaveBeenCalled();
     });
-});
 
+    test('On /request-new-book, requestBook method should be invoked', async () => {
+        const command = '/request-new-book';
+        mockMessage.content = command;
+    
+        const userEventsMap = new Map();
+        const client = {};
+        const validateUser = {
+            isAdmin: jest.fn().mockReturnValue(false),
+            checkForExistingUser: jest.fn().mockReturnValue(true)
+        };
+    
+        commandsController.requestBook = jest.fn();
+    
+        let dependencies = {
+            message: mockMessage,
+            commandsController,
+            connection: mockConnection,
+            validateUser,
+            userEventsMap,
+            client,
+        };
+    
+        await menuController.menu(dependencies);
+        expect(commandsController.requestBook).toHaveBeenCalledWith(client, mockMessage, mockConnection, userEventsMap);
+    });    
+});
