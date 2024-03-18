@@ -38,7 +38,7 @@ exports.INVALID_DETAILS_MESSAGE =
   "Please try again by entering `/add-book` command as the provided data is in incorrect format.";
 exports.UNEXPECTED_ERROR_MESSAGE =
   "An unexpected error occurred while processing the command.";
-exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/add-book\`: Add a new book to the library.\n2. \`/delete-book\`: Remove a book from the library.\n3. \`/update-book\`: Update a existing book in the library.\n4. \`/library-history\`: Show library history.\n\n`;
+exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/add-book\`: Add a new book to the library.\n2. \`/delete-book\`: Remove a book from the library.\n3. \`/update-book\`: Update a existing book in the library.\n4. \`/library-history\`: Show library history.\n5. \`/view-book-requests\`: Show all book requests. \n\n`;
 exports.USER_COMMANDS = `**Available Commands:**
 1. \`/start\`: Start the bot.
 2. \`/available-books\`: Get available books.
