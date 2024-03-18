@@ -11,6 +11,7 @@ const {
   getLibraryHistory,
   updateBook,
   requestBook,
+  processBookRequest,
 } = require("../../src/controllers/commandsController");
 const constants = require("../../src/constants/constant");
 describe("/start command", () => {
@@ -42,7 +43,7 @@ describe("/start command", () => {
     });
     start(mockMessage, mockConnection);
     expect(mockConnection.query).not.toHaveBeenCalledWith(
-      expect.stringContaining("INSERT INTO")
+      expect.stringContaining("INSERT INTO"),
     );
   });
 
@@ -59,7 +60,7 @@ describe("/start command", () => {
 
     expect(mockConnection.query).toHaveBeenCalledWith(
       expect.stringContaining("SELECT * FROM"),
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 
@@ -73,7 +74,7 @@ describe("/start command", () => {
     await start(mockMessage, mockConnection);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.ERROR_FETCHING_USER
+      constants.ERROR_FETCHING_USER,
     );
   });
 });
@@ -134,7 +135,7 @@ describe("getAvailableBooks", () => {
     await getAvailableBooks(mockMessage, mockConnection);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.ERROR_FETCHING_BOOKS
+      constants.ERROR_FETCHING_BOOKS,
     );
   });
 });
@@ -187,7 +188,7 @@ describe("checkoutBook", () => {
     await checkoutBook(mockMessage, mockConnection, mockBookMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE)
+      expect.stringContaining(constants.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE),
     );
   });
 
@@ -209,7 +210,7 @@ describe("checkoutBook", () => {
     await checkoutBook(mockMessage, mockConnection, mockBookMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.ERROR_CHECKED_OUT_MESSAGE)
+      expect.stringContaining(constants.ERROR_CHECKED_OUT_MESSAGE),
     );
   });
 
@@ -221,7 +222,7 @@ describe("checkoutBook", () => {
     await checkoutBook(mockMessage, mockConnection, mockBookMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.ALREADY_CHECKED_OUT_BOOK_MESSAGE)
+      expect.stringContaining(constants.ALREADY_CHECKED_OUT_BOOK_MESSAGE),
     );
   });
 
@@ -237,8 +238,8 @@ describe("checkoutBook", () => {
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
       expect.stringContaining(
-        constants.BOOK_CURRENTLY_NOT_AVAILABLE_MESSAGE + "`rahul`"
-      )
+        constants.BOOK_CURRENTLY_NOT_AVAILABLE_MESSAGE + "`rahul`",
+      ),
     );
   });
   test("should reply with message error validating checked-out book", async () => {
@@ -250,8 +251,8 @@ describe("checkoutBook", () => {
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
       expect.stringContaining(
-        constants.ERROR_VALIDATING_CHECKED_OUT_BOOK_MESSAGE
-      )
+        constants.ERROR_VALIDATING_CHECKED_OUT_BOOK_MESSAGE,
+      ),
     );
   });
 });
@@ -290,7 +291,7 @@ describe("getUserBooks", () => {
     const books = await getUserBooks(
       mockMessage,
       mockConnection,
-      checkedOutBooks
+      checkedOutBooks,
     );
 
     expect(books).not.toBeNull();
@@ -306,7 +307,7 @@ describe("getUserBooks", () => {
     await getUserBooks(mockMessage, mockConnection, checkedOutBooks);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.NO_CHECKED_OUT_BOOK_MESSAGE
+      constants.NO_CHECKED_OUT_BOOK_MESSAGE,
     );
   });
 
@@ -320,7 +321,7 @@ describe("getUserBooks", () => {
     await getUserBooks(mockMessage, mockConnection, checkedOutBooks);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.ERROR_FETCHING_BOOKS
+      constants.ERROR_FETCHING_BOOKS,
     );
   });
 });
@@ -370,7 +371,7 @@ describe("returnBook", () => {
     await returnBook(mockMessage, mockConnection, mockCheckedOutBooks);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.RETURN_BOOK_SUCCUESSFULLY_MESSAGE)
+      expect.stringContaining(constants.RETURN_BOOK_SUCCUESSFULLY_MESSAGE),
     );
   });
 
@@ -392,7 +393,7 @@ describe("returnBook", () => {
     await returnBook(mockMessage, mockConnection, mockCheckedOutBooks);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.ERROR_RETURN_MESSAGE)
+      expect.stringContaining(constants.ERROR_RETURN_MESSAGE),
     );
   });
 
@@ -404,7 +405,7 @@ describe("returnBook", () => {
     await returnBook(mockMessage, mockConnection, mockCheckedOutBooks);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.CANNOT_RETURN_BOOK_MESSAGE)
+      expect.stringContaining(constants.CANNOT_RETURN_BOOK_MESSAGE),
     );
   });
 });
@@ -460,10 +461,10 @@ describe("addBook function", () => {
     await addBook(mockMessage, mockConnection, userEventsMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.BOOK_DETAILS_PROMPT_MESSAGE
+      constants.BOOK_DETAILS_PROMPT_MESSAGE,
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.ADD_BOOK_DETAILS_RECEIVED_MESSAGE
+      constants.ADD_BOOK_DETAILS_RECEIVED_MESSAGE,
     );
   });
 
@@ -487,7 +488,7 @@ describe("addBook function", () => {
     await addBook(mockMessage, mockConnection, userEventsMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.INVALID_DETAILS_MESSAGE
+      constants.INVALID_DETAILS_MESSAGE,
     );
   });
 });
@@ -541,10 +542,10 @@ describe("deleteBook function", () => {
     await deleteBook(mockMessage, mockConnection, mockBookMap, userEventsMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.DELETE_BOOK_PROMPT_MESSAGE
+      constants.DELETE_BOOK_PROMPT_MESSAGE,
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.DELETE_BOOK_DETAILS_RECEIVED_MESSAGE
+      constants.DELETE_BOOK_DETAILS_RECEIVED_MESSAGE,
     );
   });
 
@@ -565,7 +566,7 @@ describe("deleteBook function", () => {
 
     await deleteBook(mockMessage, mockConnection, mockBookMap, userEventsMap);
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.INVALID_DELETE_DETAILS_MESSAGE
+      constants.INVALID_DELETE_DETAILS_MESSAGE,
     );
   });
 });
@@ -589,28 +590,28 @@ describe("help function", () => {
     help(mockMessage, isAdmin);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("Admin Commands")
+      expect.stringContaining("Admin Commands"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/add-book")
+      expect.stringContaining("/add-book"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("Available Commands")
+      expect.stringContaining("Available Commands"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/start")
+      expect.stringContaining("/start"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/available-books")
+      expect.stringContaining("/available-books"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/checkout [Book ID]")
+      expect.stringContaining("/checkout [Book ID]"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/my-books")
+      expect.stringContaining("/my-books"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/return [Book ID]")
+      expect.stringContaining("/return [Book ID]"),
     );
   });
 
@@ -620,28 +621,28 @@ describe("help function", () => {
     help(mockMessage, isAdmin);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.not.stringContaining("Admin Commands")
+      expect.not.stringContaining("Admin Commands"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.not.stringContaining("/add-book")
+      expect.not.stringContaining("/add-book"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("Available Commands")
+      expect.stringContaining("Available Commands"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/start")
+      expect.stringContaining("/start"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/available-books")
+      expect.stringContaining("/available-books"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/checkout [Book ID]")
+      expect.stringContaining("/checkout [Book ID]"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/my-books")
+      expect.stringContaining("/my-books"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/return [Book ID]")
+      expect.stringContaining("/return [Book ID]"),
     );
   });
 });
@@ -688,7 +689,7 @@ describe("getLibraryHistory function", () => {
 
     expect(mockConnection.query).toHaveBeenCalledWith(
       expect.any(String),
-      expect.any(Function)
+      expect.any(Function),
     );
     expect(result).toEqual(mockResults);
     expect(mockMessage.reply).not.toHaveBeenCalled();
@@ -705,11 +706,11 @@ describe("getLibraryHistory function", () => {
 
     expect(mockConnection.query).toHaveBeenCalledWith(
       expect.any(String),
-      expect.any(Function)
+      expect.any(Function),
     );
     expect(result).toBeNull();
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.ERROR_FETCHING_LIBRARY_HISTORY
+      constants.ERROR_FETCHING_LIBRARY_HISTORY,
     );
   });
 });
@@ -787,13 +788,13 @@ describe("updateBook function", () => {
     await updateBook(mockMessage, mockConnection, mockBooks, mockUserEventsMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.UPDATE_BOOK_ID_PROMPT_MESSAGE
+      constants.UPDATE_BOOK_ID_PROMPT_MESSAGE,
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.UPDATE_BOOK_PROMPT_MESSAGE
+      constants.UPDATE_BOOK_PROMPT_MESSAGE,
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.UPDATE_BOOK_DETAILS_RECEIVED_MESSAGE
+      constants.UPDATE_BOOK_DETAILS_RECEIVED_MESSAGE,
     );
   });
 
@@ -813,10 +814,10 @@ describe("updateBook function", () => {
     await updateBook(mockMessage, mockConnection, mockBooks, mockUserEventsMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.UPDATE_BOOK_ID_PROMPT_MESSAGE
+      constants.UPDATE_BOOK_ID_PROMPT_MESSAGE,
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.INVALID_BOOK_ID_MESSAGE
+      constants.INVALID_BOOK_ID_MESSAGE,
     );
   });
 
@@ -849,10 +850,10 @@ describe("updateBook function", () => {
     await updateBook(mockMessage, mockConnection, mockBooks, mockUserEventsMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.UPDATE_BOOK_PROMPT_MESSAGE
+      constants.UPDATE_BOOK_PROMPT_MESSAGE,
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.INVALID_UPDATE_DETAILS_MESSAGE
+      constants.INVALID_UPDATE_DETAILS_MESSAGE,
     );
   });
 });
@@ -906,7 +907,7 @@ describe("requestBook function", () => {
     await requestBook(null, mockMessage, mockConnection, mockUserEventsMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      "Enter the title or link of the book"
+      "Enter the title or link of the book",
     );
   });
 
@@ -925,7 +926,212 @@ describe("requestBook function", () => {
     await requestBook(null, mockMessage, mockConnection, mockUserEventsMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      constants.EXIT_REQUEST_BOOK_MESSAGE
+      constants.EXIT_REQUEST_BOOK_MESSAGE,
     );
+  });
+});
+
+describe("processBookRequest function", () => {
+  let mockMessage;
+  let mockConnection;
+  let mockBookRequests;
+  let mockUserEventsMap;
+  let mockClient;
+
+  beforeEach(() => {
+    mockMessage = {
+      author: { id: "test" },
+      reply: jest.fn(),
+      channel: {
+        createMessageCollector: jest.fn(),
+      },
+    };
+
+    mockConnection = {
+      query: jest.fn(),
+      beginTransaction: jest.fn(),
+      commit: jest.fn(),
+      rollback: jest.fn(),
+    };
+
+    mockBookRequests = [
+      { id: 1, user_id: "user1", description: "Book 1 Request" },
+      { id: 2, user_id: "user2", description: "Book 2 Request" },
+    ];
+
+    mockUserEventsMap = new Map();
+    mockUserEventsMap.set("test", { messageCreate: true });
+
+    mockClient = {};
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("should handle book request approval", async () => {
+    const mockUserResponse = { content: "/approve 1" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+    mockConnection.beginTransaction.mockImplementationOnce((callback) => {
+      callback(null);
+    });
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      callback(null, mockBookRequests);
+    });
+    mockConnection.commit.mockImplementationOnce((callback) => {
+      callback(null);
+    });
+    await processBookRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockBookRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.CHANGE_BOOK_REQUEST_STATUS_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.CHANGE_OF_STATUS_RECEIVED,
+    );
+  });
+
+  test("should handle book request decline", async () => {
+    const mockUserResponse = { content: "/decline 2" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+    mockConnection.beginTransaction.mockImplementationOnce((callback) => {
+      callback(null);
+    });
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      callback(null, mockBookRequests);
+    });
+    mockConnection.commit.mockImplementationOnce((callback) => {
+      callback(null);
+    });
+    await processBookRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockBookRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.CHANGE_BOOK_REQUEST_STATUS_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.CHANGE_OF_STATUS_RECEIVED,
+    );
+  });
+
+  test("should handle invalid input format", async () => {
+    const mockUserResponse = { content: "invalidInput" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+
+    await processBookRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockBookRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.CHANGE_BOOK_REQUEST_STATUS_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.INVALID_CHANGE_OF_APPROVAL_DETAILS_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledTimes(2);
+  });
+
+  test("should handle nonexistent book request", async () => {
+    const mockUserResponse = { content: "/approve 3" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+
+    await processBookRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockBookRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.CHANGE_BOOK_REQUEST_STATUS_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.INVALID_REQUEST_ID_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledTimes(2);
+  });
+
+  test("should handle collector 'end' event", async () => {
+    const mockUserResponse = { content: "exit" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      } else if (event === "end") {
+        callback();
+      }
+    });
+
+    await processBookRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockBookRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.CHANGE_BOOK_REQUEST_STATUS_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.EXIT_VIEW_BOOK_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,14 +1,14 @@
-const mysql = require('mysql2');
-const dbConfig = require('../config/db.config');
+const mysql = require("mysql2");
+const dbConfig = require("../config/db.config");
 
 exports.connect = () => {
   return new Promise((resolve, reject) => {
     const connection = mysql.createConnection(dbConfig);
 
     const keepAlive = () => {
-      connection.query('SELECT 1', (error) => {
+      connection.query("SELECT 1", (error) => {
         if (error) {
-          console.error('Error keeping connection alive:', error);
+          console.error("Error keeping connection alive:", error);
         }
       });
     };
@@ -23,7 +23,7 @@ exports.connect = () => {
       }
     });
 
-    process.on('exit', () => {
+    process.on("exit", () => {
       clearInterval(keepAliveInterval);
       connection.end();
     });
