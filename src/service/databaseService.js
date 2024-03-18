@@ -233,7 +233,6 @@ exports.addBookRequest = async (connection, bookRequest, message) => {
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
         if (error) {
-          console.log(error);
           reject(error);
         } else {
           resolve(results);

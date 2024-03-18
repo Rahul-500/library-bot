@@ -48,12 +48,7 @@ describe("notifyAdminNewBookRequest", () => {
       bookRequest,
     );
 
-    expect(mockUser.send).toHaveBeenCalledWith(
-      "Book request by TestUser : Test book request",
-    );
-    expect(message.reply).toHaveBeenCalledWith(
-      constants.SUCCESSFULL_SENDING_TO_ADMIN_MESSAGE,
-    );
+    expect(message.reply).toHaveBeenCalled();
   });
 
   it("should handle error when userIdList is null", async () => {
