@@ -13,7 +13,7 @@ exports.connect = () => {
       });
     };
 
-    const keepAliveInterval = setInterval(keepAlive, 2 * 60 * 60 * 1000);
+    const keepAliveInterval = setInterval(keepAlive, 0.5 * 60 * 60 * 1000);
 
     connection.connect((error) => {
       if (error) {
