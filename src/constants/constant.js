@@ -1,5 +1,5 @@
-exports.MENU_OPTIONS = 'Menu:\n1. Available Books\n2. My Books'
-exports.ADMIN_OPTIONS = 'Menu:\n1. Available Books\n2. My Books\n3. Add Book\n4. Remove Book\n5. Update Book\n6. Library History'
+exports.MENU_OPTIONS = 'Menu:\n1. Available Books\n2. My Books\n3. Request New Book'
+exports.ADMIN_OPTIONS = 'Menu:\n1. Available Books\n2. My Books\n3. Add Book\n4. Remove Book\n5. Update Book\n6. Library History\n7. Request New Book'
 exports.QUERY = 'SELECT * FROM library.books WHERE quantity_available > 0';
 exports.ERROR_FETCHING_BOOKS = "Error fetching available books. Please try again later.";
 exports.ERROR_FETCHING_USER = "Error fetching user. Please try again later.";
@@ -24,7 +24,17 @@ exports.ADD_BOOK_DETAILS_RECEIVED_MESSAGE = "Book details received. Adding the b
 exports.INVALID_DETAILS_MESSAGE = "Please try again by entering `/add-book` command as the provided data is in incorrect format.";
 exports.UNEXPECTED_ERROR_MESSAGE = "An unexpected error occurred while processing the command.";
 exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/add-book\`: Add a new book to the library.\n2. \`/delete-book\`: Remove a book from the library.\n3. \`/update-book\`: Update a existing book in the library.\n4. \`/library-history\`: Show library history.\n\n`;
-exports.USER_COMMANDS = `**Available Commands:**\n1. \`/start\`: Start the bot.\n2. \`/available-books\`: Get available books.\n3. \`/checkout [Book ID]\`: Checkout a book by providing its ID.\n4. \`/my-books\`: Get a list of books checked out by the user.\n5. \`/return [Book ID]\`: Return a checked-out book by providing its ID.\n\n**Note:**\n- Ensure to get available books (\`/available-books\`) before checking out.\n- Ensure to get checked out books (\`/my-books\`) before returning.`;
+exports.USER_COMMANDS = `**Available Commands:**
+1. \`/start\`: Start the bot.
+2. \`/available-books\`: Get available books.
+3. \`/checkout [Book ID]\`: Checkout a book by providing its ID.
+4. \`/my-books\`: Get a list of books checked out by the user.
+5. \`/return [Book ID]\`: Return a checked-out book by providing its ID.
+6. \`/request-new-book\`: Request a new book by providing its description.
+
+**Note:**
+- Ensure to get available books (\`/available-books\`) before checking out.
+- Ensure to get checked out books (\`/my-books\`) before returning.`;
 exports.DELETE_BOOK_PROMPT_MESSAGE = "Please provide book details in the following format: Id; quantity or Enter `exit` to cancel"
 exports.INVALID_DELETE_BOOK_ID_MESSAGE = 'Invalid book ID. Please provide a valid ID from the list of available books. Please try again by entering `/delete-book` command';
 exports.DELETE_BOOK_DETAILS_RECEIVED_MESSAGE = "Book details received. Deleting the book to the database...";
