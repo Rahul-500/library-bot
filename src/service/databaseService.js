@@ -1,6 +1,7 @@
 require("dotenv").config();
 const transactions = require("../service/transactions");
-const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_USERS } = process.env;
+const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_USERS } =
+    process.env;
 const constants = require("../constants/constant");
 let intervalId = null;
 
@@ -145,11 +146,12 @@ exports.getCheckedOutUsers = async (connection, book) => {
             });
         });
         const users = await queryPromise;
-        return users
+        return users;
     } catch (error) {
-        return null
+        return null;
     }
-}
+    u;
+};
 
 exports.getUserIdByUsername = async (connection, username) => {
     const QUERY = `SELECT id FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE name IN (${username})`;
@@ -165,11 +167,11 @@ exports.getUserIdByUsername = async (connection, username) => {
         });
 
         const userIdList = await queryPromise;
-        return userIdList
+        return userIdList;
     } catch (error) {
         return null;
     }
-}
+};
 
 exports.getOverdueBooks = (connection) => {
     return new Promise((resolve, reject) => {
@@ -199,4 +201,26 @@ exports.getOverdueBooks = (connection) => {
             }
         }, constants.TIME_INTERVAL_FOR_DUE_NOTIFICATION);
     });
+};
+
+exports.addBookRequest = async (connection, bookRequest, message) => {
+    try {
+        const userId = message.author.id;
+        await transactions.beginTransaction(connection);
+        const QUERY = `INSERT INTO ${DB_NAME}.book_request_alerts(user_id, description) VALUES('${userId}', '${bookRequest}')`;
+        const queryPromise = new Promise((resolve, reject) => {
+            connection.query(QUERY, (error, results) => {
+                if (error) {
+                    console.log(error);
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+        await queryPromise;
+        await transactions.commitTransaction(connection);
+    } catch (error) {
+        await transactions.rollbackTransaction(connection);
+    }
 };

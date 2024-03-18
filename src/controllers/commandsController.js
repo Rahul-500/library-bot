@@ -2,7 +2,7 @@ require('dotenv').config()
 const constants = require('../constants/constant')
 const transactions = require('../service/transactions')
 const { validateReturn } = require('../service/validateBook')
-const { addBookToDatabase, deleteBookWithQuantity, updateBookDetails, addUserInfo, getCheckedOutUsers } = require('../service/databaseService')
+const { addBookToDatabase, deleteBookWithQuantity, updateBookDetails, addUserInfo, getCheckedOutUsers, addBookRequest } = require('../service/databaseService')
 const { DB_NAME, TABLE_NAME_USERS, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_LIBRARY_HISTORY } = process.env;
 const { notifyAdminNewBookRequest } = require('../service/notifier')
 
@@ -423,6 +423,7 @@ exports.requestBook = async (client, message, connection, userEventsMap) => {
 
             const bookRequest = response.content.trim();
             collector.stop()
+            await addBookRequest(connection, bookRequest, message)
             await notifyAdminNewBookRequest(client, message, connection, bookRequest)
         });
 

@@ -15,7 +15,7 @@ exports.validateReturn = (connection, userId, bookId) => {
         connection.query(QUERY, (error, result) => {
             if (error) {
                 reject(error);
-            } else {
+            } else {    
                 resolve(result[0].bookCount > 0);
             }
         });

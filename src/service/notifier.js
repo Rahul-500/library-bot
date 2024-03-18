@@ -18,7 +18,6 @@ exports.checkOverdueBooks = async (dependencies) => {
   });
 };
 
-
 exports.notifyAdminNewBookRequest = async (client, message, connection, bookRequest) => {
   try {
     const botOwnerUsernames = process.env.BOT_OWNER_USER_NAME.split(',').map(username => `'${username.trim()}'`);
