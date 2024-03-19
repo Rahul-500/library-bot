@@ -59,7 +59,7 @@ exports.menu = async (dependencies) => {
         message.reply(constants.GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE);
         break;
       }
-      await commandsController.checkoutBook(message, connection, bookMap);
+      await commandsController.checkoutBook(message, connection, bookMap,client);
       break;
 
     case command === "/my-books":

@@ -21,6 +21,7 @@ const {
 const {
   notifyAdminNewBookRequest,
   notifyUserAboutBookRequest,
+  notifyAdminCheckoutRequest,
 } = require("../service/notifier");
 
 exports.start = async (message, connection) => {
@@ -76,7 +77,7 @@ exports.getAvailableBooks = async (message, connection, bookMap) => {
   }
 };
 
-exports.checkoutBook = async (message, connection, bookMap) => {
+exports.checkoutBook = async (message, connection, bookMap, client) => {
   const content = message.content;
   const userId = message.author.id;
   const userName = message.author.username;
@@ -109,31 +110,7 @@ exports.checkoutBook = async (message, connection, bookMap) => {
     return;
   }
 
-  const QUERY = `INSERT INTO ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
-  try {
-    await transactions.beginTransaction(connection);
-
-    const queryPromise = new Promise((resolve, reject) => {
-      connection.query(QUERY, (error, results) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results);
-        }
-      });
-    });
-
-    await queryPromise;
-
-    await transactions.commitTransaction(connection);
-
-    message.reply(
-      `${constants.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE} ${book.title}`,
-    );
-  } catch (error) {
-    await transactions.rollbackTransaction(connection);
-    message.reply(constants.ERROR_CHECKED_OUT_MESSAGE);
-  }
+  await notifyAdminCheckoutRequest(message, connection, client, book);
 };
 
 exports.getUserBooks = async (message, connection, checkedOutBooks) => {

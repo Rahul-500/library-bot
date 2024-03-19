@@ -150,7 +150,6 @@ exports.getCheckedOutUsers = async (connection, book) => {
   } catch (error) {
     return null;
   }
-  u;
 };
 
 exports.getUserIdByUsername = async (connection, username) => {
@@ -277,3 +276,28 @@ exports.updateBookRequestStatus = async (
     return null;
   }
 };
+
+exports.addCheckoutRequest = async (connection, userId, bookId) => {
+  try {
+    const QUERY = `INSERT INTO ${DB_NAME}.checkout_request_alerts  (book_id,user_id) VALUES ('${bookId}', '${userId}')`;
+    await transactions.beginTransaction(connection);
+
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+    const result = await queryPromise;
+    await transactions.commitTransaction(connection);
+
+    return result
+  } catch (error) {
+    await transactions.rollbackTransaction(connection);
+    return null
+  }
+}

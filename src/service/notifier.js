@@ -2,6 +2,7 @@ require("dotenv").config();
 const {
   getUserIdByUsername,
   getOverdueBooks,
+  addCheckoutRequest
 } = require("../service/databaseService");
 const constants = require("../constants/constant");
 
@@ -17,7 +18,7 @@ exports.checkOverdueBooks = async (dependencies) => {
       user.send(
         `Reminder: The book "${bookTitle}" you checked out is overdue. Please return it as soon as possible.`,
       );
-    } catch (error) {}
+    } catch (error) { }
   });
 };
 
@@ -43,7 +44,7 @@ exports.notifyAdminNewBookRequest = async (
           `Book request by ${message.author.username} : ${bookRequest}`,
         );
         isNotified = true;
-      } catch (error) {}
+      } catch (error) { }
     });
     if (!isNotified) {
       message.reply(constants.ERROR_SENDING_TO_ADMIN_MESSAGE);
@@ -66,5 +67,39 @@ exports.notifyUserAboutBookRequest = async (
     user.send(
       `The book \`${description}\` you requested has been marked as \`${status}\``,
     );
-  } catch (error) {}
+  } catch (error) { }
 };
+
+exports.notifyAdminCheckoutRequest = async (message, connection, client, book) => {
+  try {
+    const botOwnerUsernames = process.env.BOT_OWNER_USER_NAME.split(",").map(
+      (username) => `'${username.trim()}'`,
+    );
+    const usernamesString = botOwnerUsernames.join(",");
+    const userIdList = await getUserIdByUsername(connection, usernamesString);
+    if (userIdList == null) throw new Error("Error");
+    let isNotified = false;
+
+    await userIdList.forEach(async (userId) => {
+      try {
+        const user = await client.users.fetch(userId.id);
+
+        user.send(
+          `Book checkout request by \`${message.author.username}\` : \`${book.title}\``,
+        );
+        isNotified = true;
+
+      } catch (error) { }
+    });
+
+    const checkoutRequest = await addCheckoutRequest(connection, message.author.id, book.id)
+
+    if (!isNotified || !checkoutRequest) {
+      message.reply(constants.ERROR_SENDING_TO_ADMIN_MESSAGE);
+      return;
+    }
+    message.reply(constants.SUCCESSFULL_SENDING_TO_ADMIN_MESSAGE);
+  } catch (error) {
+    message.reply(constants.UNEXPECTED_CHECKOUT_BOOK_ERROR_MESSAGE);
+  }
+}

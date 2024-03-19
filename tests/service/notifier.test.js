@@ -2,6 +2,7 @@ const constants = require("../../src/constants/constant");
 const {
   notifyAdminNewBookRequest,
   notifyUserAboutBookRequest,
+  notifyAdminCheckoutRequest
 } = require("../../src/service/notifier");
 
 describe("notifyAdminNewBookRequest", () => {
@@ -115,5 +116,86 @@ describe("notifyUserAboutBookRequest", () => {
 
     expect(mockClient.users.fetch).toHaveBeenCalledWith(userId);
     expect(mockUser.send).not.toHaveBeenCalled();
+  });
+});
+
+describe("notifyAdminCheckoutRequest", () => {
+  let mockConnection;
+  let mockClient;
+  let mockUser;
+  beforeEach(() => {
+    mockConnection = {
+      query: jest.fn(),
+    };
+
+    mockUser = {
+      send: jest.fn(),
+    };
+    mockClient = {
+      users: {
+        fetch: jest.fn().mockResolvedValue(mockUser),
+      },
+    };
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should notify admin and reply with success message", async () => {
+    const message = {
+      author: {
+        username: "TestUser",
+      },
+      reply: jest.fn(),
+    };
+    const book = [
+      {
+          id: 1,
+          title: "Dummy Book 1",
+          author: "Dummy Author 1",
+          published_year: 2020,
+          quantity_available: 5
+      }
+    ]
+    const userIdList = [{ id: "123" }, { id: "456" }];
+
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      callback(null, userIdList);
+    });
+
+    await notifyAdminCheckoutRequest(
+      message,
+      mockConnection,
+      mockClient,
+      book,
+    );
+
+    expect(message.reply).toHaveBeenCalled();
+  });
+
+  it("should handle error when userIdList is null", async () => {
+    const message = {
+      author: {
+        username: "TestUser",
+      },
+      reply: jest.fn(),
+    };
+    const book = [];
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      callback(null, null);
+    });
+
+    await notifyAdminCheckoutRequest(
+      message,
+      mockConnection,
+      mockClient,
+      book,
+    );
+
+    expect(mockClient.users.fetch).not.toHaveBeenCalled();
+    expect(message.reply).toHaveBeenCalledWith(
+      constants.UNEXPECTED_CHECKOUT_BOOK_ERROR_MESSAGE,
+    );
   });
 });

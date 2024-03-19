@@ -132,3 +132,4 @@ exports.SUCCESSFULL_UPDATE_BOOK_REQUEST_STATUS_MESSAGE =
   "Book Request Status was updated successfully.";
 exports.ERROR_CHANGING_BOOK_REQUEST_STATUS_MESSAGE =
   "Error while updating book request status. Please try again later.";
+exports.UNEXPECTED_CHECKOUT_BOOK_ERROR_MESSAGE = "An unexpected error occurred during checkout. Please try again by entering `/checkout [id]` command."

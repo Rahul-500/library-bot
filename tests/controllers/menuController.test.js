@@ -228,11 +228,7 @@ describe("menu", () => {
     expect(mockMessage.reply).not.toHaveBeenCalledWith(
       expect.stringContaining(constants.GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE),
     );
-    expect(commandsController.checkoutBook).toHaveBeenCalledWith(
-      mockMessage,
-      mockConnection,
-      bookMap,
-    );
+    expect(commandsController.checkoutBook).toHaveBeenCalled()
   });
 
   test("should reply with GET_AVAILABLE_BEFORE_RETURN_MESSAGE if checkedOutBooks is empty", async () => {

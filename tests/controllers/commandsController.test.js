@@ -140,18 +140,16 @@ describe("getAvailableBooks", () => {
   });
 });
 
-describe("checkoutBook", () => {
+describe("checkoutBook function", () => {
   let mockMessage;
   let mockConnection;
   let mockBookMap;
+  let mockClient;
 
   beforeEach(() => {
     mockMessage = {
+      author: { id: "test", username: "TestUser" },
       content: "/checkout 1",
-      author: {
-        id: "user123",
-        username: "test",
-      },
       reply: jest.fn(),
     };
 
@@ -162,21 +160,67 @@ describe("checkoutBook", () => {
       rollback: jest.fn(),
     };
 
-    mockBookMap = new Map([
-      [1, { id: 1, title: "Book 1", quantity_available: 2 }],
-    ]);
+    mockBookMap = new Map();
+    mockBookMap.set(1, { id: 1, quantity_available: 1 });
+
+    mockClient = {
+      users: {
+        fetch: jest.fn(() => ({ username: "Admin" })),
+      },
+    };
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  test("should reply with success message when book is successfully checked out", async () => {
+  test("should handle book not found", async () => {
+    mockBookMap.clear();
+
+    await checkoutBook(mockMessage, mockConnection, mockBookMap, mockClient);
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_WITH_THAT_ID_NOT_FOUND_MESSAGE);
+  });
+
+  test("should handle error validating checked out users", async () => {
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      callback(new Error('Error'), null);
+    });
+
+    await checkoutBook(mockMessage, mockConnection, mockBookMap, mockClient);
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.ERROR_VALIDATING_CHECKED_OUT_BOOK_MESSAGE);
+  });
+
+  test("should handle already checked out book", async () => {
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      callback(null, [{ name: "TestUser" }]);
+    });
+
+    await checkoutBook(mockMessage, mockConnection, mockBookMap, mockClient);
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.ALREADY_CHECKED_OUT_BOOK_MESSAGE);
+  });
+
+  test("should handle book currently not available", async () => {
+    mockBookMap.set(1, { id: 1, quantity_available: 0 });
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      callback(null, []);
+    });
+    await checkoutBook(mockMessage, mockConnection, mockBookMap, mockClient);
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining("None"));
+  });
+
+  test("should checkout a book if it is available", async () => {
     mockConnection.query.mockImplementationOnce((query, callback) => {
       callback(null, []);
     });
     mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(null, [{}]);
+      callback(null, [{ id: '12345' }]);
+    });
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      callback(null,[]);
     });
     mockConnection.beginTransaction.mockImplementation((callback) => {
       callback(null);
@@ -185,75 +229,9 @@ describe("checkoutBook", () => {
       callback(null);
     });
 
-    await checkoutBook(mockMessage, mockConnection, mockBookMap);
+    await checkoutBook(mockMessage, mockConnection, mockBookMap, mockClient);
 
-    expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE),
-    );
-  });
-
-  test("should reply with error message when there is an error during checkout", async () => {
-    mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(null, []);
-    });
-
-    mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(new Error("Test error"), null);
-    });
-    mockConnection.beginTransaction.mockImplementationOnce((callback) => {
-      callback(new Error("Failed to begin transaction"));
-    });
-    mockConnection.rollback.mockImplementationOnce((callback) => {
-      callback(null);
-    });
-
-    await checkoutBook(mockMessage, mockConnection, mockBookMap);
-
-    expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.ERROR_CHECKED_OUT_MESSAGE),
-    );
-  });
-
-  test("should reply with message that book is already checked out", async () => {
-    mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(null, [{ name: "test" }]);
-    });
-
-    await checkoutBook(mockMessage, mockConnection, mockBookMap);
-
-    expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.ALREADY_CHECKED_OUT_BOOK_MESSAGE),
-    );
-  });
-
-  test("should reply with message that book is currently unavailable with users", async () => {
-    let book = mockBookMap.get(1);
-    book.quantity_available = 0;
-    mockBookMap.set(1, book);
-    mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(null, [{ name: "rahul" }]);
-    });
-
-    await checkoutBook(mockMessage, mockConnection, mockBookMap);
-
-    expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(
-        constants.BOOK_CURRENTLY_NOT_AVAILABLE_MESSAGE + "`rahul`",
-      ),
-    );
-  });
-  test("should reply with message error validating checked-out book", async () => {
-    mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(new Error("Query error"), null);
-    });
-
-    await checkoutBook(mockMessage, mockConnection, mockBookMap);
-
-    expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(
-        constants.ERROR_VALIDATING_CHECKED_OUT_BOOK_MESSAGE,
-      ),
-    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(expect.stringContaining("admin"));
   });
 });
 
