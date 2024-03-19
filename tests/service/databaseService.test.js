@@ -793,3 +793,43 @@ describe('updateCheckoutRequestStatus', () => {
     rollbackTransactionStub.restore();
   });
 });
+
+describe("getBooksByTitle", () => {
+  let mockConnection;
+  let title;
+
+  beforeEach(() => {
+    mockConnection = {
+      query: jest.fn(),
+    };
+    title = "Book 1"
+  });
+
+  it("should return books matching the title from the database", async () => {
+    const expectedResults = [{ id: 1, name: 'User 1', title: 'Book 1'}];
+    mockConnection.query.mockImplementation((query, callback) => {
+      if (query.includes("SELECT * FROM")) {
+        callback(null, expectedResults);
+      }
+    });
+
+    const bookRequestByTitle = await bookService.getBooksByTitle(mockConnection, title);
+
+    expect(bookRequestByTitle).toEqual(expectedResults);
+    expect(mockConnection.query).toHaveBeenCalledTimes(1);
+  });
+
+  it("should handle database query errors and return null", async () => {
+    const errorMessage = "Fake database error";
+    mockConnection.query.mockImplementation((query, callback) => {
+      if (query.includes("SELECT * FROM")) {
+        callback(new Error(errorMessage), null);
+      }
+    });
+
+    const bookRequestByTitle = await bookService.getBooksByTitle(mockConnection, title);
+
+    expect(bookRequestByTitle).toBeNull();
+    expect(mockConnection.query).toHaveBeenCalledTimes(1);
+  });
+});

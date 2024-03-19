@@ -13,6 +13,7 @@ const {
   requestBook,
   processBookRequest,
   processCheckoutRequest,
+  searchBooks,
 } = require("../../src/controllers/commandsController");
 const constants = require("../../src/constants/constant");
 describe("/start command", () => {
@@ -1211,5 +1212,59 @@ describe("processCheckoutRequest function", () => {
       constants.INVALID_CHECKOUT_REQUEST_ID_MESSAGE,
     );
     expect(collector.stop).toHaveBeenCalled();
+  });
+});
+
+describe("searchBooks function", () => {
+  let mockMessage;
+  let mockConnection;
+  let mockUserEventsMap;
+  let mockCollector;
+  let mockBookMap;
+
+  beforeEach(() => {
+    mockMessage = {
+      author: { id: "test" },
+      reply: jest.fn(),
+      channel: {
+        createMessageCollector: jest.fn(),
+      },
+    };
+
+    mockConnection = {
+      query: jest.fn(),
+    };
+
+    mockUserEventsMap = new Map();
+    mockUserEventsMap.set("test", { messageCreate: true });
+
+    mockCollector = new EventEmitter();
+    mockCollector.stop = jest.fn();
+
+    mockBookMap = new Map();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("should handle exit command and return empty array", async () => {
+    const mockUserResponse = { content: "exit" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+
+    const booksPromise = searchBooks(mockMessage, mockConnection, mockUserEventsMap, mockBookMap);
+
+    await booksPromise;
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.EXIT_SEARCH_BOOK_MESSAGE);
+    expect(mockBookMap.size).toBe(0);
   });
 });

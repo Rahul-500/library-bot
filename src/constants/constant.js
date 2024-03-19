@@ -144,3 +144,6 @@ exports.CHANGE_OF_CHECKOUT_STATUS_RECEIVED = "Change of book checkout status det
 exports.ERROR_CHANGING_CHECKOUT_REQUEST_STATUS_MESSAGE = "Error while updating book checkout status. Please try again later."
 exports.SUCCESSFULL_UPDATE_CHECKOUT_REQUEST_STATUS_MESSAGE = "Book Checkout Status was updated successfully."
 exports.UNEXPECTED_CHANGING_BOOK_CHECKOUT_STATUS_ERROR_MESSAGE = "An unexpected error occurred while processing the book checkout. Please try again later."
+exports.EXIT_SEARCH_BOOK_MESSAGE = "Exiting search books."
+exports.UNEXPECTED_SEARCH_BOOK_ERROR_MESSAGE = "An unexpected error occurred while searching the book. Please try again by entering `/search` command."
+exports.SEARCH_BY_TITLE_PROMPT = "Enter the Title of the book or Enter `exit` to cancel"

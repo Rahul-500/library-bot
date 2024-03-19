@@ -1,6 +1,6 @@
 const { user } = require("../../config/db.config");
 const constants = require("../constants/constant");
-const { getNewBookRequests,getCheckoutRequests } = require("../service/databaseService");
+const { getNewBookRequests, getCheckoutRequests } = require("../service/databaseService");
 
 exports.menu = async (dependencies) => {
   const {
@@ -75,6 +75,12 @@ exports.menu = async (dependencies) => {
       );
       if (!userBooks) return;
       display.userBooks(message, userBooks);
+      break;
+
+    case command === "/search":
+      const booksFound = await commandsController.searchBooks(message, connection, userEventsMap, bookMap);
+      if (!booksFound) return;
+      await display.availableBooks(message, booksFound);
       break;
 
     case returnPattern.test(command):
