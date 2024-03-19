@@ -92,6 +92,11 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "/request-new-book":
+      if (validateUser.isAdmin(message)) {
+        message.reply(constants.HELP_MESSAGE);
+        break;
+      }
+      
       await commandsController.requestBook(
         client,
         message,

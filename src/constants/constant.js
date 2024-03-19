@@ -1,7 +1,7 @@
 exports.MENU_OPTIONS =
   "Menu:\n1. Available Books\n2. My Books\n3. Request New Book\n4. Search for books";
 exports.ADMIN_OPTIONS =
-  "Menu:\n1. Available Books\n2. My Books\n3. Add Book\n4. Remove Book\n5. Update Book\n6. Library History\n7. Request New Book\n8. View Book Requests\n9. View Checkout Requests\n10. Search for books";
+  "Menu:\n1. Available Books\n2. My Books\n3. Add Book\n4. Remove Book\n5. Update Book\n6. Library History\n7. View Book Requests\n8. View Checkout Requests\n9. Search for books";
 exports.QUERY = "SELECT * FROM library.books WHERE quantity_available > 0";
 exports.ERROR_FETCHING_BOOKS =
   "Error fetching available books. Please try again later.";
