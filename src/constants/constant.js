@@ -133,3 +133,6 @@ exports.SUCCESSFULL_UPDATE_BOOK_REQUEST_STATUS_MESSAGE =
 exports.ERROR_CHANGING_BOOK_REQUEST_STATUS_MESSAGE =
   "Error while updating book request status. Please try again later.";
 exports.UNEXPECTED_CHECKOUT_BOOK_ERROR_MESSAGE = "An unexpected error occurred during checkout. Please try again by entering `/checkout [id]` command."
+exports.NO_CHECKOUT_REQUEST_FOUND = "No Checkout requests found."
+exports.SORRY_MESSAGE_FOR_NO_CHECKOUT_REQUEST = "Sorry, no Checkout requests are currently available.";
+exports.CHECKOUT_REQUESTS = "Checkout Requests:";

@@ -1,6 +1,6 @@
 const { user } = require("../../config/db.config");
 const constants = require("../constants/constant");
-const { getNewBookRequests } = require("../service/databaseService");
+const { getNewBookRequests,getCheckoutRequests } = require("../service/databaseService");
 
 exports.menu = async (dependencies) => {
   const {
@@ -21,7 +21,7 @@ exports.menu = async (dependencies) => {
     try {
       const isUserExisting = await validateUser.checkForExistingUser(
         message,
-        connection,
+        connection
       );
       if (!isUserExisting) {
         message.reply(constants.USE_START_COMMAND_MESSAGE);
@@ -48,7 +48,7 @@ exports.menu = async (dependencies) => {
       const availableBooks = await commandsController.getAvailableBooks(
         message,
         connection,
-        bookMap,
+        bookMap
       );
       if (!availableBooks) return;
       display.availableBooks(message, availableBooks);
@@ -59,14 +59,19 @@ exports.menu = async (dependencies) => {
         message.reply(constants.GET_AVAILABLE_BEFORE_CHECKOUT_MESSAGE);
         break;
       }
-      await commandsController.checkoutBook(message, connection, bookMap,client);
+      await commandsController.checkoutBook(
+        message,
+        connection,
+        bookMap,
+        client
+      );
       break;
 
     case command === "/my-books":
       const userBooks = await commandsController.getUserBooks(
         message,
         connection,
-        checkedOutBooks,
+        checkedOutBooks
       );
       if (!userBooks) return;
       display.userBooks(message, userBooks);
@@ -85,7 +90,7 @@ exports.menu = async (dependencies) => {
         client,
         message,
         connection,
-        userEventsMap,
+        userEventsMap
       );
 
       break;
@@ -108,7 +113,7 @@ exports.menu = async (dependencies) => {
       const booksForUpdate = await commandsController.getAvailableBooks(
         message,
         connection,
-        bookMap,
+        bookMap
       );
 
       if (!booksForUpdate) return;
@@ -118,7 +123,7 @@ exports.menu = async (dependencies) => {
         message,
         connection,
         bookMap,
-        userEventsMap,
+        userEventsMap
       );
       break;
 
@@ -138,8 +143,27 @@ exports.menu = async (dependencies) => {
         message,
         connection,
         newBookRequests,
-        userEventsMap,
+        userEventsMap
       );
+      break;
+
+    case command === "/view-checkout-requests":
+      if (!validateUser.isAdmin(message)) {
+        message.reply(constants.HELP_MESSAGE);
+        break;
+      }
+
+      const checkoutRequests = await getCheckoutRequests(connection);
+      if (!checkoutRequests) return;
+      display.checkoutRequests(message, checkoutRequests);
+
+      // await commandsController.processCheckoutRequest(
+      //   client,
+      //   message,
+      //   connection,
+      //   newCheckoutRequests,
+      //   userEventsMap
+      // );
       break;
 
     case command === "/delete-book":
@@ -151,7 +175,7 @@ exports.menu = async (dependencies) => {
       const books = await commandsController.getAvailableBooks(
         message,
         connection,
-        bookMap,
+        bookMap
       );
       if (!books) return;
       display.availableBooksWithQuantity(message, books);
@@ -159,7 +183,7 @@ exports.menu = async (dependencies) => {
         message,
         connection,
         bookMap,
-        userEventsMap,
+        userEventsMap
       );
       break;
 
@@ -170,7 +194,7 @@ exports.menu = async (dependencies) => {
       }
       const library_history = await commandsController.getLibraryHistory(
         message,
-        connection,
+        connection
       );
       if (!library_history) return;
       display.libraryHistory(message, library_history);

@@ -587,3 +587,41 @@ describe("addCheckoutRequest", () => {
     rollbackTransactionStub.restore();
   });
 });
+
+describe("getCheckoutRequests", () => {
+  let mockConnection;
+
+  beforeEach(() => {
+    mockConnection = {
+      query: jest.fn(),
+    };
+  });
+
+  it("should return new checkout requests from the database", async () => {
+    const expectedResults = [{ id: 1, name: 'User 1', title: 'Book 1', status: 'Pending' }];
+    mockConnection.query.mockImplementation((query, callback) => {
+      if (query.includes("SELECT cr.id")) {
+        callback(null, expectedResults);
+      }
+    });
+
+    const checkoutRequests = await bookService.getCheckoutRequests(mockConnection);
+
+    expect(checkoutRequests).toEqual(expectedResults);
+    expect(mockConnection.query).toHaveBeenCalledTimes(1);
+  });
+
+  it("should handle database query errors and return null", async () => {
+    const errorMessage = "Fake database error";
+    mockConnection.query.mockImplementation((query, callback) => {
+      if (query.includes("SELECT cr.id")) {
+        callback(new Error(errorMessage), null);
+      }
+    });
+
+    const checkoutRequests = await bookService.getCheckoutRequests(mockConnection);
+
+    expect(checkoutRequests).toBeNull();
+    expect(mockConnection.query).toHaveBeenCalledTimes(1);
+  });
+});

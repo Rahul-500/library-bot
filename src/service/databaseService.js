@@ -301,3 +301,23 @@ exports.addCheckoutRequest = async (connection, userId, bookId) => {
     return null
   }
 }
+
+exports.getCheckoutRequests = async (connection) => {
+  try {
+    const QUERY = `SELECT cr.id, u.id, u.name, b.id, b.title, cr.status FROM ${DB_NAME}.checkout_request_alerts cr JOIN ${DB_NAME}.${TABLE_NAME_USERS} u ON cr.user_id = u.id JOIN ${DB_NAME}.${TABLE_NAME_BOOKS} b ON cr.book_id = b.id;`;
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+    const newCheckoutRequests = await queryPromise;
+    return newCheckoutRequests;
+  } catch (error) {
+    return null;
+  }
+};
