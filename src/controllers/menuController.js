@@ -157,13 +157,13 @@ exports.menu = async (dependencies) => {
       if (!checkoutRequests) return;
       display.checkoutRequests(message, checkoutRequests);
 
-      // await commandsController.processCheckoutRequest(
-      //   client,
-      //   message,
-      //   connection,
-      //   newCheckoutRequests,
-      //   userEventsMap
-      // );
+      await commandsController.processCheckoutRequest(
+        client,
+        message,
+        connection,
+        checkoutRequests,
+        userEventsMap
+      );
       break;
 
     case command === "/delete-book":

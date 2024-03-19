@@ -103,3 +103,18 @@ exports.notifyAdminCheckoutRequest = async (message, connection, client, book) =
     message.reply(constants.UNEXPECTED_CHECKOUT_BOOK_ERROR_MESSAGE);
   }
 }
+
+exports.notifyUserAboutCheckoutRequest = async (
+  client,
+  checkoutRequest,
+  status
+) => {
+  const userId = checkoutRequest.user_id;
+  const title = checkoutRequest.title;
+  try {
+    const user = await client.users.fetch(userId);
+    user.send(
+      `The book titled \`${title}\` that you checked out has been marked as \`${status}\``,
+    );
+  } catch (error) { }
+} 

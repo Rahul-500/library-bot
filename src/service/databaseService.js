@@ -304,7 +304,7 @@ exports.addCheckoutRequest = async (connection, userId, bookId) => {
 
 exports.getCheckoutRequests = async (connection) => {
   try {
-    const QUERY = `SELECT cr.id, u.id, u.name, b.id, b.title, cr.status FROM ${DB_NAME}.checkout_request_alerts cr JOIN ${DB_NAME}.${TABLE_NAME_USERS} u ON cr.user_id = u.id JOIN ${DB_NAME}.${TABLE_NAME_BOOKS} b ON cr.book_id = b.id;`;
+    const QUERY = `SELECT cr.id, u.id as user_id, u.name, b.id as book_id, b.title, cr.status FROM ${DB_NAME}.checkout_request_alerts cr JOIN ${DB_NAME}.${TABLE_NAME_USERS} u ON cr.user_id = u.id JOIN ${DB_NAME}.${TABLE_NAME_BOOKS} b ON cr.book_id = b.id;`;
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
         if (error) {
@@ -321,3 +321,90 @@ exports.getCheckoutRequests = async (connection) => {
     return null;
   }
 };
+
+exports.checkOutBook = async (connection, userId, bookId) => {
+  const QUERY = `INSERT INTO ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
+  try {
+    await transactions.beginTransaction(connection);
+
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+    const checkout = await queryPromise;
+    await transactions.commitTransaction(connection);
+    return checkout
+  } catch (error) {
+    await transactions.rollbackTransaction(connection);
+    return null
+  }
+}
+
+exports.deleteCheckoutRequest = async (connection, checkoutRequestId) => {
+  const QUERY = `DELETE FROM ${DB_NAME}.checkout_request_alerts WHERE id=${checkoutRequestId};`;
+  try {
+    await transactions.beginTransaction(connection);
+
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+    const result = await queryPromise;
+    await transactions.commitTransaction(connection);
+    return result
+  } catch (error) {
+    await transactions.rollbackTransaction(connection);
+    return null
+  }
+}
+
+exports.updateCheckoutRequestStatus = async (
+  connection,
+  checkoutRequest,
+  checkoutRequestStatus) => {
+  try {
+    const checkoutRequestId = checkoutRequest.id;
+    const userId = checkoutRequest.user_id;
+    const bookId = checkoutRequest.book_id;
+    await transactions.beginTransaction(connection);
+    const QUERY = `
+                  UPDATE ${DB_NAME}.checkout_request_alerts
+                  SET status = '${checkoutRequestStatus}' 
+                  WHERE id = ${checkoutRequestId};
+              `;
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+    const updatedResult = await queryPromise;
+    if (checkoutRequestStatus === "approved") {
+      const checkout = await this.checkOutBook(connection, userId, bookId)
+      const deleteRequest = await this.deleteCheckoutRequest(connection, checkoutRequestId)
+      if (!checkout || !deleteRequest) {
+        throw new Error("Error: executing the query")
+      }
+    }
+    await transactions.commitTransaction(connection);
+    return updatedResult;
+  } catch (error) {
+    await transactions.rollbackTransaction(connection);
+    return null;
+  }
+}

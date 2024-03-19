@@ -2,7 +2,8 @@ const constants = require("../../src/constants/constant");
 const {
   notifyAdminNewBookRequest,
   notifyUserAboutBookRequest,
-  notifyAdminCheckoutRequest
+  notifyAdminCheckoutRequest,
+  notifyUserAboutCheckoutRequest
 } = require("../../src/service/notifier");
 
 describe("notifyAdminNewBookRequest", () => {
@@ -151,11 +152,11 @@ describe("notifyAdminCheckoutRequest", () => {
     };
     const book = [
       {
-          id: 1,
-          title: "Dummy Book 1",
-          author: "Dummy Author 1",
-          published_year: 2020,
-          quantity_available: 5
+        id: 1,
+        title: "Dummy Book 1",
+        author: "Dummy Author 1",
+        published_year: 2020,
+        quantity_available: 5
       }
     ]
     const userIdList = [{ id: "123" }, { id: "456" }];
@@ -197,5 +198,55 @@ describe("notifyAdminCheckoutRequest", () => {
     expect(message.reply).toHaveBeenCalledWith(
       constants.UNEXPECTED_CHECKOUT_BOOK_ERROR_MESSAGE,
     );
+  });
+});
+
+describe("notifyUserAboutCheckoutRequest", () => {
+  let mockClient;
+  let mockUser;
+
+  beforeEach(() => {
+    mockUser = {
+      send: jest.fn(),
+    };
+    mockClient = {
+      users: {
+        fetch: jest.fn().mockResolvedValue(mockUser),
+      },
+    };
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should notify the user about the checkout request status", async () => {
+    const checkoutRequest = {
+      user_id: "123",
+      title: "Dummy Book 1",
+    };
+    const status = "Pending";
+
+    await notifyUserAboutCheckoutRequest(mockClient, checkoutRequest, status);
+
+    expect(mockClient.users.fetch).toHaveBeenCalledWith("123");
+    expect(mockUser.send).toHaveBeenCalledWith(
+      `The book titled \`${checkoutRequest.title}\` that you checked out has been marked as \`${status}\``
+    );
+  });
+
+  it("should handle errors and not send a message if user fetching fails", async () => {
+    const checkoutRequest = {
+      user_id: "456",
+      title: "Dummy Book 2",
+    };
+    const status = "Approved";
+
+    mockClient.users.fetch.mockRejectedValue(new Error("Fake error"));
+
+    await notifyUserAboutCheckoutRequest(mockClient, checkoutRequest, status);
+
+    expect(mockClient.users.fetch).toHaveBeenCalledWith("456");
+    expect(mockUser.send).not.toHaveBeenCalled();
   });
 });

@@ -1,7 +1,7 @@
 exports.MENU_OPTIONS =
   "Menu:\n1. Available Books\n2. My Books\n3. Request New Book";
 exports.ADMIN_OPTIONS =
-  "Menu:\n1. Available Books\n2. My Books\n3. Add Book\n4. Remove Book\n5. Update Book\n6. Library History\n7. Request New Book\n8. View Book Requests";
+  "Menu:\n1. Available Books\n2. My Books\n3. Add Book\n4. Remove Book\n5. Update Book\n6. Library History\n7. Request New Book\n8. View Book Requests\n9. View Checkout Requests";
 exports.QUERY = "SELECT * FROM library.books WHERE quantity_available > 0";
 exports.ERROR_FETCHING_BOOKS =
   "Error fetching available books. Please try again later.";
@@ -38,7 +38,7 @@ exports.INVALID_DETAILS_MESSAGE =
   "Please try again by entering `/add-book` command as the provided data is in incorrect format.";
 exports.UNEXPECTED_ERROR_MESSAGE =
   "An unexpected error occurred while processing the command.";
-exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/add-book\`: Add a new book to the library.\n2. \`/delete-book\`: Remove a book from the library.\n3. \`/update-book\`: Update a existing book in the library.\n4. \`/library-history\`: Show library history.\n5. \`/view-book-requests\`: Show all book requests. \n\n`;
+exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/add-book\`: Add a new book to the library.\n2. \`/delete-book\`: Remove a book from the library.\n3. \`/update-book\`: Update a existing book in the library.\n4. \`/library-history\`: Show library history.\n5. \`/view-book-requests\`: Show all book requests. \n6. \`/view-checkout-requests\`: Show checkout requests. \n\n`;
 exports.USER_COMMANDS = `**Available Commands:**
 1. \`/start\`: Start the bot.
 2. \`/available-books\`: Get available books.
@@ -136,3 +136,11 @@ exports.UNEXPECTED_CHECKOUT_BOOK_ERROR_MESSAGE = "An unexpected error occurred d
 exports.NO_CHECKOUT_REQUEST_FOUND = "No Checkout requests found."
 exports.SORRY_MESSAGE_FOR_NO_CHECKOUT_REQUEST = "Sorry, no Checkout requests are currently available.";
 exports.CHECKOUT_REQUESTS = "Checkout Requests:";
+exports.CHANGE_CHECKOUT_REQUEST_STATUS_MESSAGE = "Please enter the book checkout ID to approve or decline (`/approve [id]` or `/decline [id]`). Type `exit` to cancel."
+exports.INVALID_CHANGE_OF_APPROVAL_FOR_CHECKOUT_DETAILS_MESSAGE = "Invalid command. Please try again by entering `/view-checkout-requests` command."
+exports.EXIT_VIEW_CHECKOUT_MESSAGE = "Exiting book checkout view."
+exports.INVALID_CHECKOUT_REQUEST_ID_MESSAGE = "Invalid book checkout ID. Please try again by entering `/view-checkout-requests` command."
+exports.CHANGE_OF_CHECKOUT_STATUS_RECEIVED = "Change of book checkout status details received."
+exports.ERROR_CHANGING_CHECKOUT_REQUEST_STATUS_MESSAGE = "Error while updating book checkout status. Please try again later."
+exports.SUCCESSFULL_UPDATE_CHECKOUT_REQUEST_STATUS_MESSAGE = "Book Checkout Status was updated successfully."
+exports.UNEXPECTED_CHANGING_BOOK_CHECKOUT_STATUS_ERROR_MESSAGE = "An unexpected error occurred while processing the book checkout. Please try again later."

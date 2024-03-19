@@ -12,6 +12,7 @@ const {
   updateBook,
   requestBook,
   processBookRequest,
+  processCheckoutRequest,
 } = require("../../src/controllers/commandsController");
 const constants = require("../../src/constants/constant");
 describe("/start command", () => {
@@ -220,7 +221,7 @@ describe("checkoutBook function", () => {
       callback(null, [{ id: '12345' }]);
     });
     mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(null,[]);
+      callback(null, []);
     });
     mockConnection.beginTransaction.mockImplementation((callback) => {
       callback(null);
@@ -1111,5 +1112,104 @@ describe("processBookRequest function", () => {
       constants.EXIT_VIEW_BOOK_MESSAGE,
     );
     expect(mockMessage.reply).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("processCheckoutRequest function", () => {
+  let mockMessage;
+  let mockConnection;
+  let mockCheckoutRequests;
+  let mockUserEventsMap;
+  let mockClient;
+
+  beforeEach(() => {
+    mockMessage = {
+      author: { id: "test" },
+      reply: jest.fn(),
+      channel: {
+        createMessageCollector: jest.fn(),
+      },
+    };
+
+    mockConnection = {
+      query: jest.fn(),
+      beginTransaction: jest.fn(),
+      commit: jest.fn(),
+      rollback: jest.fn(),
+    };
+
+    mockCheckoutRequests = [
+      { id: 1, user_id: "user1", description: "Checkout Request 1" },
+      { id: 2, user_id: "user2", description: "Checkout Request 2" },
+    ];
+
+    mockUserEventsMap = new Map();
+    mockUserEventsMap.set("test", { messageCreate: true });
+
+    mockClient = {};
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("should handle invalid input format", async () => {
+    const mockUserResponse = { content: "invalidInput" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+
+    await processCheckoutRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockCheckoutRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.CHANGE_CHECKOUT_REQUEST_STATUS_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.INVALID_CHANGE_OF_APPROVAL_FOR_CHECKOUT_DETAILS_MESSAGE,
+    );
+    expect(collector.stop).toHaveBeenCalled();
+  });
+
+  test("should handle nonexistent checkout request", async () => {
+    const mockUserResponse = { content: "/approve 3" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+
+    await processCheckoutRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockCheckoutRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.CHANGE_CHECKOUT_REQUEST_STATUS_MESSAGE,
+    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(
+      constants.INVALID_CHECKOUT_REQUEST_ID_MESSAGE,
+    );
+    expect(collector.stop).toHaveBeenCalled();
   });
 });
