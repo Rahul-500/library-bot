@@ -903,3 +903,63 @@ describe("getBooksByTitle", () => {
     expect(mockConnection.query).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("getUser", () => {
+  let mockConnection;
+
+  beforeEach(() => {
+    mockConnection = {
+      query: jest.fn(),
+    };
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return user when query succeeds", async () => {
+    const mockId = "1";
+    const mockQueryResult = [{ id: 1, name: 'Test'}];
+
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      if (
+        query.includes(
+          `SELECT * FROM`,
+        )
+      ) {
+        callback(null, mockQueryResult);
+      }
+    });
+
+    const user = await bookService.getUser(
+      mockConnection,
+      mockId,
+    );
+
+    expect(user).toEqual(mockQueryResult);
+    expect(mockConnection.query).toHaveBeenCalled();
+  });
+
+  it("should return null when query fails", async () => {
+    const mockId = "1";
+    const errorMessage = "Fake database error";
+
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      if (
+        query.includes(
+          `SELECT * FROM`,
+        )
+      ) {
+        callback(new Error(errorMessage), null);
+      }
+    });
+
+    const user = await bookService.getUser(
+      mockConnection,
+      mockId,
+    );
+
+    expect(user).toBeNull();
+    expect(mockConnection.query).toHaveBeenCalled();
+  });
+});

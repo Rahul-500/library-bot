@@ -458,3 +458,22 @@ exports.getBooksByTitle = async (connection, title) => {
     return null;
   }
 };
+
+exports.getUser = async (connection, id) => {
+  try {
+    const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE id = ${id}`;
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+    const user = await queryPromise;
+    return user
+  } catch (error) {
+    return null
+  }
+}

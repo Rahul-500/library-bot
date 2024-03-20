@@ -11,7 +11,8 @@ const {
   addBookRequest,
   updateBookRequestStatus,
   updateCheckoutRequestStatus,
-  getBooksByTitle
+  getBooksByTitle,
+  getUser
 } = require("../service/databaseService");
 const {
   DB_NAME,
@@ -30,17 +31,10 @@ const {
 exports.start = async (message, connection) => {
   try {
     const id = message.author.id;
-    const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE id = ${id}`;
-    const queryPromise = new Promise((resolve, reject) => {
-      connection.query(QUERY, (error, results) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results);
-        }
-      });
-    });
-    const user = await queryPromise;
+    const user = await getUser(connection, id);
+    if (!user) {
+      throw new Error('Error: executing user query')
+    }
     if (user.length == 0) {
       const author = message.author.username;
       await addUserInfo(id, author, connection);
