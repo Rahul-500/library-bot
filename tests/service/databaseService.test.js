@@ -1019,3 +1019,62 @@ describe("getAvailableBooks", () => {
     expect(mockConnection.query).toHaveBeenCalled();
   });
 });
+
+describe("getUserBooks", () => {
+  let mockConnection;
+  let userId = "123"
+
+  beforeEach(() => {
+    mockConnection = {
+      query: jest.fn(),
+    };
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return user when query succeeds", async () => {
+    const mockQueryResult = [{ id: 1, title: 'Test'}];
+
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      if (
+        query.includes(
+          `SELECT`,
+        )
+      ) {
+        callback(null, mockQueryResult);
+      }
+    });
+
+    const userBookDetails = await bookService.getUserBooks(
+      mockConnection,
+      userId
+    );
+
+    expect(userBookDetails).toEqual(mockQueryResult);
+    expect(mockConnection.query).toHaveBeenCalled();
+  });
+
+  it("should return null when query fails", async () => {
+    const errorMessage = "Fake database error";
+
+    mockConnection.query.mockImplementationOnce((query, callback) => {
+      if (
+        query.includes(
+          `SELECT`,
+        )
+      ) {
+        callback(new Error(errorMessage), null);
+      }
+    });
+
+    const userBookDetails = await bookService.getUserBooks(
+      mockConnection,
+      userId
+    );
+
+    expect(userBookDetails).toBeNull();
+    expect(mockConnection.query).toHaveBeenCalled();
+  });
+});

@@ -496,3 +496,28 @@ exports.getAvailableBooks = async (connection) => {
     return null;
   }
 }
+
+exports.getUserBooks = async (connection, userId) => {
+  try {
+    const QUERY = `
+SELECT b.*, i.checked_out 
+FROM ${DB_NAME}.${TABLE_NAME_BOOKS} AS b
+INNER JOIN ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} AS i
+ON b.id = i.book_id
+WHERE i.user_id = ${userId}
+`;
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+    const books = await queryPromise;
+    return books
+  } catch (error) {
+    return null;
+  }
+}

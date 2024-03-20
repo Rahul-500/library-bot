@@ -13,7 +13,8 @@ const {
   updateCheckoutRequestStatus,
   getBooksByTitle,
   getUser,
-  getAvailableBooks
+  getAvailableBooks,
+  getUserBooks
 } = require("../service/databaseService");
 const {
   DB_NAME,
@@ -103,26 +104,12 @@ exports.checkoutBook = async (message, connection, bookMap, client) => {
 };
 
 exports.getUserBooks = async (message, connection, checkedOutBooks) => {
-  const userId = message.author.id;
-  const QUERY = `
-    SELECT b.*, i.checked_out 
-    FROM ${DB_NAME}.${TABLE_NAME_BOOKS} AS b
-    INNER JOIN ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} AS i
-    ON b.id = i.book_id
-    WHERE i.user_id = ${userId}
-`;
   try {
-    const queryPromise = new Promise((resolve, reject) => {
-      connection.query(QUERY, (error, results) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results);
-        }
-      });
-    });
-
-    const books = await queryPromise;
+    const userId = message.author.id;
+    const books = await getUserBooks(connection, userId)
+    if (!books) {
+      throw new Error("Error: executing user book query")
+    }
     if (books.length === 0) {
       message.reply(constants.NO_CHECKED_OUT_BOOK_MESSAGE);
       return;
