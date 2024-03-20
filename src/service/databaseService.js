@@ -1,6 +1,6 @@
 require("dotenv").config();
 const transactions = require("../service/transactions");
-const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_USERS } =
+const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_USERS, TABLE_NAME_LIBRARY_HISTORY } =
   process.env;
 const constants = require("../constants/constant");
 let intervalId = null;
@@ -542,6 +542,36 @@ exports.returnBookWithId = async (connection, userId, bookId) => {
     return true
   } catch (error) {
     await transactions.rollbackTransaction(connection);
+    return null;
+  }
+}
+
+exports.getLibraryHistory = async (connection) => {
+  try {
+    const QUERY = `SELECT
+    ${TABLE_NAME_USERS}.name,
+    ${TABLE_NAME_BOOKS}.title,
+    ${TABLE_NAME_LIBRARY_HISTORY}.checked_out,
+    ${TABLE_NAME_LIBRARY_HISTORY}.returned
+FROM
+    ${DB_NAME}.${TABLE_NAME_LIBRARY_HISTORY}
+JOIN
+    books ON ${TABLE_NAME_LIBRARY_HISTORY}.book_id = ${TABLE_NAME_BOOKS}.id
+JOIN
+    users ON ${TABLE_NAME_LIBRARY_HISTORY}.user_id = ${TABLE_NAME_USERS}.id;
+`;
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+    const libraryHistory = await queryPromise;
+    return libraryHistory
+  } catch (error) {
     return null;
   }
 }
