@@ -12,7 +12,8 @@ const {
   updateBookRequestStatus,
   updateCheckoutRequestStatus,
   getBooksByTitle,
-  getUser
+  getUser,
+  getAvailableBooks
 } = require("../service/databaseService");
 const {
   DB_NAME,
@@ -48,19 +49,10 @@ exports.start = async (message, connection) => {
 
 exports.getAvailableBooks = async (message, connection, bookMap) => {
   try {
-    const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_BOOKS}`;
-    const queryPromise = new Promise((resolve, reject) => {
-      connection.query(QUERY, (error, results) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results);
-        }
-      });
-    });
-
-    const books = await queryPromise;
-
+    const books = await getAvailableBooks(connection)
+    if (!books) {
+      throw new Error('Error: executing book query')
+    }
     bookMap.clear();
     let count = 1;
     books.forEach((book) => {
