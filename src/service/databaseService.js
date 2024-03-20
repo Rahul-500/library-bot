@@ -245,6 +245,31 @@ exports.addBookRequest = async (connection, bookRequest, message) => {
   }
 };
 
+exports.deleteBookRequest = async (connection, bookRequestId) => {
+  const QUERY = `DELETE FROM ${DB_NAME}.book_request_alerts WHERE id=${bookRequestId};`;
+  try {
+    await transactions.beginTransaction(connection);
+
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+    const result = await queryPromise;
+    await transactions.commitTransaction(connection);
+    return result
+  } catch (error) {
+    await transactions.rollbackTransaction(connection);
+    return null
+  }
+}
+
+
 exports.updateBookRequestStatus = async (
   connection,
   bookRequestId,
@@ -269,7 +294,12 @@ exports.updateBookRequestStatus = async (
     });
     const updatedResult = await queryPromise;
     await transactions.commitTransaction(connection);
-
+    if (bookRequestStatus === "approved") {
+      const deleteRequest = await this.deleteBookRequest(connection, bookRequestId)
+      if (!deleteRequest) {
+        throw new Error("Error: executing the query")
+      }
+    }
     return updatedResult;
   } catch (error) {
     await transactions.rollbackTransaction(connection);

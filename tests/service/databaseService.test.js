@@ -483,6 +483,8 @@ describe("updateBookRequestStatus", () => {
       "rollbackTransaction",
     );
 
+    const deleteRequestStub = sinon.stub(bookService, "deleteBookRequest").resolves(true);
+
     await bookService.updateBookRequestStatus(
       mockConnection,
       bookRequestId,
@@ -492,10 +494,12 @@ describe("updateBookRequestStatus", () => {
     assert.ok(beginTransactionStub.calledOnce);
     assert.ok(commitTransactionStub.calledOnce);
     assert.ok(!rollbackTransactionStub.called);
+    assert.ok(deleteRequestStub.calledOnce);
 
     beginTransactionStub.restore();
     commitTransactionStub.restore();
     rollbackTransactionStub.restore();
+    deleteRequestStub.restore();
   });
 
   it("should handle errors and rollback transaction", async () => {
@@ -507,6 +511,8 @@ describe("updateBookRequestStatus", () => {
     );
     mockConnection.query.callsArgWith(1, new Error("Fake database error"));
 
+    const deleteRequestStub = sinon.stub(bookService, "deleteBookRequest").resolves(true);
+
     await bookService.updateBookRequestStatus(
       mockConnection,
       bookRequestId,
@@ -516,12 +522,15 @@ describe("updateBookRequestStatus", () => {
     assert.ok(beginTransactionStub.calledOnce);
     assert.ok(!commitTransactionStub.calledOnce);
     assert.ok(rollbackTransactionStub.called);
+    assert.ok(!deleteRequestStub.called);
 
     beginTransactionStub.restore();
     commitTransactionStub.restore();
     rollbackTransactionStub.restore();
+    deleteRequestStub.restore();
   });
 });
+
 
 describe("addCheckoutRequest", () => {
   let mockConnection;
@@ -740,6 +749,67 @@ describe("deleteCheckoutRequest", () => {
     await bookService.deleteCheckoutRequest(
       mockConnection,
       checkoutRequestId
+    );
+
+    assert.ok(beginTransactionStub.calledOnce);
+    assert.ok(!commitTransactionStub.calledOnce);
+    assert.ok(rollbackTransactionStub.called);
+
+    beginTransactionStub.restore();
+    commitTransactionStub.restore();
+    rollbackTransactionStub.restore();
+  });
+});
+
+describe("deleteBookRequest", () => {
+  let mockConnection;
+  let bookRequestId;
+
+  beforeEach(() => {
+    mockConnection = {
+      query: sinon.stub().callsArgWith(1, null, { insertId: 1 }),
+    };
+    bookRequestId = 1
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should add book request status successfully", async () => {
+    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
+    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
+    const rollbackTransactionStub = sinon.stub(
+      transactions,
+      "rollbackTransaction",
+    );
+
+    await bookService.deleteBookRequest(
+      mockConnection,
+      bookRequestId
+    );
+
+    assert.ok(beginTransactionStub.calledOnce);
+    assert.ok(commitTransactionStub.calledOnce);
+    assert.ok(!rollbackTransactionStub.called);
+
+    beginTransactionStub.restore();
+    commitTransactionStub.restore();
+    rollbackTransactionStub.restore();
+  });
+
+  it("should handle errors and rollback transaction", async () => {
+    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
+    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
+    const rollbackTransactionStub = sinon.stub(
+      transactions,
+      "rollbackTransaction",
+    );
+    mockConnection.query.callsArgWith(1, new Error("Fake database error"));
+
+    await bookService.deleteBookRequest(
+      mockConnection,
+      bookRequestId
     );
 
     assert.ok(beginTransactionStub.calledOnce);
