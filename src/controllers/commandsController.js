@@ -14,7 +14,8 @@ const {
   getBooksByTitle,
   getUser,
   getAvailableBooks,
-  getUserBooks
+  getUserBooks,
+  returnBookWithId
 } = require("../service/databaseService");
 const {
   DB_NAME,
@@ -137,34 +138,18 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
     return;
   }
   const bookId = book.id;
-
   const result = await validateReturn(connection, userId, bookId);
   if (!result) {
     message.reply(constants.CANNOT_RETURN_BOOK_MESSAGE);
     return;
   }
-
-  const QUERY = `DELETE FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} WHERE user_id = ${userId} AND book_id = ${bookId}`;
   try {
-    await transactions.beginTransaction(connection);
-
-    const queryPromise = new Promise((resolve, reject) => {
-      connection.query(QUERY, (error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
-      });
-    });
-
-    await queryPromise;
-
-    await transactions.commitTransaction(connection);
-
+    const returnBook = await returnBookWithId(connection, userId, bookId)
+    if (!returnBook) {
+      throw new Error('Error: executing return book query')
+    }
     message.reply(`${constants.RETURN_BOOK_SUCCUESSFULLY_MESSAGE}`);
   } catch (error) {
-    await transactions.rollbackTransaction(connection);
     message.reply(constants.ERROR_RETURN_MESSAGE);
   }
 };

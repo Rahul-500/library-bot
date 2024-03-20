@@ -521,3 +521,27 @@ WHERE i.user_id = ${userId}
     return null;
   }
 }
+
+exports.returnBookWithId = async (connection, userId, bookId) => {
+  try {
+    const QUERY = `DELETE FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} WHERE user_id = ${userId} AND book_id = ${bookId}`;
+    await transactions.beginTransaction(connection);
+
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
+
+    await queryPromise;
+    await transactions.commitTransaction(connection);
+    return true
+  } catch (error) {
+    await transactions.rollbackTransaction(connection);
+    return null;
+  }
+}
