@@ -1199,3 +1199,68 @@ describe("getLibraryHistory", () => {
     expect(mockConnection.query).toHaveBeenCalled();
   });
 });
+
+describe("addReturnRequest", () => {
+  let mockConnection;
+  let userId;
+  let bookId;
+
+  beforeEach(() => {
+    mockConnection = {
+      query: sinon.stub().callsArgWith(1, null, { insertId: 1 }),
+    };
+    userId = '123';
+    bookId = 1;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should add checkout book request status successfully", async () => {
+    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
+    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
+    const rollbackTransactionStub = sinon.stub(
+      transactions,
+      "rollbackTransaction",
+    );
+
+    await bookService.addReturnRequest(
+      mockConnection,
+      userId,
+      bookId,
+    );
+
+    assert.ok(beginTransactionStub.calledOnce);
+    assert.ok(commitTransactionStub.calledOnce);
+    assert.ok(!rollbackTransactionStub.called);
+
+    beginTransactionStub.restore();
+    commitTransactionStub.restore();
+    rollbackTransactionStub.restore();
+  });
+
+  it("should handle errors and rollback transaction", async () => {
+    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
+    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
+    const rollbackTransactionStub = sinon.stub(
+      transactions,
+      "rollbackTransaction",
+    );
+    mockConnection.query.callsArgWith(1, new Error("Fake database error"));
+
+    await bookService.addReturnRequest(
+      mockConnection,
+      userId,
+      bookId,
+    );
+
+    assert.ok(beginTransactionStub.calledOnce);
+    assert.ok(!commitTransactionStub.calledOnce);
+    assert.ok(rollbackTransactionStub.called);
+
+    beginTransactionStub.restore();
+    commitTransactionStub.restore();
+    rollbackTransactionStub.restore();
+  });
+});

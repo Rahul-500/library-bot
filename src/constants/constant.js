@@ -148,3 +148,5 @@ exports.UNEXPECTED_CHANGING_BOOK_CHECKOUT_STATUS_ERROR_MESSAGE = "An unexpected 
 exports.EXIT_SEARCH_BOOK_MESSAGE = "Exiting search books."
 exports.UNEXPECTED_SEARCH_BOOK_ERROR_MESSAGE = "An unexpected error occurred while searching the book. Please try again by entering `/search` command."
 exports.SEARCH_BY_TITLE_PROMPT = "Enter the Title of the book or Enter `exit` to cancel"
+exports.SUCCESSFULL_SENDING_TO_ADMIN_RETURN_REQUEST_MESSAGE="Book return request notification successfully sent to admin."
+exports.UNEXPECTED_RETURN_BOOK_ERROR_MESSAGE="An unexpected error occurred during return. Please try again by entering `/return [id]` command."

@@ -2,7 +2,8 @@ require("dotenv").config();
 const {
   getUserIdByUsername,
   getOverdueBooks,
-  addCheckoutRequest
+  addCheckoutRequest,
+  addReturnRequest
 } = require("../service/databaseService");
 const constants = require("../constants/constant");
 
@@ -117,4 +118,38 @@ exports.notifyUserAboutCheckoutRequest = async (
       `The book titled \`${title}\` that you checked out has been marked as \`${status}\``,
     );
   } catch (error) { }
-} 
+}
+
+exports.notifyAdminReturnBookRequest = async (message, connection, client, book) => {
+  try {
+    const botOwnerUsernames = process.env.BOT_OWNER_USER_NAME.split(",").map(
+      (username) => `'${username.trim()}'`,
+    );
+    const usernamesString = botOwnerUsernames.join(",");
+    const userIdList = await getUserIdByUsername(connection, usernamesString);
+    if (userIdList == null) throw new Error("Error");
+    let isNotified = false;
+
+    await userIdList.forEach(async (userId) => {
+      try {
+        const user = await client.users.fetch(userId.id);
+
+        user.send(
+          `Book return request by \`${message.author.username}\` : \`${book.title}\``,
+        );
+        isNotified = true;
+
+      } catch (error) { }
+    });
+
+    const returnRequest = await addReturnRequest(connection, message.author.id, book.id)
+
+    if (!isNotified || !returnRequest) {
+      message.reply(constants.ERROR_SENDING_TO_ADMIN_MESSAGE);
+      return;
+    }
+    message.reply(constants.SUCCESSFULL_SENDING_TO_ADMIN_RETURN_REQUEST_MESSAGE);
+  } catch (error) {
+    message.reply(constants.UNEXPECTED_RETURN_BOOK_ERROR_MESSAGE);
+  }
+}

@@ -21,7 +21,8 @@ const {
   notifyAdminNewBookRequest,
   notifyUserAboutBookRequest,
   notifyAdminCheckoutRequest,
-  notifyUserAboutCheckoutRequest
+  notifyUserAboutCheckoutRequest,
+  notifyAdminReturnBookRequest
 } = require("../service/notifier");
 
 exports.start = async (message, connection) => {
@@ -121,7 +122,7 @@ exports.getUserBooks = async (message, connection, checkedOutBooks) => {
   }
 };
 
-exports.returnBook = async (message, connection, checkedOutBooks) => {
+exports.returnBook = async (message, client, connection, checkedOutBooks) => {
   const content = message.content;
   const userId = message.author.id;
   const virtualId = parseInt(content.split(" ")[1]);
@@ -131,19 +132,15 @@ exports.returnBook = async (message, connection, checkedOutBooks) => {
     return;
   }
   const bookId = book.id;
-  const result = await validateReturn(connection, userId, bookId);
-  if (!result) {
-    message.reply(constants.CANNOT_RETURN_BOOK_MESSAGE);
-    return;
-  }
   try {
-    const returnBook = await returnBookWithId(connection, userId, bookId)
-    if (!returnBook) {
-      throw new Error('Error: executing return book query')
+    const result = await validateReturn(connection, userId, bookId);
+    if (!result) {
+      message.reply(constants.CANNOT_RETURN_BOOK_MESSAGE);
+      return;
     }
-    message.reply(`${constants.RETURN_BOOK_SUCCUESSFULLY_MESSAGE}`);
+    await notifyAdminReturnBookRequest(message, connection, client, book);
   } catch (error) {
-    message.reply(constants.ERROR_RETURN_MESSAGE);
+    message.reply(constants.UNEXPECTED_RETURN_BOOK_ERROR_MESSAGE);
   }
 };
 

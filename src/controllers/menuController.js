@@ -88,7 +88,7 @@ exports.menu = async (dependencies) => {
         message.reply(constants.GET_AVAILABLE_BEFORE_RETURN_MESSAGE);
         break;
       }
-      await commandsController.returnBook(message, connection, checkedOutBooks);
+      await commandsController.returnBook(message, client, connection, checkedOutBooks);
       break;
 
     case command === "/request-new-book":
@@ -96,7 +96,7 @@ exports.menu = async (dependencies) => {
         message.reply(constants.HELP_MESSAGE);
         break;
       }
-      
+
       await commandsController.requestBook(
         client,
         message,

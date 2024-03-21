@@ -252,6 +252,7 @@ describe("menu", () => {
 
   test("should invoke returnBook if checkedOutBooks is not empty and command matches returnPattern", async () => {
     const mockCommand = "/return 1";
+    const client = {}
     mockMessage.content = mockCommand;
     commandsController.returnBook = jest.fn();
 
@@ -259,6 +260,7 @@ describe("menu", () => {
 
     await menuController.menu({
       message: mockMessage,
+      client,
       commandsController,
       connection: mockConnection,
       validateUser,
@@ -270,6 +272,7 @@ describe("menu", () => {
     );
     expect(commandsController.returnBook).toHaveBeenCalledWith(
       mockMessage,
+      client,
       mockConnection,
       checkedOutBooks,
     );

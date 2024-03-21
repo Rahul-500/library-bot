@@ -306,87 +306,66 @@ describe("getUserBooks", () => {
   });
 });
 
-describe("returnBook", () => {
+describe("returnBook function", () => {
   let mockMessage;
   let mockConnection;
   let mockCheckedOutBooks;
+  let mockClient;
 
   beforeEach(() => {
     mockMessage = {
+      author: { id: "test", username: "TestUser" },
       content: "/return 1",
-      author: {
-        id: "user123",
-      },
       reply: jest.fn(),
     };
 
     mockConnection = {
       query: jest.fn(),
-      beginTransaction: jest.fn(),
-      commit: jest.fn(),
-      rollback: jest.fn(),
     };
 
-    mockCheckedOutBooks = new Map([[1, { id: 1, title: "Book 1" }]]);
+    mockCheckedOutBooks = new Map();
+    mockCheckedOutBooks.set(1, { id: 1, bookTitle: "Book 1" }); // Example data
+
+    mockClient = {
+      users: {
+        fetch: jest.fn(() => ({ username: "Admin" })),
+      },
+    };
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  test("should reply with success message when book is successfully returned", async () => {
-    mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(null, [{ bookCount: 1 }]);
-    });
-    mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(null);
-    });
-    mockConnection.beginTransaction.mockImplementation((callback) => {
-      callback(null);
-    });
-    mockConnection.commit.mockImplementation((callback) => {
-      callback(null);
-    });
+  test("should handle book not found in checked out books", async () => {
+    mockCheckedOutBooks.clear();
 
-    await returnBook(mockMessage, mockConnection, mockCheckedOutBooks);
+    await returnBook(mockMessage, mockClient, mockConnection, mockCheckedOutBooks);
 
-    expect(mockMessage.reply).toHaveBeenCalled()
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_WITH_THAT_ID_NOT_FOUND_MESSAGE);
   });
 
-  test("should reply with error message when there is an error during return", async () => {
+  test("should handle error validating return", async () => {
     mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(null, [{ bookCount: 1 }]);
+      callback(new Error('Database error'), null);
     });
 
-    mockConnection.query.mockImplementationOnce((query, callback) => {
-      callback(new Error("Test error"), null);
-    });
-    mockConnection.beginTransaction.mockImplementationOnce((callback) => {
-      callback(new Error("Failed to begin transaction"));
-    });
-    mockConnection.rollback.mockImplementationOnce((callback) => {
-      callback(null);
-    });
+    await returnBook(mockMessage, mockClient, mockConnection, mockCheckedOutBooks);
 
-    await returnBook(mockMessage, mockConnection, mockCheckedOutBooks);
-
-    expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.ERROR_RETURN_MESSAGE),
-    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.UNEXPECTED_RETURN_BOOK_ERROR_MESSAGE);
   });
 
-  test("should reply with message that the book cannot be returned", async () => {
+  test("should handle book already checked out", async () => {
     mockConnection.query.mockImplementationOnce((query, callback) => {
       callback(null, [{ bookCount: 0 }]);
     });
 
-    await returnBook(mockMessage, mockConnection, mockCheckedOutBooks);
+    await returnBook(mockMessage, mockClient, mockConnection, mockCheckedOutBooks);
 
-    expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining(constants.CANNOT_RETURN_BOOK_MESSAGE),
-    );
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.CANNOT_RETURN_BOOK_MESSAGE);
   });
 });
+
 
 describe("addBook function", () => {
   let mockMessage;
