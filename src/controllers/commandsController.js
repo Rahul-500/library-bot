@@ -1,6 +1,5 @@
 require("dotenv").config();
 const constants = require("../constants/constant");
-const transactions = require("../service/transactions");
 const { validateReturn } = require("../service/validateBook");
 const {
   addBookToDatabase,
@@ -18,13 +17,6 @@ const {
   returnBookWithId,
   getLibraryHistory
 } = require("../service/databaseService");
-const {
-  DB_NAME,
-  TABLE_NAME_USERS,
-  TABLE_NAME_BOOKS,
-  TABLE_NAME_ISSUED_BOOKS,
-  TABLE_NAME_LIBRARY_HISTORY,
-} = process.env;
 const {
   notifyAdminNewBookRequest,
   notifyUserAboutBookRequest,
