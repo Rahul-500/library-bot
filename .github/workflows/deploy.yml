@@ -43,4 +43,4 @@ jobs:
 
     - name: Run script.sh in server
       run: |
-        cd ~/library-bot && ./script.sh
+        cd /home/library-bot/library-bot && ./script.sh
