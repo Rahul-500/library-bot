@@ -838,7 +838,7 @@ describe('updateCheckoutRequestStatus', () => {
     };
     mockCheckoutRequestStatus = 'approved';
   });
-  
+
   it("should handle errors and rollback transaction", async () => {
     const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
     const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
@@ -876,7 +876,7 @@ describe("getBooksByTitle", () => {
   });
 
   it("should return books matching the title from the database", async () => {
-    const expectedResults = [{ id: 1, name: 'User 1', title: 'Book 1'}];
+    const expectedResults = [{ id: 1, name: 'User 1', title: 'Book 1' }];
     mockConnection.query.mockImplementation((query, callback) => {
       if (query.includes("SELECT * FROM")) {
         callback(null, expectedResults);
@@ -919,7 +919,7 @@ describe("getUser", () => {
 
   it("should return user when query succeeds", async () => {
     const mockId = "1";
-    const mockQueryResult = [{ id: 1, name: 'Test'}];
+    const mockQueryResult = [{ id: 1, name: 'Test' }];
 
     mockConnection.query.mockImplementationOnce((query, callback) => {
       if (
@@ -978,7 +978,7 @@ describe("getAvailableBooks", () => {
   });
 
   it("should return user when query succeeds", async () => {
-    const mockQueryResult = [{ id: 1, title: 'Test'}];
+    const mockQueryResult = [{ id: 1, title: 'Test' }];
 
     mockConnection.query.mockImplementationOnce((query, callback) => {
       if (
@@ -1035,7 +1035,7 @@ describe("getUserBooks", () => {
   });
 
   it("should return user when query succeeds", async () => {
-    const mockQueryResult = [{ id: 1, title: 'Test'}];
+    const mockQueryResult = [{ id: 1, title: 'Test' }];
 
     mockConnection.query.mockImplementationOnce((query, callback) => {
       if (
@@ -1089,7 +1089,7 @@ describe("returnBookWithId", () => {
       query: sinon.stub().callsArgWith(1, null, { insertId: 1 }),
     };
     userId = "123",
-    bookId = "1"
+      bookId = "1"
   });
 
   afterEach(() => {
@@ -1158,7 +1158,7 @@ describe("getLibraryHistory", () => {
   });
 
   it("should return user when query succeeds", async () => {
-    const mockQueryResult = [{ id: 1, user_id: '123', book_id: '1'}];
+    const mockQueryResult = [{ id: 1, user_id: '123', book_id: '1' }];
 
     mockConnection.query.mockImplementationOnce((query, callback) => {
       if (
@@ -1299,6 +1299,147 @@ describe("getReturnRequests", () => {
     const checkoutRequests = await bookService.getReturnRequests(mockConnection);
 
     expect(checkoutRequests).toBeNull();
+    expect(mockConnection.query).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('updateReturnRequestStatus', () => {
+  let mockConnection;
+  let mockReturnRequest;
+  let mockCheckoutRequestStatus;
+
+  beforeEach(() => {
+    mockConnection = {
+      query: sinon.stub(),
+    };
+    mockReturnRequest = {
+      id: 1,
+      user_id: 1,
+      book_id: 1,
+    };
+    mockReturnRequestStatus = 'approved';
+  });
+
+  it("should handle errors and rollback transaction", async () => {
+    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
+    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
+    const rollbackTransactionStub = sinon.stub(
+      transactions,
+      "rollbackTransaction",
+    );
+    mockConnection.query.callsArgWith(1, new Error("Fake database error"));
+
+    await bookService.updateReturnRequestStatus(
+      mockConnection,
+      mockReturnRequest,
+      mockReturnRequestStatus
+    );
+
+    assert.ok(beginTransactionStub.calledOnce);
+    assert.ok(!commitTransactionStub.calledOnce);
+    assert.ok(rollbackTransactionStub.called);
+
+    beginTransactionStub.restore();
+    commitTransactionStub.restore();
+    rollbackTransactionStub.restore();
+  });
+});
+
+describe("deleteReturnRequest", () => {
+  let mockConnection;
+  let returnRequestId;
+
+  beforeEach(() => {
+    mockConnection = {
+      query: sinon.stub().callsArgWith(1, null, { insertId: 1 }),
+    };
+    returnRequestId = 1
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should add return book request status successfully", async () => {
+    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
+    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
+    const rollbackTransactionStub = sinon.stub(
+      transactions,
+      "rollbackTransaction",
+    );
+
+    await bookService.deleteReturnRequest(
+      mockConnection,
+      returnRequestId
+    );
+
+    assert.ok(beginTransactionStub.calledOnce);
+    assert.ok(commitTransactionStub.calledOnce);
+    assert.ok(!rollbackTransactionStub.called);
+
+    beginTransactionStub.restore();
+    commitTransactionStub.restore();
+    rollbackTransactionStub.restore();
+  });
+
+  it("should handle errors and rollback transaction", async () => {
+    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
+    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
+    const rollbackTransactionStub = sinon.stub(
+      transactions,
+      "rollbackTransaction",
+    );
+    mockConnection.query.callsArgWith(1, new Error("Fake database error"));
+
+    await bookService.deleteReturnRequest(
+      mockConnection,
+      returnRequestId
+    );
+
+    assert.ok(beginTransactionStub.calledOnce);
+    assert.ok(!commitTransactionStub.calledOnce);
+    assert.ok(rollbackTransactionStub.called);
+
+    beginTransactionStub.restore();
+    commitTransactionStub.restore();
+    rollbackTransactionStub.restore();
+  });
+});
+
+describe("getReturnRequestsForBook", () => {
+  let mockConnection;
+
+  beforeEach(() => {
+    mockConnection = {
+      query: jest.fn(),
+    };
+  });
+
+  it("should return new return requests from the database", async () => {
+    const expectedResults = [{ user_id: "1234" }];
+    mockConnection.query.mockImplementation((query, callback) => {
+      if (query.includes("SELECT")) {
+        callback(null, expectedResults);
+      }
+    });
+
+    const returnRequests = await bookService.getReturnRequestsForBook(mockConnection);
+
+    expect(returnRequests).toEqual(expectedResults);
+    expect(mockConnection.query).toHaveBeenCalledTimes(1);
+  });
+
+  it("should handle database query errors and return null", async () => {
+    const errorMessage = "Fake database error";
+    mockConnection.query.mockImplementation((query, callback) => {
+      if (query.includes("SELECT")) {
+        callback(new Error(errorMessage), null);
+      }
+    });
+
+    const returnRequests = await bookService.getReturnRequestsForBook(mockConnection);
+
+    expect(returnRequests).toBeNull();
     expect(mockConnection.query).toHaveBeenCalledTimes(1);
   });
 });

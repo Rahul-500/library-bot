@@ -4,7 +4,8 @@ const {
   notifyUserAboutBookRequest,
   notifyAdminCheckoutRequest,
   notifyUserAboutCheckoutRequest,
-  notifyAdminReturnBookRequest
+  notifyAdminReturnBookRequest,
+  notifyUserAboutReturnRequest
 } = require("../../src/service/notifier");
 
 describe("notifyAdminNewBookRequest", () => {
@@ -330,5 +331,55 @@ describe("notifyAdminReturnBookRequest", () => {
     expect(message.reply).toHaveBeenCalledWith(
       constants.UNEXPECTED_RETURN_BOOK_ERROR_MESSAGE,
     );
+  });
+});
+
+describe("notifyUserAboutReturnRequest", () => {
+  let mockClient;
+  let mockUser;
+
+  beforeEach(() => {
+    mockUser = {
+      send: jest.fn(),
+    };
+    mockClient = {
+      users: {
+        fetch: jest.fn().mockResolvedValue(mockUser),
+      },
+    };
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should notify the user about the return request status", async () => {
+    const returnRequest = {
+      user_id: "123",
+      title: "Dummy Book 1",
+    };
+    const status = "Pending";
+
+    await notifyUserAboutReturnRequest(mockClient, returnRequest, status);
+
+    expect(mockClient.users.fetch).toHaveBeenCalledWith("123");
+    expect(mockUser.send).toHaveBeenCalledWith(
+      `The book titled \`${returnRequest.title}\` that you initiated return has been marked as \`${status}\``
+    );
+  });
+
+  it("should handle errors and not send a message if user fetching fails", async () => {
+    const returnRequest = {
+      user_id: "456",
+      title: "Dummy Book 2",
+    };
+    const status = "Approved";
+
+    mockClient.users.fetch.mockRejectedValue(new Error("Fake error"));
+
+    await notifyUserAboutReturnRequest(mockClient, returnRequest, status);
+
+    expect(mockClient.users.fetch).toHaveBeenCalledWith("456");
+    expect(mockUser.send).not.toHaveBeenCalled();
   });
 });

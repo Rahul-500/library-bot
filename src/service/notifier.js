@@ -153,3 +153,18 @@ exports.notifyAdminReturnBookRequest = async (message, connection, client, book)
     message.reply(constants.UNEXPECTED_RETURN_BOOK_ERROR_MESSAGE);
   }
 }
+
+exports.notifyUserAboutReturnRequest = async (
+  client,
+  returnRequest,
+  status
+) => {
+  const userId = returnRequest.user_id;
+  const title = returnRequest.title;
+  try {
+    const user = await client.users.fetch(userId);
+    user.send(
+      `The book titled \`${title}\` that you initiated return has been marked as \`${status}\``,
+    );
+  } catch (error) { }
+}

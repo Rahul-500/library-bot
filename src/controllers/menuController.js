@@ -90,6 +90,13 @@ exports.menu = async (dependencies) => {
       const returnRequests = await getReturnRequests(connection);
       if (!returnRequests) return;
       display.returnRequests(message, returnRequests);
+      await commandsController.processReturnRequest(
+        client,
+        message,
+        connection,
+        returnRequests,
+        userEventsMap
+      );
       break;
 
     case command === "/search":

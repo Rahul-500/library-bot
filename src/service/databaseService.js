@@ -576,7 +576,7 @@ JOIN
   }
 }
 
-exports.addReturnRequest = async(connection, userId, bookId) => {
+exports.addReturnRequest = async (connection, userId, bookId) => {
   try {
     const QUERY = `INSERT INTO ${DB_NAME}.return_request_alerts  (book_id,user_id) VALUES ('${bookId}', '${userId}')`;
     await transactions.beginTransaction(connection);
@@ -616,6 +616,90 @@ exports.getReturnRequests = async (connection) => {
 
     const newReturnRequests = await queryPromise;
     return newReturnRequests;
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.updateReturnRequestStatus = async (
+  connection,
+  returnRequest,
+  returnRequestStatus
+) => {
+  try {
+    const returnRequestId = returnRequest.id;
+    const userId = returnRequest.user_id;
+    const bookId = returnRequest.book_id;
+    await transactions.beginTransaction(connection);
+    const QUERY = `
+                  UPDATE ${DB_NAME}.return_request_alerts
+                  SET status = '${returnRequestStatus}' 
+                  WHERE id = ${returnRequestId};
+              `;
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+    const updatedResult = await queryPromise;
+    if (returnRequestStatus === "approved") {
+      const checkout = await this.returnBookWithId(connection, userId, bookId)
+      const deleteRequest = await this.deleteReturnRequest(connection, returnRequestId)
+      if (!checkout || !deleteRequest) {
+        throw new Error("Error: executing the query")
+      }
+    }
+    await transactions.commitTransaction(connection);
+    return updatedResult;
+  } catch (error) {
+    await transactions.rollbackTransaction(connection);
+    return null;
+  }
+}
+
+exports.deleteReturnRequest = async (connection, returnRequestId) => {
+  const QUERY = `DELETE FROM ${DB_NAME}.return_request_alerts WHERE id=${returnRequestId};`;
+  try {
+    await transactions.beginTransaction(connection);
+
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+    const result = await queryPromise;
+    await transactions.commitTransaction(connection);
+    return result
+  } catch (error) {
+    await transactions.rollbackTransaction(connection);
+    return null
+  }
+}
+
+exports.getReturnRequestsForBook = async (connection, bookId) => {
+  try {
+    const QUERY = `SELECT user_id from ${DB_NAME}.return_request_alerts where book_id = ${bookId} and status = 'pending'`;
+
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+    const userIds = await queryPromise;
+    return userIds;
   } catch (error) {
     return null;
   }

@@ -14,6 +14,7 @@ const {
   processBookRequest,
   processCheckoutRequest,
   searchBooks,
+  processReturnRequest,
 } = require("../../src/controllers/commandsController");
 const constants = require("../../src/constants/constant");
 describe("/start command", () => {
@@ -1243,5 +1244,118 @@ describe("searchBooks function", () => {
 
     expect(mockMessage.reply).toHaveBeenCalledWith(constants.EXIT_SEARCH_BOOK_MESSAGE);
     expect(mockBookMap.size).toBe(0);
+  });
+});
+
+describe("processReturnRequest function", () => {
+  let mockMessage;
+  let mockConnection;
+  let mockReturnRequests;
+  let mockUserEventsMap;
+  let mockClient;
+
+  beforeEach(() => {
+    mockMessage = {
+      author: { id: "test" },
+      reply: jest.fn(),
+      channel: {
+        createMessageCollector: jest.fn(),
+      },
+    };
+
+    mockConnection = {
+      query: jest.fn(),
+    };
+
+    mockReturnRequests = [
+      { id: 1, user_id: "user1", description: "Return Request 1" },
+      { id: 2, user_id: "user2", description: "Return Request 2" },
+    ];
+
+    mockUserEventsMap = new Map();
+    mockUserEventsMap.set("test", { messageCreate: true });
+
+    mockClient = {};
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("should handle exit command", async () => {
+    const mockUserResponse = { content: "exit" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+
+    await processReturnRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockReturnRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.EXIT_VIEW_RETURN_MESSAGE);
+    expect(collector.stop).toHaveBeenCalled();
+  });
+
+  test("should handle invalid input format", async () => {
+    const mockUserResponse = { content: "invalidInput" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+
+    await processReturnRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockReturnRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.CHANGE_RETURN_REQUEST_STATUS_MESSAGE);
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_CHANGE_OF_APPROVAL_FOR_RETURN_DETAILS_MESSAGE);
+    expect(collector.stop).toHaveBeenCalled();
+  });
+
+  test("should handle nonexistent return request", async () => {
+    const mockUserResponse = { content: "/approve 3" };
+    const collector = new EventEmitter();
+    collector.stop = jest.fn();
+
+    mockMessage.channel.createMessageCollector.mockReturnValueOnce(collector);
+
+    jest.spyOn(collector, "on").mockImplementation((event, callback) => {
+      if (event === "collect") {
+        callback(mockUserResponse);
+      }
+    });
+
+    await processReturnRequest(
+      mockClient,
+      mockMessage,
+      mockConnection,
+      mockReturnRequests,
+      mockUserEventsMap,
+    );
+
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.CHANGE_RETURN_REQUEST_STATUS_MESSAGE);
+    expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_RETURN_REQUEST_ID_MESSAGE);
+    expect(collector.stop).toHaveBeenCalled();
   });
 });
