@@ -600,3 +600,23 @@ exports.addReturnRequest = async(connection, userId, bookId) => {
     return null
   }
 }
+
+exports.getReturnRequests = async (connection) => {
+  try {
+    const QUERY = `SELECT rr.id, u.id as user_id, u.name, b.id as book_id, b.title, rr.status FROM ${DB_NAME}.return_request_alerts rr JOIN ${DB_NAME}.${TABLE_NAME_USERS} u ON rr.user_id = u.id JOIN ${DB_NAME}.${TABLE_NAME_BOOKS} b ON rr.book_id = b.id;`;
+    const queryPromise = new Promise((resolve, reject) => {
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+    const newReturnRequests = await queryPromise;
+    return newReturnRequests;
+  } catch (error) {
+    return null;
+  }
+}

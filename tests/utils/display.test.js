@@ -158,11 +158,9 @@ describe("user books", () => {
           },
         );
 
-        return `**ID:**\t${index + 1}\n**Title:**\t${
-          book.title
-        }\n**Author:**\t${
-          book.author
-        }\n**Checked-Out-Date:**\t${checkedOutDate}`;
+        return `**ID:**\t${index + 1}\n**Title:**\t${book.title
+          }\n**Author:**\t${book.author
+          }\n**Checked-Out-Date:**\t${checkedOutDate}`;
       })
       .join("\n");
 
@@ -214,9 +212,8 @@ describe("get available books with quantity", () => {
     const pagination = jest.fn();
     let formattedBooks = "";
     books.forEach((book, index) => {
-      formattedBooks += `**ID:**\t${index + 1}\n**Title:**\t${
-        book.title
-      }\n**Quantity:**\t${book.quantity_available}\n\n`;
+      formattedBooks += `**ID:**\t${index + 1}\n**Title:**\t${book.title
+        }\n**Quantity:**\t${book.quantity_available}\n\n`;
     });
 
     const embed = new EmbedBuilder()
@@ -288,11 +285,9 @@ describe("library history", () => {
       const checkedOut = formatDate(history.checked_out);
       const returned = formatDate(history.returned);
 
-      formattedLibraryhistory += `**ID:**\t${index + 1}\n**User:**\t${
-        history.name
-      }\n**Book:**\t${
-        history.title
-      }\n**Checked-out:**\t${checkedOut}\n**Returned:**\t${returned}\n\n`;
+      formattedLibraryhistory += `**ID:**\t${index + 1}\n**User:**\t${history.name
+        }\n**Book:**\t${history.title
+        }\n**Checked-out:**\t${checkedOut}\n**Returned:**\t${returned}\n\n`;
     });
 
     const embed = new EmbedBuilder()
@@ -367,8 +362,7 @@ describe("books", () => {
 
       const embed = new EmbedBuilder()
         .setTitle(
-          `${constants.AVAILABEL_BOOKS} (Page ${
-            Math.floor(i / itemsPerPage) + 1
+          `${constants.AVAILABEL_BOOKS} (Page ${Math.floor(i / itemsPerPage) + 1
           }/${totalPages})`,
         )
         .setColor("#00FF00")
@@ -439,4 +433,60 @@ describe("available books", () => {
 
     expect(pagination).toHaveBeenCalledWith(message, [embed]);
   });
+});
+
+describe("returnRequests function", () => {
+  let mockMessage;
+
+  beforeEach(() => {
+    mockMessage = {
+      author: { username: "test_user" },
+      reply: jest.fn(),
+      channel: { send: jest.fn() },
+    };
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should send SORRY_MESSAGE if no return requests are found", async () => {
+    const returnRequests = [];
+    const embed = new EmbedBuilder()
+      .setTitle(constants.NO_RETURN_REQUEST_FOUND)
+      .setColor("#FF0000")
+      .setDescription(constants.SORRY_MESSAGE_FOR_NO_RETURN_REQUEST);
+
+    await display.returnRequests(mockMessage, returnRequests);
+
+    expect(mockMessage.reply).toHaveBeenCalledWith({ embeds: [embed] });
+    expect(mockMessage.channel.send).not.toHaveBeenCalled();
+  });
+
+  it("should send list of return requests with pagination", async () => {
+    const mockReturnRequests = [
+      { name: "TestName1", title: "TestTitle1", status: "Pending" },
+    ];
+    const totalPages = Math.ceil(mockReturnRequests.length / constants.itemsPerPage);
+    const paginationSpy = jest.fn();
+  
+    const embed1 = new EmbedBuilder()
+      .setTitle(`${constants.RETURN_REQUESTS} (Page 1/${totalPages})`)
+      .setColor("#00FF00")
+      .addFields([
+        {
+          inline: false,
+          name: `**ID:** 1`,
+          value: `**Name:** TestName1\n**Title:** TestTitle1\n**Status:** Pending`,
+        },
+      ]);
+  
+    const expectedEmbeds = [embed1];
+  
+    await display.returnRequests(mockMessage, mockReturnRequests, paginationSpy);
+  
+    expect(paginationSpy).toHaveBeenCalledWith(mockMessage, expectedEmbeds);
+  });
+  
+  
 });

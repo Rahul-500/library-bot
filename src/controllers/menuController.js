@@ -1,6 +1,10 @@
 const { user } = require("../../config/db.config");
 const constants = require("../constants/constant");
-const { getNewBookRequests, getCheckoutRequests } = require("../service/databaseService");
+const {
+  getNewBookRequests,
+  getCheckoutRequests,
+  getReturnRequests
+} = require("../service/databaseService");
 
 exports.menu = async (dependencies) => {
   const {
@@ -77,8 +81,24 @@ exports.menu = async (dependencies) => {
       display.userBooks(message, userBooks);
       break;
 
+    case command === "/view-return-requests":
+      if (!validateUser.isAdmin(message)) {
+        message.reply(constants.HELP_MESSAGE);
+        break;
+      }
+
+      const returnRequests = await getReturnRequests(connection);
+      if (!returnRequests) return;
+      display.returnRequests(message, returnRequests);
+      break;
+
     case command === "/search":
-      const booksFound = await commandsController.searchBooks(message, connection, userEventsMap, bookMap);
+      const booksFound = await commandsController.searchBooks(
+        message,
+        connection,
+        userEventsMap,
+        bookMap
+      );
       if (!booksFound) return;
       await display.availableBooks(message, booksFound);
       break;
@@ -88,7 +108,12 @@ exports.menu = async (dependencies) => {
         message.reply(constants.GET_AVAILABLE_BEFORE_RETURN_MESSAGE);
         break;
       }
-      await commandsController.returnBook(message, client, connection, checkedOutBooks);
+      await commandsController.returnBook(
+        message,
+        client,
+        connection,
+        checkedOutBooks
+      );
       break;
 
     case command === "/request-new-book":
