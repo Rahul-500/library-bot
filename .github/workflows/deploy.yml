@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI/CD with Docker
 
 on:
   push:
@@ -10,37 +10,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Install Node.js and npm
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20.11.1'
+      - name: Install Node.js and npm
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Run Tests
-      run: npm test
+      - name: Run Tests
+        run: npm test
 
-  deploy:
-    runs-on: self-hosted
+  build:
+    runs-on: ubuntu-latest
 
     needs: test
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Install Node.js and npm
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20.11.1'
+      - name: Install Docker
+        run: |
+          sudo apt-get install -y docker.io
 
-    - name: Install dependencies
-      run: npm install
+      - name: Build Docker image
+        run: docker build -t library-bot .
 
-    - name: Run script.sh in server
-      run: |
-        cd /home/library-bot/library-bot && ./script.sh
+  deploy:
+    runs-on: self-hosted
+
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Docker
+        run: |
+          sudo apt-get install -y docker.io
+
+      - name: Run script.sh in server
+        run: |
+          chmod +x script.sh
+          cd /home/library-bot/library-bot && ./script.sh
