@@ -33,8 +33,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Change working directory for build
-        run: cd /home/library-bot/library-bot && docker build -t library-bot .
+      - name: Build Docker image
+        run: docker build -t library-bot .
 
   deploy:
     runs-on: self-hosted
@@ -45,14 +45,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Change working directory for deploy
-        run: cd /home/library-bot/library-bot
-
       - name: Pull latest changes from GitHub repository
-        run: git pull origin main
+        run: |
+          cd /home/library-bot/library-bot && git pull origin main
 
       - name: Build Docker image
-        run: docker build -t library-bot .
+        run: |
+          cd /home/library-bot/library-bot && docker build -t library-bot .
 
       - name: Stop and remove existing container
         run: |
