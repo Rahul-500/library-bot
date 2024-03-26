@@ -26,36 +26,27 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+
     needs: test
-    strategy:
-      matrix:
-        working-directory: ["/home/library-bot/library-bot"]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set working directory
-        run: cd ${{ matrix.working-directory }}
-        shell: bash
-
-      - name: Build Docker image
-        run: docker build -t library-bot .
+      - name: Change working directory for build
+        run: cd /home/library-bot/library-bot && docker build -t library-bot .
 
   deploy:
     runs-on: self-hosted
+
     needs: build
-    strategy:
-      matrix:
-        working-directory: ["/home/library-bot/library-bot"]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set working directory
-        run: cd ${{ matrix.working-directory }}
-        shell: bash
+      - name: Change working directory for deploy
+        run: cd /home/library-bot/library-bot
 
       - name: Pull latest changes from GitHub repository
         run: git pull origin main
