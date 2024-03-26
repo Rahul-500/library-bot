@@ -69,3 +69,4 @@ jobs:
               echo "Error: Failed to start Docker container library-bot."
               exit 1
           fi
+
