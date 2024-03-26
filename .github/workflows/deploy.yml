@@ -45,6 +45,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Run script.sh in server
+      - name: Change working directory
+        run: cd /home/library-bot/library-bot
+        working-directory: /home/library-bot/library-bot
+
+      - name: Pull latest changes from GitHub repository
+        run: git pull origin main
+
+      - name: Build Docker image
+        run: docker build -t library-bot .
+
+      - name: Stop and remove existing container
         run: |
-          cd /home/library-bot/library-bot && ./script.sh
+          docker stop library-bot || true
+          docker rm library-bot || true
+
+      - name: Run the new container
+        run: docker run -d --name library-bot -p 4000:4000 library-bot
+
+      - name: Check if container is running
+        run: |
+          if docker ps | grep -q library-bot; then
+              echo "Docker container library-bot successfully started."
+          else
+              echo "Error: Failed to start Docker container library-bot."
+              exit 1
+          fi
