@@ -27,7 +27,7 @@ jobs:
   deploy:
     runs-on: self-hosted
 
-    needs: build
+    needs: test
 
     steps:
       - name: Checkout code
