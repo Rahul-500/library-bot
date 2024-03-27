@@ -64,4 +64,5 @@ connect()
   })
   .catch((error) => {
     console.error("Error connecting to MySQL database:", error);
+    process.exit(-1);
   });
