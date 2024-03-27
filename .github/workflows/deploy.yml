@@ -53,13 +53,13 @@ jobs:
         run: |
           cd /home/library-bot/library-bot && docker build -t library-bot .
 
-      - name: Stop and remove existing container
+      - name: Restart Docker container
         run: |
-          docker stop library-bot || true
-          docker rm library-bot || true
+          docker restart library-bot || true
 
-      - name: Run the new container
-        run: docker run -d --name library-bot -p 4000:4000 library-bot
+      - name: Use docker-compose to start services
+        run: |
+          cd /home/library-bot/mysql-docker-compose && docker-compose up -d
 
       - name: Check if container is running
         run: |
@@ -69,4 +69,3 @@ jobs:
               echo "Error: Failed to start Docker container library-bot."
               exit 1
           fi
-
