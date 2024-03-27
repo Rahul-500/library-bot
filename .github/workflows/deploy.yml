@@ -39,7 +39,7 @@ jobs:
 
       - name: Use docker-compose to start services
         run: |
-          cd /home/library-bot/mysql-docker-compose && docker-compose --env-file .env up -d
+          cd /home/library-bot/library-bot && docker-compose --env-file .env up -d
           
       - name: Check if container is running
         run: |
