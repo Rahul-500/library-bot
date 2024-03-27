@@ -24,18 +24,6 @@ jobs:
       - name: Run Tests
         run: npm test
 
-  build:
-    runs-on: ubuntu-latest
-
-    needs: test
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Build Docker-Compose
-        run: docker-compose --env-file .env up -d
-
   deploy:
     runs-on: self-hosted
 
