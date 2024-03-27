@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_USER}
+      MYSQL_DATABASE: ${DB_DATABASE}
+    volumes:
+      - ${VOLUME_PATH}:/var/lib/mysql
+    restart: on-failure 
+    networks:
+      - my-network
+
+  library-bot:
+    build: ./
+    container_name: library-bot
+    ports:
+      - "4000:4000"
+    networks:
+      - my-network
+    restart: on-failure 
+    depends_on:
+      - mysql
+
+networks:
+  my-network:
+    driver: bridge
