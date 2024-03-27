@@ -53,14 +53,14 @@ jobs:
         run: |
           cd /home/library-bot/library-bot && docker build -t library-bot .
 
-      - name: Restart Docker container
-        run: |
-          docker restart library-bot || true
-
       - name: Use docker-compose to start services
         run: |
           cd /home/library-bot/mysql-docker-compose && docker-compose up -d
 
+      - name: Restart Docker container
+        run: |
+          docker restart library-bot || true
+          
       - name: Check if container is running
         run: |
           if docker ps | grep -q library-bot; then
