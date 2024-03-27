@@ -4,17 +4,17 @@ services:
   mysql:
     image: mysql:latest
     container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_USER}
-      MYSQL_DATABASE: ${DB_DATABASE}
+    env_file: .env 
     volumes:
       - ${VOLUME_PATH}:/var/lib/mysql
-    restart: on-failure 
+    restart: on-failure
     networks:
       - my-network
 
   library-bot:
-    build: ./
+    build: 
+      context: ./
+      dockerfile: Dockerfile  
     container_name: library-bot
     ports:
       - "4000:4000"

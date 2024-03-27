@@ -21,27 +21,35 @@ const client = new Client({
 });
 const userEventsMap = new Map();
 
-const startBot = async () => {
-  let connection;
-
+const connectToDb = async () => {
   try {
-    connection = await connect();
-    console.log("Connected to MySQL database successfully!");
+    const connection = await connect();
+    console.error("Connection successful to MySQL database");
+    return connection;
   } catch (error) {
-    console.error("Error: Failed to connect to MySQL database");
+    console.error("Error connecting to MySQL database:", error);
+    return null;
+  }
+}
+
+const startBot = async () => {
+  const connection = await connectToDb();
+  if (!connection) {
     process.exit(-1);
   }
 
-  client.once("ready", () => {
+  client.on("ready", () => {
     console.log(`Logged in as ${client.user.tag}!`);
     checkOverdueBooks({ connection, client });
   });
 
   const messageCreateHandler = (message) => {
-    if (message.author.bot || !message.guild) return;
-    const isGeneralChannelOrThread =
-      message.channel.isThread() || message.channel.name === "general";
-    if (isGeneralChannelOrThread) return;
+    if (message.author.bot || !message.channel.type) return;
+    if (message.guild) {
+      const isGeneralChannelOrThread =
+        message.channel.isThread() || message.channel.name === "general";
+      if (isGeneralChannelOrThread) return;
+    }
 
     const authorId = message.author.id;
     if (!userEventsMap.has(authorId)) {
@@ -67,7 +75,7 @@ const startBot = async () => {
 
   client.on("messageCreate", messageCreateHandler);
 
-  await client.login(process.env.DISCORD_TOKEN);
-};
+  client.login(process.env.DISCORD_TOKEN);
+}
 
 startBot();
