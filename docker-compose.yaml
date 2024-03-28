@@ -16,7 +16,6 @@ services:
       context: ./
       dockerfile: Dockerfile  
     container_name: library-bot
-    command: bash -c "while true; do sleep 1000; done"
     ports:
       - "4000:4000"
     networks:
