@@ -40,7 +40,7 @@ jobs:
       - name: Use docker-compose to start services
         run: |
           cd /home/library-bot/library-bot && docker-compose --env-file .env up --build -d
-          
+
       - name: Check if container is running
         run: |
           if docker ps | grep -q library-bot; then
@@ -49,3 +49,7 @@ jobs:
               echo "Error: Failed to start Docker container library-bot."
               exit 1
           fi
+
+      - name: Execute commands inside container
+        run: |
+          docker exec -it library-bot bash -c "sh -c './node_modules/.bin/db-migrate up'"
