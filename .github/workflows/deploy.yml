@@ -52,4 +52,4 @@ jobs:
 
       - name: Execute commands inside container
         run: |
-          docker exec -it library-bot bash -c "sh -c './node_modules/.bin/db-migrate up'"
+          docker exec -it library-bot /bin/sh -c "sh -c './node_modules/.bin/db-migrate up'"
