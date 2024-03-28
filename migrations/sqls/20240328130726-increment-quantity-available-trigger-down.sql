@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS `increment_quantity_available`;
