@@ -16,5 +16,5 @@ COPY . .
 # Expose any ports your application needs
 EXPOSE 8000
 
-# Command to run the application
-CMD ["node", "botscript.js"]
+# Command to run the migrate up before starting the application
+CMD ["sh", "-c", "npm run db-migrate && node botscript.js"]
