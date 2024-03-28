@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon botscript.js",
     "test": "jest",
-    "pretty": "prettier --write \"**/*.+(js|jsx|mjs|cjs|ts|tsx|json)\""
+    "pretty": "prettier --write \"**/*.+(js|jsx|mjs|cjs|ts|tsx|json)\"",
+    "db-migrate": "db-migrate up"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,8 @@
   "dependencies": {
     "@devraelfreeze/discordjs-pagination": "^2.7.6",
     "axios": "^1.6.7",
+    "db-migrate": "^0.11.14",
+    "db-migrate-mysql": "^2.3.2",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
     "mocha": "^10.3.0",
