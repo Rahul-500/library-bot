@@ -1,5 +1,5 @@
 
-CREATE TRIGGER `increment_quantity_available` BEFORE DELETE ON `issued_books`
+CREATE TRIGGER IF NOT EXISTS `increment_quantity_available` BEFORE DELETE ON `issued_books`
 FOR EACH ROW
 BEGIN
     DECLARE quantity_to_increment INT;

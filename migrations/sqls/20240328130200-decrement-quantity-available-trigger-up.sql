@@ -1,4 +1,4 @@
-CREATE TRIGGER `decrement_quantity_available` AFTER INSERT ON `issued_books`
+CREATE TRIGGER IF NOT EXISTS `decrement_quantity_available` AFTER INSERT ON `issued_books`
 FOR EACH ROW
 BEGIN
     DECLARE quantity_to_decrement INT;
