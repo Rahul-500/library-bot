@@ -1,25 +1,26 @@
 ### Library Discord Bot
 
-This Discord bot serves as a virtual library manager within your Discord server, enabling users to perform various actions related to books.
+This Discord bot serves as a virtual library manager within your Discord server, facilitating various actions related to books.
 
 #### Admin Commands
 
 - `/add-book`: Add a new book to the library.
 - `/delete-book`: Remove a book from the library.
 - `/update-book`: Update an existing book in the library.
-- `/library-history`: Display the history of library activities.
-- `/view-book-requests`: Show all pending book requests.
-- `/view-checkout-requests`: View pending book checkout requests.
+- `/library-history`: Show library history.
+- `/view-book-requests`: Show all book requests.
+- `/view-checkout-requests`: Show checkout requests.
+- `/view-return-requests`: Show return requests.
 
 #### User Commands
 
-- `/start`: Initialize the bot and activate it in the server.
-- `/available-books`: See a list of books available in the library.
-- `/checkout [Book ID]`: Check out a book by providing its ID.
-- `/my-books`: View a list of books checked out by the user.
+- `/start`: Start the bot.
+- `/available-books`: Get available books.
+- `/checkout [Book ID]`: Checkout a book by providing its ID.
+- `/my-books`: Get a list of books checked out by the user.
 - `/return [Book ID]`: Return a checked-out book by providing its ID.
-- `/request-new-book`: Request a new book to be added to the library.
-- `!help`: Get help and see available commands.
+- `/request-new-book`: Request a new book by providing its description.
+- `/search`: Search for books.
 
 **Note:** Always check available books (`/available-books`) before checking out, and check checked-out books (`/my-books`) before returning.
 
