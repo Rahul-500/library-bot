@@ -49,7 +49,3 @@ jobs:
               echo "Error: Failed to start Docker container library-bot."
               exit 1
           fi
-
-      - name: Execute commands inside container
-        run: |
-          docker exec library-bot sh -c "./node_modules/.bin/db-migrate up"
