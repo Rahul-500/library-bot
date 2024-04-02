@@ -9,7 +9,7 @@ exports.ERROR_FETCHING_USER = "Error fetching user. Please try again later.";
 exports.NO_BOOKS_FOUND = "No available books found.";
 exports.AVAILABEL_BOOKS = "Available Books:";
 exports.USE_START_COMMAND_MESSAGE =
-  "Please start with `/start` before using other commands.";
+  "Please start with `/menu` before using other commands.";
 exports.ERROR_DURING_USER_CHECK =
   "An error occurred during user check. Please try again later.";
 exports.CHECKED_BOOK_SUCCUESSFULLY_MESSAGE = "Book successfully checked out:";
@@ -40,7 +40,7 @@ exports.UNEXPECTED_ERROR_MESSAGE =
   "An unexpected error occurred while processing the command.";
 exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/add-book\`: Add a new book to the library.\n2. \`/delete-book\`: Remove a book from the library.\n3. \`/update-book\`: Update a existing book in the library.\n4. \`/library-history\`: Show library history.\n5. \`/view-book-requests\`: Show all book requests. \n6. \`/view-checkout-requests\`: Show checkout requests. \n7. \`/view-return-requests\`: Show return requests. \n\n`;
 exports.USER_COMMANDS = `**Available Commands:**
-1. \`/start\`: Start the bot.
+1. \`/menu\`: Display the menu.
 2. \`/available-books\`: Get available books.
 3. \`/checkout [Book ID]\`: Checkout a book by providing its ID.
 4. \`/my-books\`: Get a list of books checked out by the user.

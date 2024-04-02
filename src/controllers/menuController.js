@@ -21,7 +21,7 @@ exports.menu = async (dependencies) => {
 
   if (message.author.bot) return;
 
-  if (message.content !== "/start") {
+  if (message.content !== "/menu") {
     try {
       const isUserExisting = await validateUser.checkForExistingUser(
         message,
@@ -42,7 +42,7 @@ exports.menu = async (dependencies) => {
   const returnPattern = /^\/return\s\d{1,}$/;
 
   switch (true) {
-    case command === "/start":
+    case command === "/menu":
       const result = await commandsController.start(message, connection);
       if (!result) return;
       display.welcomeMessage(message, validateUser);
