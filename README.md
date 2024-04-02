@@ -30,7 +30,22 @@ This Discord bot serves as a virtual library manager within your Discord server,
 
 1. Clone the repository to your local machine.
 2. Ensure you have Docker installed.
-3. Navigate to the project directory in your terminal.
+3. Create a file named `.env` in the root directory of your project and add the following environment variables with their respective placeholder values:
+
+```plaintext
+DISCORD_TOKEN=your_discord_token_here
+MYSQL_HOST=your_host_name
+MYSQL_USER=your_mysql_user
+MYSQL_ROOT_PASSWORD=your_mysql_root_password
+MYSQL_DATABASE=your_database_name
+BOT_OWNER_USER_NAME=your_bot_owner_username_here
+DB_NAME=your_database_name
+
+# Docker compose volume
+VOLUME_PATH=your_persistent_volume_path
+```
+
+Replace `placeholder_values` with appropriate values.
 
 #### Starting the Application
 
@@ -74,7 +89,7 @@ If you need to up or down specific database migrations:
 To stop the application and remove the containers, run:
 
 ```bash
-docker-compose down
+docker-compose --env-file .env down
 ```
 
 Please ensure Docker is properly configured and running on your local machine before starting the application.
