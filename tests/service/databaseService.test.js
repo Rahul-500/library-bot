@@ -3,7 +3,7 @@ const sinon = require("sinon");
 const bookService = require("../../src/service/databaseService");
 const transactions = require("../../src/service/transactions");
 const constants = require("../../src/constants/constant");
-const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_USERS, TABLE_NAME_ISSUED_BOOKS } =
+const { DB_NAME } =
   process.env;
 
 describe("addBookToDatabase", () => {
@@ -362,7 +362,7 @@ describe("getUserIdByUsername", () => {
     mockConnection.query.mockImplementationOnce((query, callback) => {
       if (
         query.includes(
-          `SELECT id FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE name IN (${mockUsername})`,
+          `SELECT id FROM ${DB_NAME}.${"users"} WHERE name IN (${mockUsername})`,
         )
       ) {
         callback(null, mockQueryResult);
@@ -385,7 +385,7 @@ describe("getUserIdByUsername", () => {
     mockConnection.query.mockImplementationOnce((query, callback) => {
       if (
         query.includes(
-          `SELECT id FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE name IN (${mockUsername})`,
+          `SELECT id FROM ${DB_NAME}.${"users"} WHERE name IN (${mockUsername})`,
         )
       ) {
         callback(new Error(errorMessage), null);

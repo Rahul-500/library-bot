@@ -1,8 +1,8 @@
 require("dotenv").config();
-const { DB_NAME, TABLE_NAME_USERS } = process.env;
+const { DB_NAME} = process.env;
 exports.checkForExistingUser = async (message, connection) => {
   const id = message.author.id;
-  const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE id = ${id}`;
+  const QUERY = `SELECT * FROM ${DB_NAME}.${"users"} WHERE id = ${id}`;
 
   return new Promise((resolve, reject) => {
     connection.query(QUERY, (error, result) => {

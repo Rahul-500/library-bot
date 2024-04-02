@@ -1,13 +1,13 @@
 require("dotenv").config();
 const transactions = require("../service/transactions");
-const { DB_NAME, TABLE_NAME_BOOKS, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_USERS, TABLE_NAME_LIBRARY_HISTORY } =
+const { DB_NAME } =
   process.env;
 const constants = require("../constants/constant");
 let intervalId = null;
 
 exports.addBookToDatabase = async (message, connection, bookDetails) => {
   const { title, author, published_year, quantity_available } = bookDetails;
-  const QUERY = `INSERT INTO ${DB_NAME}.${TABLE_NAME_BOOKS} (title, author, published_year, quantity_available) VALUES (?, ?, ?, ?)`;
+  const QUERY = `INSERT INTO ${DB_NAME}.${"books"} (title, author, published_year, quantity_available) VALUES (?, ?, ?, ?)`;
   try {
     await transactions.beginTransaction(connection);
 
@@ -41,7 +41,7 @@ exports.deleteBookWithQuantity = async (
   book,
   quantity,
 ) => {
-  const QUERY = `UPDATE ${TABLE_NAME_BOOKS} SET quantity_available = quantity_available - ${quantity} where id = ${book.id}`;
+  const QUERY = `UPDATE ${"books"} SET quantity_available = quantity_available - ${quantity} where id = ${book.id}`;
   try {
     await transactions.beginTransaction(connection);
 
@@ -77,7 +77,7 @@ exports.updateBookDetails = async (
   try {
     await transactions.beginTransaction(connection);
     const QUERY = `
-                UPDATE ${DB_NAME}.${TABLE_NAME_BOOKS}
+                UPDATE ${DB_NAME}.${"books"}
                 SET title = '${title}', 
                     author = '${author}', 
                     published_year = ${publishedYear}, 
@@ -110,7 +110,7 @@ exports.addUserInfo = async (id, name, connection) => {
     await transactions.beginTransaction(connection);
 
     const QUERY = `
-            INSERT INTO ${DB_NAME}.${TABLE_NAME_USERS} (id, name) 
+            INSERT INTO ${DB_NAME}.${"users"} (id, name) 
             VALUES (${id}, '${name}');
         `;
 
@@ -134,7 +134,7 @@ exports.getCheckedOutUsers = async (connection, book) => {
   try {
     const bookId = book.id;
 
-    const QUERY = `SELECT name from ${DB_NAME}.${TABLE_NAME_USERS} where id IN (SELECT user_id FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} WHERE book_id = ${bookId})`;
+    const QUERY = `SELECT name from ${DB_NAME}.${"users"} where id IN (SELECT user_id FROM ${DB_NAME}.${"issued_books"} WHERE book_id = ${bookId})`;
 
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, result) => {
@@ -153,7 +153,7 @@ exports.getCheckedOutUsers = async (connection, book) => {
 };
 
 exports.getUserIdByUsername = async (connection, username) => {
-  const QUERY = `SELECT id FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE name IN (${username})`;
+  const QUERY = `SELECT id FROM ${DB_NAME}.${"users"} WHERE name IN (${username})`;
   try {
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
@@ -175,7 +175,7 @@ exports.getUserIdByUsername = async (connection, username) => {
 exports.getNewBookRequests = async (connection) => {
   try {
     const QUERY = `SELECT br.id,br.user_id,u.name,br.description,br.status
-        FROM ${DB_NAME}.${TABLE_NAME_USERS} u
+        FROM ${DB_NAME}.${"users"} u
         INNER JOIN ${DB_NAME}.book_request_alerts br ON u.id = br.user_id;`;
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
@@ -200,8 +200,8 @@ exports.getOverdueBooks = (connection) => {
       try {
         const QUERY = `
                     SELECT ib.*, b.title
-                    FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} ib
-                    JOIN ${DB_NAME}.${TABLE_NAME_BOOKS} b ON ib.book_id = b.id
+                    FROM ${DB_NAME}.${"issued_books"} ib
+                    JOIN ${DB_NAME}.${"books"} b ON ib.book_id = b.id
                     WHERE ib.checked_out < DATE_SUB(NOW(), INTERVAL 30 DAY)
                 `;
         const queryPromise = new Promise((innerResolve, innerReject) => {
@@ -334,7 +334,7 @@ exports.addCheckoutRequest = async (connection, userId, bookId) => {
 
 exports.getCheckoutRequests = async (connection) => {
   try {
-    const QUERY = `SELECT cr.id, u.id as user_id, u.name, b.id as book_id, b.title, cr.status FROM ${DB_NAME}.checkout_request_alerts cr JOIN ${DB_NAME}.${TABLE_NAME_USERS} u ON cr.user_id = u.id JOIN ${DB_NAME}.${TABLE_NAME_BOOKS} b ON cr.book_id = b.id;`;
+    const QUERY = `SELECT cr.id, u.id as user_id, u.name, b.id as book_id, b.title, cr.status FROM ${DB_NAME}.checkout_request_alerts cr JOIN ${DB_NAME}.${"users"} u ON cr.user_id = u.id JOIN ${DB_NAME}.${"books"} b ON cr.book_id = b.id;`;
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
         if (error) {
@@ -353,7 +353,7 @@ exports.getCheckoutRequests = async (connection) => {
 };
 
 exports.checkOutBook = async (connection, userId, bookId) => {
-  const QUERY = `INSERT INTO ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
+  const QUERY = `INSERT INTO ${DB_NAME}.${"issued_books"} (user_id, book_id, checked_out) VALUES ('${userId}', '${bookId}', NOW())`;
   try {
     await transactions.beginTransaction(connection);
 
@@ -440,7 +440,7 @@ exports.updateCheckoutRequestStatus = async (
 }
 
 exports.getBooksByTitle = async (connection, title) => {
-  const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_BOOKS} WHERE LOWER(title) LIKE LOWER('%${title}%')`;
+  const QUERY = `SELECT * FROM ${DB_NAME}.${"books"} WHERE LOWER(title) LIKE LOWER('%${title}%')`;
   try {
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
@@ -461,7 +461,7 @@ exports.getBooksByTitle = async (connection, title) => {
 
 exports.getUser = async (connection, id) => {
   try {
-    const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_USERS} WHERE id = ${id}`;
+    const QUERY = `SELECT * FROM ${DB_NAME}.${"users"} WHERE id = ${id}`;
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
         if (error) {
@@ -480,7 +480,7 @@ exports.getUser = async (connection, id) => {
 
 exports.getAvailableBooks = async (connection) => {
   try {
-    const QUERY = `SELECT * FROM ${DB_NAME}.${TABLE_NAME_BOOKS}`;
+    const QUERY = `SELECT * FROM ${DB_NAME}.${"books"}`;
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
         if (error) {
@@ -501,8 +501,8 @@ exports.getUserBooks = async (connection, userId) => {
   try {
     const QUERY = `
 SELECT b.*, i.checked_out 
-FROM ${DB_NAME}.${TABLE_NAME_BOOKS} AS b
-INNER JOIN ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} AS i
+FROM ${DB_NAME}.${"books"} AS b
+INNER JOIN ${DB_NAME}.${"issued_books"} AS i
 ON b.id = i.book_id
 WHERE i.user_id = ${userId}
 `;
@@ -524,7 +524,7 @@ WHERE i.user_id = ${userId}
 
 exports.returnBookWithId = async (connection, userId, bookId) => {
   try {
-    const QUERY = `DELETE FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS} WHERE user_id = ${userId} AND book_id = ${bookId}`;
+    const QUERY = `DELETE FROM ${DB_NAME}.${"issued_books"} WHERE user_id = ${userId} AND book_id = ${bookId}`;
     await transactions.beginTransaction(connection);
 
     const queryPromise = new Promise((resolve, reject) => {
@@ -549,16 +549,16 @@ exports.returnBookWithId = async (connection, userId, bookId) => {
 exports.getLibraryHistory = async (connection) => {
   try {
     const QUERY = `SELECT
-    ${TABLE_NAME_USERS}.name,
-    ${TABLE_NAME_BOOKS}.title,
-    ${TABLE_NAME_LIBRARY_HISTORY}.checked_out,
-    ${TABLE_NAME_LIBRARY_HISTORY}.returned
+    ${"users"}.name,
+    ${"books"}.title,
+    ${"library_history"}.checked_out,
+    ${"library_history"}.returned
 FROM
-    ${DB_NAME}.${TABLE_NAME_LIBRARY_HISTORY}
+    ${DB_NAME}.${"library_history"}
 JOIN
-    books ON ${TABLE_NAME_LIBRARY_HISTORY}.book_id = ${TABLE_NAME_BOOKS}.id
+    books ON ${"library_history"}.book_id = ${"books"}.id
 JOIN
-    users ON ${TABLE_NAME_LIBRARY_HISTORY}.user_id = ${TABLE_NAME_USERS}.id;
+    users ON ${"library_history"}.user_id = ${"users"}.id;
 `;
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
@@ -603,7 +603,7 @@ exports.addReturnRequest = async (connection, userId, bookId) => {
 
 exports.getReturnRequests = async (connection) => {
   try {
-    const QUERY = `SELECT rr.id, u.id as user_id, u.name, b.id as book_id, b.title, rr.status FROM ${DB_NAME}.return_request_alerts rr JOIN ${DB_NAME}.${TABLE_NAME_USERS} u ON rr.user_id = u.id JOIN ${DB_NAME}.${TABLE_NAME_BOOKS} b ON rr.book_id = b.id;`;
+    const QUERY = `SELECT rr.id, u.id as user_id, u.name, b.id as book_id, b.title, rr.status FROM ${DB_NAME}.return_request_alerts rr JOIN ${DB_NAME}.${"users"} u ON rr.user_id = u.id JOIN ${DB_NAME}.${"books"} b ON rr.book_id = b.id;`;
     const queryPromise = new Promise((resolve, reject) => {
       connection.query(QUERY, (error, results) => {
         if (error) {

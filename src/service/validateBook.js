@@ -1,11 +1,11 @@
 require("dotenv").config();
-const { DB_NAME, TABLE_NAME_ISSUED_BOOKS, TABLE_NAME_USERS } = process.env;
+const { DB_NAME } = process.env;
 
 exports.validateReturn = (connection, userId, bookId) => {
   const QUERY = `SELECT COUNT(book_id) AS bookCount
     FROM (
         SELECT book_id
-        FROM ${DB_NAME}.${TABLE_NAME_ISSUED_BOOKS}
+        FROM ${DB_NAME}.${"issued_books"}
         WHERE user_id = ${userId}
         GROUP BY book_id
     ) AS subquery

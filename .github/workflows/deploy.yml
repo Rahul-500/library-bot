@@ -38,8 +38,8 @@ jobs:
           cd /home/library-bot/library-bot && git pull origin main
 
       - name: Use docker-compose to start services
-        run: |
-          cd /home/library-bot/library-bot && docker-compose --env-file .env up --build -d
+        run: |docker-compose --env-file .env up --build -d
+          cd /home/library-bot/library-bot && 
 
       - name: Check if container is running
         run: |
