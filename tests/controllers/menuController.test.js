@@ -29,8 +29,8 @@ describe("menu", () => {
     jest.clearAllMocks();
   });
 
-  test("On /start start method should be invoked", async () => {
-    const command = "/start";
+  test("On /menu start method should be invoked", async () => {
+    const command = "/menu";
     commandsController.start = jest.fn();
     validateUser.checkForExistingUser = jest.fn();
     mockMessage.content = command;

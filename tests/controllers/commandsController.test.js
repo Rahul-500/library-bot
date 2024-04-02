@@ -17,7 +17,7 @@ const {
   processReturnRequest,
 } = require("../../src/controllers/commandsController");
 const constants = require("../../src/constants/constant");
-describe("/start command", () => {
+describe("/menu command", () => {
   let mockMessage;
   let mockConnection;
 
@@ -557,7 +557,7 @@ describe("help function", () => {
       expect.stringContaining("Available Commands"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/start"),
+      expect.stringContaining("/menu"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
       expect.stringContaining("/available-books"),
@@ -588,7 +588,7 @@ describe("help function", () => {
       expect.stringContaining("Available Commands"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
-      expect.stringContaining("/start"),
+      expect.stringContaining("/menu"),
     );
     expect(mockMessage.reply).toHaveBeenCalledWith(
       expect.stringContaining("/available-books"),
