@@ -5,6 +5,27 @@ const { DB_NAME } =
 const constants = require("../constants/constant");
 let intervalId = null;
 
+exports.checkForExistingUser = async (message, connection) => {
+  const id = message.author.id;
+  const QUERY = `SELECT * FROM ${DB_NAME}.${"users"} WHERE id = ${id}`;
+
+  return new Promise((resolve, reject) => {
+    connection.query(QUERY, (error, result) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      const user = result;
+      if (user.length === 0) {
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    });
+  });
+};
+
 exports.addBookToDatabase = async (message, connection, bookDetails) => {
   const { title, author, published_year, quantity_available } = bookDetails;
   const QUERY = `INSERT INTO ${DB_NAME}.${"books"} (title, author, published_year, quantity_available) VALUES (?, ?, ?, ?)`;
@@ -704,3 +725,24 @@ exports.getReturnRequestsForBook = async (connection, bookId) => {
     return null;
   }
 }
+
+exports.validateReturn = (connection, userId, bookId) => {
+  const QUERY = `SELECT COUNT(book_id) AS bookCount
+    FROM (
+        SELECT book_id
+        FROM ${DB_NAME}.${"issued_books"}
+        WHERE user_id = ${userId}
+        GROUP BY book_id
+    ) AS subquery
+    WHERE book_id = ${bookId};
+    `;
+  return new Promise((resolve, reject) => {
+    connection.query(QUERY, (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result[0].bookCount > 0);
+      }
+    });
+  });
+};
