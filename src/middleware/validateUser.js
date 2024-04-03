@@ -3,7 +3,6 @@ const constants = require("../constants/constant");
 
 exports.createUserIfNotExists = async (message, connection) => {
     try {
-        console.log("hello");
         const id = message.author.id; 
         const name = message.author.username; 
         const isUserExisting = await checkForExistingUser(
