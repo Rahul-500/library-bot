@@ -1,22 +1,21 @@
 require("dotenv").config();
 const constants = require("../constants/constant");
-const { validateReturn } = require("../service/validateBook");
+
 const {
   addBookToDatabase,
   deleteBookWithQuantity,
   updateBookDetails,
-  addUserInfo,
   getCheckedOutUsers,
   addBookRequest,
   updateBookRequestStatus,
   updateCheckoutRequestStatus,
   getBooksByTitle,
-  getUser,
   getAvailableBooks,
   getUserBooks,
   getLibraryHistory,
   updateReturnRequestStatus,
-  getReturnRequestsForBook
+  getReturnRequestsForBook,
+  validateReturn
 } = require("../service/databaseService");
 const {
   notifyAdminNewBookRequest,
@@ -26,24 +25,6 @@ const {
   notifyAdminReturnBookRequest,
   notifyUserAboutReturnRequest
 } = require("../service/notifier");
-
-exports.start = async (message, connection) => {
-  try {
-    const id = message.author.id;
-    const user = await getUser(connection, id);
-    if (!user) {
-      throw new Error('Error: executing user query')
-    }
-    if (user.length == 0) {
-      const author = message.author.username;
-      await addUserInfo(id, author, connection);
-    }
-    return user;
-  } catch (error) {
-    message.reply(constants.ERROR_FETCHING_USER);
-    return null;
-  }
-};
 
 exports.getAvailableBooks = async (message, connection, bookMap) => {
   try {
