@@ -1,5 +1,4 @@
 const { menu } = require("../controllers/menuController");
-const commandsController = require("../controllers/commandsController");
 const display = require("../utils/display");
 const bookMap = new Map();
 const checkedOutBooks = new Map();
@@ -34,11 +33,9 @@ const messageCreateHandler = (message) => {
 
     const dependencies = {
         message,
-        commandsController,
         connection,
         bookMap,
         checkedOutBooks,
-        display,
         userEventsMap,
         client,
     };
