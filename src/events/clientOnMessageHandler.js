@@ -1,8 +1,6 @@
 const { menu } = require("../controllers/menuController");
 const commandsController = require("../controllers/commandsController");
-const validateUser = require("../service/validateUser");
 const display = require("../utils/display");
-
 const bookMap = new Map();
 const checkedOutBooks = new Map();
 const userEventsMap = new Map();
@@ -38,7 +36,6 @@ const messageCreateHandler = (message) => {
         message,
         commandsController,
         connection,
-        validateUser,
         bookMap,
         checkedOutBooks,
         display,
