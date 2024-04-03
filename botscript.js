@@ -1,3 +1,4 @@
+require('dotenv').config()
 const { connect } = require("./src/database");
 const { clientLogin } = require("./src/events/clientLogin");
 const { clientOnMessageHandler } = require("./src/events/clientOnMessageHandler");
