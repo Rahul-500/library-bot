@@ -1,5 +1,9 @@
-const { user } = require("../../config/db.config");
 const constants = require("../constants/constant");
+const { isAdmin } = require("../middleware/validateAdmin");
+const { createUserIfNotExists } = require("../middleware/validateUser");
+const commandsController = require("./commandsController")
+const display = require("../utils/display")
+
 const {
   getNewBookRequests,
   getCheckoutRequests,
@@ -9,33 +13,17 @@ const {
 exports.menu = async (dependencies) => {
   const {
     message,
-    commandsController,
     connection,
-    validateUser,
     bookMap,
     checkedOutBooks,
-    display,
     userEventsMap,
     client,
   } = dependencies;
 
   if (message.author.bot) return;
 
-  if (message.content !== "/menu") {
-    try {
-      const isUserExisting = await validateUser.checkForExistingUser(
-        message,
-        connection
-      );
-      if (!isUserExisting) {
-        message.reply(constants.USE_START_COMMAND_MESSAGE);
-        return;
-      }
-    } catch (error) {
-      message.reply(constants.ERROR_DURING_USER_CHECK);
-      return;
-    }
-  }
+  const user = await createUserIfNotExists(connection, message)
+  if (!user) return
 
   const command = message.content;
   const checkoutPattern = /^\/checkout\s\d{1,}$/;
@@ -43,9 +31,7 @@ exports.menu = async (dependencies) => {
 
   switch (true) {
     case command === "/menu":
-      const result = await commandsController.start(message, connection);
-      if (!result) return;
-      display.welcomeMessage(message, validateUser);
+      display.menu(message, validateUser);
       break;
 
     case command === "/available-books":
@@ -54,6 +40,7 @@ exports.menu = async (dependencies) => {
         connection,
         bookMap
       );
+      
       if (!availableBooks) return;
       display.availableBooks(message, availableBooks);
       break;
@@ -82,7 +69,7 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "/view-return-requests":
-      if (!validateUser.isAdmin(message)) {
+      if (!isAdmin(message)) {
         message.reply(constants.HELP_MESSAGE);
         break;
       }
@@ -124,7 +111,7 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "/request-new-book":
-      if (validateUser.isAdmin(message)) {
+      if (isAdmin(message)) {
         message.reply(constants.HELP_MESSAGE);
         break;
       }
@@ -139,7 +126,7 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "/add-book":
-      if (!validateUser.isAdmin(message)) {
+      if (!isAdmin(message)) {
         message.reply(constants.HELP_MESSAGE);
         break;
       }
@@ -148,7 +135,7 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "/update-book":
-      if (!validateUser.isAdmin(message)) {
+      if (!isAdmin(message)) {
         message.reply(constants.HELP_MESSAGE);
         break;
       }
@@ -171,7 +158,7 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "/view-book-requests":
-      if (!validateUser.isAdmin(message)) {
+      if (!isAdmin(message)) {
         message.reply(constants.HELP_MESSAGE);
         break;
       }
@@ -191,7 +178,7 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "/view-checkout-requests":
-      if (!validateUser.isAdmin(message)) {
+      if (!isAdmin(message)) {
         message.reply(constants.HELP_MESSAGE);
         break;
       }
@@ -210,7 +197,7 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "/delete-book":
-      if (!validateUser.isAdmin(message)) {
+      if (!isAdmin(message)) {
         message.reply(constants.HELP_MESSAGE);
         break;
       }
@@ -231,7 +218,7 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "/library-history":
-      if (!validateUser.isAdmin(message)) {
+      if (!isAdmin(message)) {
         message.reply(constants.HELP_MESSAGE);
         break;
       }
@@ -244,7 +231,7 @@ exports.menu = async (dependencies) => {
       break;
 
     case command === "!help":
-      commandsController.help(message, validateUser.isAdmin(message));
+      commandsController.help(message, isAdmin(message));
       break;
 
     default:
