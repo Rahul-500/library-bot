@@ -22,7 +22,7 @@ exports.menu = async (dependencies) => {
 
   if (message.author.bot) return;
 
-  const user = await createUserIfNotExists(connection, message)
+  const user = await createUserIfNotExists(message, connection)
   if (!user) return
 
   const command = message.content;
@@ -31,7 +31,7 @@ exports.menu = async (dependencies) => {
 
   switch (true) {
     case command === "/menu":
-      display.menu(message, validateUser);
+      display.menu(message);
       break;
 
     case command === "/available-books":
@@ -40,7 +40,7 @@ exports.menu = async (dependencies) => {
         connection,
         bookMap
       );
-      
+
       if (!availableBooks) return;
       display.availableBooks(message, availableBooks);
       break;
