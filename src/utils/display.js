@@ -1,9 +1,10 @@
 const constants = require("../constants/constant");
 const { EmbedBuilder } = require("discord.js");
 const { pagination } = require("../utils/pagination");
+const { isAdmin } = require("../middleware/validateAdmin");
 
-exports.welcomeMessage = (message, validateUser) => {
-  const menuOptions = validateUser.isAdmin(message)
+exports.menu = (message) => {
+  const menuOptions = isAdmin(message)
     ? constants.ADMIN_OPTIONS
     : constants.MENU_OPTIONS;
   const welcomeMessage = `${constants.WELCOME_MESSAGE}, ${message.author.username}!`;

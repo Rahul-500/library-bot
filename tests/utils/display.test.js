@@ -1,12 +1,10 @@
+const { EmbedBuilder } = require("discord.js");
 const display = require("../../src/utils/display");
 const constants = require("../../src/constants/constant");
-const { EmbedBuilder } = require("discord.js");
-const validateUser = require("../../src/service/validateUser");
-const {
-  pagination,
-  ButtonTypes,
-  ButtonStyles,
-} = require("@devraelfreeze/discordjs-pagination");
+
+const validateAdmin = require("../../src/middleware/validateAdmin");
+
+jest.mock("../../src/middleware/validateAdmin");
 
 describe("welcomeMessage", () => {
   let message;
@@ -17,7 +15,7 @@ describe("welcomeMessage", () => {
       reply: jest.fn(),
     };
 
-    validateUser.isAdmin = jest.fn();
+    validateAdmin.isAdmin.mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -25,40 +23,39 @@ describe("welcomeMessage", () => {
   });
 
   it("should send a welcome message with menu options for a regular user", () => {
-    validateUser.isAdmin.mockReturnValue(false);
-    display.welcomeMessage(message, validateUser);
+    display.menu(message);
 
     const menuOptions = constants.MENU_OPTIONS;
-    const welcomeMessage = `${constants.WELCOME_MESSAGE}, ${message.author.username}!`;
+    const welcomeMessageText = `${constants.WELCOME_MESSAGE}, ${message.author.username}!`;
 
     const embed = new EmbedBuilder()
       .setColor(constants.EMBED_COLOR)
       .setTitle(constants.MENU_TITLE)
-      .setDescription(welcomeMessage)
+      .setDescription(welcomeMessageText)
       .addFields(
         { name: "Options", value: menuOptions, inline: false },
         { name: "How to use", value: constants.HELP_MESSAGE },
       )
-      .setFooter({ text: constants.FOOTER_TEXT });
+      .setFooter({ text: constants.FOOTER_TEXT }); // Update this line
     expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] });
   });
 
-  it("should send a welcome message with admin menu options for a admin user", () => {
-    validateUser.isAdmin.mockReturnValue(true);
-    display.welcomeMessage(message, validateUser);
+  it("should send a welcome message with admin menu options for an admin user", () => {
+    validateAdmin.isAdmin.mockReturnValue(true);
+    display.menu(message);
 
     const menuOptions = constants.ADMIN_OPTIONS;
-    const welcomeMessage = `${constants.WELCOME_MESSAGE}, ${message.author.username}!`;
+    const welcomeMessageText = `${constants.WELCOME_MESSAGE}, ${message.author.username}!`;
 
     const embed = new EmbedBuilder()
       .setColor(constants.EMBED_COLOR)
       .setTitle(constants.MENU_TITLE)
-      .setDescription(welcomeMessage)
+      .setDescription(welcomeMessageText)
       .addFields(
         { name: "Options", value: menuOptions, inline: false },
         { name: "How to use", value: constants.HELP_MESSAGE },
       )
-      .setFooter({ text: constants.FOOTER_TEXT });
+      .setFooter({ text: constants.FOOTER_TEXT }); // Update this line
     expect(message.reply).toHaveBeenCalledWith({ embeds: [embed] });
   });
 });
@@ -469,7 +466,7 @@ describe("returnRequests function", () => {
     ];
     const totalPages = Math.ceil(mockReturnRequests.length / constants.itemsPerPage);
     const paginationSpy = jest.fn();
-  
+
     const embed1 = new EmbedBuilder()
       .setTitle(`${constants.RETURN_REQUESTS} (Page 1/${totalPages})`)
       .setColor("#00FF00")
@@ -480,13 +477,13 @@ describe("returnRequests function", () => {
           value: `**Name:** TestName1\n**Title:** TestTitle1\n**Status:** Pending`,
         },
       ]);
-  
+
     const expectedEmbeds = [embed1];
-  
+
     await display.returnRequests(mockMessage, mockReturnRequests, paginationSpy);
-  
+
     expect(paginationSpy).toHaveBeenCalledWith(mockMessage, expectedEmbeds);
   });
-  
-  
+
+
 });
