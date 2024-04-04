@@ -1,6 +1,6 @@
 const menuController = require("../../src/controllers/menuController");
 const constants = require("../../src/constants/constant");
-const display = require("../../src/utils/display")
+const display = require("../../src/utils/display");
 const validateUser = require("../../src/middleware/validateUser");
 const { availableBooks } = require("../../src/controllers/menuoptions/availableBooks");
 const { checkoutBook } = require("../../src/controllers/menuoptions/checkoutBook");
@@ -15,8 +15,12 @@ const { bookRequests } = require("../../src/controllers/menuoptions/bookRequests
 const { checkoutRequests } = require("../../src/controllers/menuoptions/checkoutRequests");
 const { deleteBook } = require("../../src/controllers/menuoptions/deleteBook");
 const { libraryHistory } = require("../../src/controllers/menuoptions/libraryHistory");
+const { setOverdueBookInterval } = require("../../src/controllers/menuoptions/setOverdueBookInterval");
 const { help } = require("../../src/controllers/menuoptions/help");
 
+jest.mock("../../src/controllers/menuoptions/setOverdueBookInterval", () => ({
+  setOverdueBookInterval: jest.fn(),
+}));
 jest.mock("../../src/controllers/menuoptions/bookRequests", () => ({
   bookRequests: jest.fn(),
 }));
@@ -44,36 +48,29 @@ jest.mock("../../src/controllers/menuoptions/addBook", () => ({
 jest.mock("../../src/controllers/menuoptions/updateBook", () => ({
   updateBook: jest.fn(),
 }));
-
 jest.mock("../../src/controllers/menuoptions/search", () => ({
   search: jest.fn(),
 }));
-
 jest.mock("../../src/controllers/menuoptions/returnRequests", () => ({
   returnRequests: jest.fn(),
 }));
-
 jest.mock("../../src/controllers/menuoptions/myBooks", () => ({
   myBooks: jest.fn(),
 }));
-
 jest.mock("../../src/controllers/menuoptions/checkoutBook", () => ({
   checkoutBook: jest.fn(),
 }));
-
 jest.mock("../../src/controllers/menuoptions/availableBooks", () => ({
   availableBooks: jest.fn(),
 }));
-
 jest.mock("../../src/middleware/validateUser", () => ({
   createUserIfNotExists: jest.fn(),
 }));
-
 jest.mock("../../src/utils/display", () => ({
   menu: jest.fn(),
 }));
 
-describe('menu function', () => {
+describe("menu function", () => {
   let mockMessage;
 
   beforeEach(() => {
@@ -102,10 +99,14 @@ describe('menu function', () => {
       client: jest.fn(),
     };
     await menuController.menu(mockDependencies);
-    expect(availableBooks).toHaveBeenCalledWith(mockMessage, mockDependencies.connection, mockDependencies.bookMap);
+    expect(availableBooks).toHaveBeenCalledWith(
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.bookMap
+    );
   });
 
-  it('should call checkoutBook for commands matching checkout pattern', async () => {
+  it("should call checkoutBook for commands matching checkout pattern", async () => {
     mockMessage.content = "/checkout 123";
     const mockDependencies = {
       message: mockMessage,
@@ -116,7 +117,12 @@ describe('menu function', () => {
       client: jest.fn(),
     };
     await menuController.menu(mockDependencies);
-    expect(checkoutBook).toHaveBeenCalledWith(mockMessage, mockDependencies.connection, mockDependencies.bookMap, mockDependencies.client);
+    expect(checkoutBook).toHaveBeenCalledWith(
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.bookMap,
+      mockDependencies.client
+    );
   });
 
   it('should call myBooks for command "/my-books"', async () => {
@@ -127,7 +133,11 @@ describe('menu function', () => {
       checkedOutBooks: new Map(),
     };
     await menuController.menu(mockDependencies);
-    expect(myBooks).toHaveBeenCalledWith(mockMessage, mockDependencies.connection, mockDependencies.checkedOutBooks);
+    expect(myBooks).toHaveBeenCalledWith(
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.checkedOutBooks
+    );
   });
 
   it('should call returnRequests for command "/view-return-requests"', async () => {
@@ -139,7 +149,12 @@ describe('menu function', () => {
       client: jest.fn(),
     };
     await menuController.menu(mockDependencies);
-    expect(returnRequests).toHaveBeenCalledWith(mockDependencies.client, mockMessage, mockDependencies.connection, mockDependencies.userEventsMap);
+    expect(returnRequests).toHaveBeenCalledWith(
+      mockDependencies.client,
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.userEventsMap
+    );
   });
 
   it('should call search for command "/search"', async () => {
@@ -151,10 +166,15 @@ describe('menu function', () => {
       bookMap: new Map(),
     };
     await menuController.menu(mockDependencies);
-    expect(search).toHaveBeenCalledWith(mockMessage, mockDependencies.connection, mockDependencies.userEventsMap, mockDependencies.bookMap);
+    expect(search).toHaveBeenCalledWith(
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.userEventsMap,
+      mockDependencies.bookMap
+    );
   });
 
-  it('should call returnBook for commands matching return pattern', async () => {
+  it("should call returnBook for commands matching return pattern", async () => {
     mockMessage.content = "/return 123";
     const mockDependencies = {
       message: mockMessage,
@@ -163,7 +183,12 @@ describe('menu function', () => {
       checkedOutBooks: new Map(),
     };
     await menuController.menu(mockDependencies);
-    expect(returnBook).toHaveBeenCalledWith(mockMessage, mockDependencies.client, mockDependencies.connection, mockDependencies.checkedOutBooks);
+    expect(returnBook).toHaveBeenCalledWith(
+      mockMessage,
+      mockDependencies.client,
+      mockDependencies.connection,
+      mockDependencies.checkedOutBooks
+    );
   });
 
   it('should call requestBook for command "/request-new-book"', async () => {
@@ -175,7 +200,12 @@ describe('menu function', () => {
       userEventsMap: new Map(),
     };
     await menuController.menu(mockDependencies);
-    expect(requestBook).toHaveBeenCalledWith(mockDependencies.client, mockMessage, mockDependencies.connection, mockDependencies.userEventsMap);
+    expect(requestBook).toHaveBeenCalledWith(
+      mockDependencies.client,
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.userEventsMap
+    );
   });
 
   it('should call addBook for command "/add-book"', async () => {
@@ -186,7 +216,11 @@ describe('menu function', () => {
       userEventsMap: new Map(),
     };
     await menuController.menu(mockDependencies);
-    expect(addBook).toHaveBeenCalledWith(mockMessage, mockDependencies.connection, mockDependencies.userEventsMap);
+    expect(addBook).toHaveBeenCalledWith(
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.userEventsMap
+    );
   });
 
   it('should call updateBook for command "/update-book"', async () => {
@@ -198,7 +232,12 @@ describe('menu function', () => {
       userEventsMap: new Map(),
     };
     await menuController.menu(mockDependencies);
-    expect(updateBook).toHaveBeenCalledWith(mockMessage, mockDependencies.connection, mockDependencies.bookMap, mockDependencies.userEventsMap);
+    expect(updateBook).toHaveBeenCalledWith(
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.bookMap,
+      mockDependencies.userEventsMap
+    );
   });
   it('should call bookRequests for command "/view-book-requests"', async () => {
     mockMessage.content = "/view-book-requests";
@@ -209,7 +248,12 @@ describe('menu function', () => {
       userEventsMap: new Map(),
     };
     await menuController.menu(mockDependencies);
-    expect(bookRequests).toHaveBeenCalledWith(mockDependencies.client, mockMessage, mockDependencies.connection, mockDependencies.userEventsMap);
+    expect(bookRequests).toHaveBeenCalledWith(
+      mockDependencies.client,
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.userEventsMap
+    );
   });
 
   it('should call checkoutRequests for command "/view-checkout-requests"', async () => {
@@ -221,7 +265,12 @@ describe('menu function', () => {
       userEventsMap: new Map(),
     };
     await menuController.menu(mockDependencies);
-    expect(checkoutRequests).toHaveBeenCalledWith(mockDependencies.client, mockMessage, mockDependencies.connection, mockDependencies.userEventsMap);
+    expect(checkoutRequests).toHaveBeenCalledWith(
+      mockDependencies.client,
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.userEventsMap
+    );
   });
 
   it('should call deleteBook for command "/delete-book"', async () => {
@@ -233,7 +282,12 @@ describe('menu function', () => {
       userEventsMap: new Map(),
     };
     await menuController.menu(mockDependencies);
-    expect(deleteBook).toHaveBeenCalledWith(mockMessage, mockDependencies.connection, mockDependencies.bookMap, mockDependencies.userEventsMap);
+    expect(deleteBook).toHaveBeenCalledWith(
+      mockMessage,
+      mockDependencies.connection,
+      mockDependencies.bookMap,
+      mockDependencies.userEventsMap
+    );
   });
 
   it('should call libraryHistory for command "/library-history"', async () => {
@@ -243,7 +297,25 @@ describe('menu function', () => {
       connection: jest.fn(),
     };
     await menuController.menu(mockDependencies);
-    expect(libraryHistory).toHaveBeenCalledWith(mockMessage, mockDependencies.connection);
+    expect(libraryHistory).toHaveBeenCalledWith(
+      mockMessage,
+      mockDependencies.connection
+    );
+  });
+
+  it("should call setOverdueBookInterval for commands matching setOverdueBookInterval pattern", async () => {
+    mockMessage.content = "/set-overduebook-interval 7";
+    const mockDependencies = {
+      message: mockMessage,
+      connection: jest.fn(),
+      client: jest.fn(),
+    };
+    await menuController.menu(mockDependencies);
+    expect(setOverdueBookInterval).toHaveBeenCalledWith(
+      mockDependencies.connection,
+      mockDependencies.client,
+      mockMessage
+    );
   });
 
   it('should call help for command "!help"', async () => {
@@ -255,7 +327,7 @@ describe('menu function', () => {
     expect(help).toHaveBeenCalledWith(mockMessage);
   });
 
-  it('should call message.reply with HELP_MESSAGE for unknown commands', async () => {
+  it("should call message.reply with HELP_MESSAGE for unknown commands", async () => {
     mockMessage.content = "/unknown-command";
     await menuController.menu({ message: mockMessage });
     expect(mockMessage.reply).toHaveBeenCalledWith(constants.HELP_MESSAGE);
