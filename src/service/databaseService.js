@@ -1,7 +1,6 @@
 require("dotenv").config();
 const transactions = require("../service/transactions");
-const { DB_NAME } =
-  process.env;
+const { DB_NAME } = process.env;
 const constants = require("../constants/constant");
 let intervalId = null;
 
@@ -43,7 +42,7 @@ exports.addBookToDatabase = async (message, connection, bookDetails) => {
             message.reply(`Book added successfully! Title: ${title}`);
             resolve(result);
           }
-        },
+        }
       );
     });
 
@@ -60,7 +59,7 @@ exports.deleteBookWithQuantity = async (
   message,
   connection,
   book,
-  quantity,
+  quantity
 ) => {
   const QUERY = `UPDATE ${"books"} SET quantity_available = quantity_available - ${quantity} where id = ${book.id}`;
   try {
@@ -93,7 +92,7 @@ exports.updateBookDetails = async (
   title,
   author,
   publishedYear,
-  quantity,
+  quantity
 ) => {
   try {
     await transactions.beginTransaction(connection);
@@ -215,14 +214,14 @@ exports.getNewBookRequests = async (connection) => {
   }
 };
 
-exports.getOverdueBooks = (connection, message) => {
+exports.getOverdueBooks = (connection, timeInterval) => {
   return new Promise((resolve, reject) => {
     try {
       const QUERY = `
               SELECT ib.*, b.title
               FROM ${DB_NAME}.${"issued_books"} ib
               JOIN ${DB_NAME}.${"books"} b ON ib.book_id = b.id
-              WHERE ib.checked_out < DATE_SUB(NOW(), INTERVAL ${message.interval} DAY)
+              WHERE ib.checked_out < DATE_SUB(NOW(), INTERVAL ${timeInterval} DAY)
           `;
       connection.query(QUERY, (error, results) => {
         if (error) {
@@ -237,6 +236,45 @@ exports.getOverdueBooks = (connection, message) => {
   });
 };
 
+exports.setOverdueBookInterval = async (connection, timeInterval) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const QUERY = `
+      UPDATE library.app_settings
+      SET setting_value = ${timeInterval}
+      WHERE setting_name = 'overdue_books_interval'; `;
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+exports.getOverdueBookInterval = async (connection) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const QUERY = `
+        SELECT setting_value
+        FROM library.app_settings
+        WHERE setting_name = 'overdue_books_interval'; `;
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
 exports.addBookRequest = async (connection, bookRequest, message) => {
   try {
@@ -276,18 +314,17 @@ exports.deleteBookRequest = async (connection, bookRequestId) => {
 
     const result = await queryPromise;
     await transactions.commitTransaction(connection);
-    return result
+    return result;
   } catch (error) {
     await transactions.rollbackTransaction(connection);
-    return null
+    return null;
   }
-}
-
+};
 
 exports.updateBookRequestStatus = async (
   connection,
   bookRequestId,
-  bookRequestStatus,
+  bookRequestStatus
 ) => {
   try {
     await transactions.beginTransaction(connection);
@@ -309,9 +346,12 @@ exports.updateBookRequestStatus = async (
     const updatedResult = await queryPromise;
     await transactions.commitTransaction(connection);
     if (bookRequestStatus === "approved") {
-      const deleteRequest = await this.deleteBookRequest(connection, bookRequestId)
+      const deleteRequest = await this.deleteBookRequest(
+        connection,
+        bookRequestId
+      );
       if (!deleteRequest) {
-        throw new Error("Error: executing the query")
+        throw new Error("Error: executing the query");
       }
     }
     return updatedResult;
@@ -339,12 +379,12 @@ exports.addCheckoutRequest = async (connection, userId, bookId) => {
     const result = await queryPromise;
     await transactions.commitTransaction(connection);
 
-    return result
+    return result;
   } catch (error) {
     await transactions.rollbackTransaction(connection);
-    return null
+    return null;
   }
-}
+};
 
 exports.getCheckoutRequests = async (connection) => {
   try {
@@ -383,12 +423,12 @@ exports.checkOutBook = async (connection, userId, bookId) => {
 
     const checkout = await queryPromise;
     await transactions.commitTransaction(connection);
-    return checkout
+    return checkout;
   } catch (error) {
     await transactions.rollbackTransaction(connection);
-    return null
+    return null;
   }
-}
+};
 
 exports.deleteCheckoutRequest = async (connection, checkoutRequestId) => {
   const QUERY = `DELETE FROM ${DB_NAME}.checkout_request_alerts WHERE id=${checkoutRequestId};`;
@@ -407,17 +447,18 @@ exports.deleteCheckoutRequest = async (connection, checkoutRequestId) => {
 
     const result = await queryPromise;
     await transactions.commitTransaction(connection);
-    return result
+    return result;
   } catch (error) {
     await transactions.rollbackTransaction(connection);
-    return null
+    return null;
   }
-}
+};
 
 exports.updateCheckoutRequestStatus = async (
   connection,
   checkoutRequest,
-  checkoutRequestStatus) => {
+  checkoutRequestStatus
+) => {
   try {
     const checkoutRequestId = checkoutRequest.id;
     const userId = checkoutRequest.user_id;
@@ -439,10 +480,13 @@ exports.updateCheckoutRequestStatus = async (
     });
     const updatedResult = await queryPromise;
     if (checkoutRequestStatus === "approved") {
-      const checkout = await this.checkOutBook(connection, userId, bookId)
-      const deleteRequest = await this.deleteCheckoutRequest(connection, checkoutRequestId)
+      const checkout = await this.checkOutBook(connection, userId, bookId);
+      const deleteRequest = await this.deleteCheckoutRequest(
+        connection,
+        checkoutRequestId
+      );
       if (!checkout || !deleteRequest) {
-        throw new Error("Error: executing the query")
+        throw new Error("Error: executing the query");
       }
     }
     await transactions.commitTransaction(connection);
@@ -451,7 +495,7 @@ exports.updateCheckoutRequestStatus = async (
     await transactions.rollbackTransaction(connection);
     return null;
   }
-}
+};
 
 exports.getBooksByTitle = async (connection, title) => {
   const QUERY = `SELECT * FROM ${DB_NAME}.${"books"} WHERE LOWER(title) LIKE LOWER('%${title}%')`;
@@ -486,11 +530,11 @@ exports.getUser = async (connection, id) => {
       });
     });
     const user = await queryPromise;
-    return user
+    return user;
   } catch (error) {
-    return null
+    return null;
   }
-}
+};
 
 exports.getAvailableBooks = async (connection) => {
   try {
@@ -505,11 +549,11 @@ exports.getAvailableBooks = async (connection) => {
       });
     });
     const books = await queryPromise;
-    return books
+    return books;
   } catch (error) {
     return null;
   }
-}
+};
 
 exports.getUserBooks = async (connection, userId) => {
   try {
@@ -530,11 +574,11 @@ WHERE i.user_id = ${userId}
       });
     });
     const books = await queryPromise;
-    return books
+    return books;
   } catch (error) {
     return null;
   }
-}
+};
 
 exports.returnBookWithId = async (connection, userId, bookId) => {
   try {
@@ -553,12 +597,12 @@ exports.returnBookWithId = async (connection, userId, bookId) => {
 
     await queryPromise;
     await transactions.commitTransaction(connection);
-    return true
+    return true;
   } catch (error) {
     await transactions.rollbackTransaction(connection);
     return null;
   }
-}
+};
 
 exports.getLibraryHistory = async (connection) => {
   try {
@@ -584,11 +628,11 @@ JOIN
       });
     });
     const libraryHistory = await queryPromise;
-    return libraryHistory
+    return libraryHistory;
   } catch (error) {
     return null;
   }
-}
+};
 
 exports.addReturnRequest = async (connection, userId, bookId) => {
   try {
@@ -608,12 +652,12 @@ exports.addReturnRequest = async (connection, userId, bookId) => {
     const result = await queryPromise;
     await transactions.commitTransaction(connection);
 
-    return result
+    return result;
   } catch (error) {
     await transactions.rollbackTransaction(connection);
-    return null
+    return null;
   }
-}
+};
 
 exports.getReturnRequests = async (connection) => {
   try {
@@ -633,7 +677,7 @@ exports.getReturnRequests = async (connection) => {
   } catch (error) {
     return null;
   }
-}
+};
 
 exports.updateReturnRequestStatus = async (
   connection,
@@ -661,10 +705,13 @@ exports.updateReturnRequestStatus = async (
     });
     const updatedResult = await queryPromise;
     if (returnRequestStatus === "approved") {
-      const checkout = await this.returnBookWithId(connection, userId, bookId)
-      const deleteRequest = await this.deleteReturnRequest(connection, returnRequestId)
+      const checkout = await this.returnBookWithId(connection, userId, bookId);
+      const deleteRequest = await this.deleteReturnRequest(
+        connection,
+        returnRequestId
+      );
       if (!checkout || !deleteRequest) {
-        throw new Error("Error: executing the query")
+        throw new Error("Error: executing the query");
       }
     }
     await transactions.commitTransaction(connection);
@@ -673,7 +720,7 @@ exports.updateReturnRequestStatus = async (
     await transactions.rollbackTransaction(connection);
     return null;
   }
-}
+};
 
 exports.deleteReturnRequest = async (connection, returnRequestId) => {
   const QUERY = `DELETE FROM ${DB_NAME}.return_request_alerts WHERE id=${returnRequestId};`;
@@ -692,12 +739,12 @@ exports.deleteReturnRequest = async (connection, returnRequestId) => {
 
     const result = await queryPromise;
     await transactions.commitTransaction(connection);
-    return result
+    return result;
   } catch (error) {
     await transactions.rollbackTransaction(connection);
-    return null
+    return null;
   }
-}
+};
 
 exports.getReturnRequestsForBook = async (connection, bookId) => {
   try {
@@ -717,7 +764,7 @@ exports.getReturnRequestsForBook = async (connection, bookId) => {
   } catch (error) {
     return null;
   }
-}
+};
 
 exports.validateReturn = (connection, userId, bookId) => {
   const QUERY = `SELECT COUNT(book_id) AS bookCount

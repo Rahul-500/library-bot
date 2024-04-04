@@ -163,3 +163,6 @@ exports.SUCCESSFULL_UPDATE_RETURN_REQUEST_STATUS_MESSAGE = "Book Return Status w
 exports.UNEXPECTED_CHANGING_BOOK_RETURN_STATUS_ERROR_MESSAGE = "An unexpected error occurred while processing the book return. Please try again later."
 exports.ERROR_VALIDATING_RETURN_BOOK_MESSAGE = "Error validating return book request. Please try again later."
 exports.ALREADY_RETURN_REQUEST_INITIATED_MESSAGE = "Return request has already been initiated for this book"
+exports.DEFAULT_RETURN_BOOK_INTERVAL_DAY = 30
+exports.SUCCESSFULL_SET_OVERDUE_BOOK_INTERVAL_MESSAGE = 'The overdue book interval has been successfully set.'
+exports.ERROR_SET_OVERDUE_BOOK_INTERVAL_MESSAGE = 'An error occurred while setting the overdue book interval. Please try again later.'

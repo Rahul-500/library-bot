@@ -14,6 +14,7 @@ const { requestBook } = require("./menuoptions/requestBook");
 const { returnBook } = require("./menuoptions/returnBook");
 const { returnRequests } = require("./menuoptions/returnRequests");
 const { search } = require("./menuoptions/search");
+const { setOverdueBookInterval } = require("./menuoptions/setOverdueBookInterval");
 const { updateBook } = require("./menuoptions/updateBook");
 
 exports.menu = async (dependencies) => {
@@ -34,6 +35,7 @@ exports.menu = async (dependencies) => {
   const command = message.content;
   const checkoutPattern = /^\/checkout\s\d{1,}$/;
   const returnPattern = /^\/return\s\d{1,}$/;
+  const setOverdueBookIntervalPattern = /^\/set-overduebook-interval\s\d{1,}$/;
 
   switch (true) {
     case command === "/menu":
@@ -90,6 +92,10 @@ exports.menu = async (dependencies) => {
 
     case command === "/library-history":
       await libraryHistory(message, connection);
+      break;
+
+    case setOverdueBookIntervalPattern.test(command):
+      await setOverdueBookInterval(connection, client, message);
       break;
 
     case command === "!help":

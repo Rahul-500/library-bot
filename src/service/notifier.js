@@ -8,19 +8,22 @@ const {
 const constants = require("../constants/constant");
 
 exports.checkOverdueBooks = async (dependencies) => {
-  const { connection, client } = dependencies;
-  const overdueBooks = await getOverdueBooks(connection);
-  overdueBooks.forEach(async (book) => {
-    const userId = book.user_id;
-    const bookTitle = book.title;
+  try {
+    const { connection, client, timeInterval } = dependencies;
+    const overdueBooks = await getOverdueBooks(connection, timeInterval);
 
-    try {
-      const user = await client.users.fetch(userId);
-      user.send(
-        `Reminder: The book "${bookTitle}" you checked out is overdue. Please return it as soon as possible.`,
-      );
-    } catch (error) { }
-  });
+    overdueBooks.forEach(async (book) => {
+      const userId = book.user_id;
+      const bookTitle = book.title;
+
+      try {
+        const user = await client.users.fetch(userId);
+        user.send(
+          `Reminder: The book "${bookTitle}" you checked out is overdue. Please return it as soon as possible.`,
+        );
+      } catch (error) { }
+    });
+  } catch (error) { }
 };
 
 exports.notifyAdminNewBookRequest = async (

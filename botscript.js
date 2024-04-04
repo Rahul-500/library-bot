@@ -1,4 +1,5 @@
 require('dotenv').config()
+const { setOverdueBookInterval } = require('./src/controllers/commands/setOverdueBookInterval');
 const { connect } = require("./src/database");
 const { clientOnLogin } = require("./src/events/clientOnLogin");
 const { clientOnMemberAdd } = require('./src/events/clientOnMemberAdd');
@@ -26,6 +27,8 @@ const startBot = async () => {
   clientOnMemberAdd(client)
 
   await clientOnReady(connection, client)
+
+  setOverdueBookInterval(connection, client, null)
 
   clientOnMessageHandler(connection, client)
 }
