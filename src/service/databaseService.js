@@ -215,35 +215,28 @@ exports.getNewBookRequests = async (connection) => {
   }
 };
 
-exports.getOverdueBooks = (connection) => {
+exports.getOverdueBooks = (connection, message) => {
   return new Promise((resolve, reject) => {
-    const intervalId = setInterval(async () => {
-      try {
-        const QUERY = `
-                    SELECT ib.*, b.title
-                    FROM ${DB_NAME}.${"issued_books"} ib
-                    JOIN ${DB_NAME}.${"books"} b ON ib.book_id = b.id
-                    WHERE ib.checked_out < DATE_SUB(NOW(), INTERVAL 30 DAY)
-                `;
-        const queryPromise = new Promise((innerResolve, innerReject) => {
-          connection.query(QUERY, (error, results) => {
-            if (error) {
-              innerReject(error);
-            } else {
-              innerResolve(results);
-            }
-          });
-        });
-        const overdueBooks = await queryPromise;
-        clearInterval(intervalId);
-        resolve(overdueBooks);
-      } catch (error) {
-        clearInterval(intervalId);
-        reject(error);
-      }
-    }, constants.TIME_INTERVAL_FOR_DUE_NOTIFICATION);
+    try {
+      const QUERY = `
+              SELECT ib.*, b.title
+              FROM ${DB_NAME}.${"issued_books"} ib
+              JOIN ${DB_NAME}.${"books"} b ON ib.book_id = b.id
+              WHERE ib.checked_out < DATE_SUB(NOW(), INTERVAL ${message.interval} DAY)
+          `;
+      connection.query(QUERY, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
   });
 };
+
 
 exports.addBookRequest = async (connection, bookRequest, message) => {
   try {
