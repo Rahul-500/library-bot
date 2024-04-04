@@ -8,6 +8,7 @@ exports.clientLogin = async () => {
             GatewayIntentBits.MessageContent,
             GatewayIntentBits.DirectMessageTyping,
             GatewayIntentBits.DirectMessages,
+            GatewayIntentBits.GuildMembers,
         ],
         partials: [Partials.Channel, Partials.Message],
     });
