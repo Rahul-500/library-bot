@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
-exports.clientLogin = async () => {
+exports.clientOnLogin = async () => {
     const client = new Client({
         intents: [
             GatewayIntentBits.Guilds,

@@ -1,6 +1,6 @@
 require('dotenv').config()
 const { connect } = require("./src/database");
-const { clientLogin } = require("./src/events/clientLogin");
+const { clientOnLogin } = require("./src/events/clientOnLogin");
 const { clientOnMemberAdd } = require('./src/events/clientOnMemberAdd');
 const { clientOnMessageHandler } = require("./src/events/clientOnMessageHandler");
 const { clientOnReady } = require("./src/events/clientOnReady");
@@ -21,10 +21,10 @@ const startBot = async () => {
   if (!connection) {
     process.exit(-1);
   }
-  const client = await clientLogin();
+  const client = await clientOnLogin();
 
   clientOnMemberAdd(client)
-  
+
   await clientOnReady(connection, client)
 
   clientOnMessageHandler(connection, client)
