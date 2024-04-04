@@ -1,7 +1,7 @@
 exports.MENU_OPTIONS =
   "Menu:\n1. Available Books\n2. My Books\n3. Request New Book\n4. Search for books";
 exports.ADMIN_OPTIONS =
-  "Menu:\n1. Available Books\n2. My Books\n3. Add Book\n4. Remove Book\n5. Update Book\n6. Library History\n7. View Book Requests\n8. View Checkout Requests\n9. Search for books\n10. View Return Requests";
+  "Menu:\n1. Available Books\n2. My Books\n3. Add Book\n4. Remove Book\n5. Update Book\n6. Library History\n7. View Book Requests\n8. View Checkout Requests\n9. Search for books\n10. View Return Requests\n11. Set Overdue Book Time Interval";
 exports.QUERY = "SELECT * FROM library.books WHERE quantity_available > 0";
 exports.ERROR_FETCHING_BOOKS =
   "Error fetching available books. Please try again later.";
@@ -38,7 +38,7 @@ exports.INVALID_DETAILS_MESSAGE =
   "Please try again by entering `/add-book` command as the provided data is in incorrect format.";
 exports.UNEXPECTED_ERROR_MESSAGE =
   "An unexpected error occurred while processing the command.";
-exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/add-book\`: Add a new book to the library.\n2. \`/delete-book\`: Remove a book from the library.\n3. \`/update-book\`: Update a existing book in the library.\n4. \`/library-history\`: Show library history.\n5. \`/view-book-requests\`: Show all book requests. \n6. \`/view-checkout-requests\`: Show checkout requests. \n7. \`/view-return-requests\`: Show return requests. \n\n`;
+exports.ADMIN_COMMANDS = `**Admin Commands:**\n1. \`/add-book\`: Add a new book to the library.\n2. \`/delete-book\`: Remove a book from the library.\n3. \`/update-book\`: Update a existing book in the library.\n4. \`/library-history\`: Show library history.\n5. \`/view-book-requests\`: Show all book requests. \n6. \`/view-checkout-requests\`: Show checkout requests. \n7. \`/view-return-requests\`: Show return requests. \n8. \`/set-overduebook-interval [days]\`: Set time interval for overduebook. \n\n`;
 exports.USER_COMMANDS = `**Available Commands:**
 1. \`/menu\`: Display the menu.
 2. \`/available-books\`: Get available books.
