@@ -7,7 +7,6 @@ const { displayNewBookRequests } = require('../../../src/utils/display/displayNe
 
 jest.mock("../../../src/middleware/validateAdmin");
 jest.mock("../../../src/service/databaseService");
-jest.mock("../../../src/utils/display");
 jest.mock("../../../src/controllers/commands/processBookRequest")
 jest.mock('../../../src/constants/constant');
 jest.mock('../../../src/utils/display/displayNewBookRequests')
