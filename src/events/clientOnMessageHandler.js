@@ -1,5 +1,4 @@
 const { menu } = require("../controllers/menuController");
-const display = require("../utils/display");
 const bookMap = new Map();
 const checkedOutBooks = new Map();
 const userEventsMap = new Map();
