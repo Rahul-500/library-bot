@@ -2,8 +2,8 @@ const constants = require('../../../src/constants/constant');
 const { isAdmin } = require('../../../src/middleware/validateAdmin');
 const { getReturnRequests } = require('../../../src/service/databaseService');
 const { processReturnRequest } = require('../../../src/controllers/commands/processReturnRequest');
-const display = require('../../../src/utils/display');
 const { returnRequests } = require('../../../src/controllers/menuoptions/returnRequests');
+const { displayReturnRequests } = require('../../../src/utils/display/displayReturnRequests');
 
 jest.mock('../../../src/middleware/validateAdmin', () => ({
     isAdmin: jest.fn(),
@@ -16,9 +16,7 @@ jest.mock('../../../src/service/databaseService', () => ({
 jest.mock('../../../src/controllers/commands/processReturnRequest', () => ({
     processReturnRequest: jest.fn(),
 }));
-jest.mock('../../../src/utils/display', () => ({
-    returnRequests: jest.fn(),
-}));
+jest.mock('../../../src/utils/display/displayReturnRequests')
 
 describe('returnRequests function', () => {
     afterEach(() => {
@@ -39,7 +37,7 @@ describe('returnRequests function', () => {
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.HELP_MESSAGE);
         expect(getReturnRequests).not.toHaveBeenCalled();
-        expect(display.returnRequests).not.toHaveBeenCalled();
+        expect(displayReturnRequests).not.toHaveBeenCalled();
         expect(processReturnRequest).not.toHaveBeenCalled();
     });
 
@@ -56,7 +54,7 @@ describe('returnRequests function', () => {
 
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(getReturnRequests).toHaveBeenCalledWith(mockConnection);
-        expect(display.returnRequests).toHaveBeenCalledWith(mockMessage, mockReturnRequests);
+        expect(displayReturnRequests).toHaveBeenCalledWith(mockMessage, mockReturnRequests);
         expect(processReturnRequest).toHaveBeenCalledWith(mockClient, mockMessage, mockConnection, mockReturnRequests, mockUserEventsMap);
     });
 
@@ -72,7 +70,7 @@ describe('returnRequests function', () => {
 
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(getReturnRequests).toHaveBeenCalledWith(mockConnection);
-        expect(display.returnRequests).not.toHaveBeenCalled();
+        expect(displayReturnRequests).not.toHaveBeenCalled();
         expect(processReturnRequest).not.toHaveBeenCalled();
     });
 
@@ -89,7 +87,7 @@ describe('returnRequests function', () => {
 
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(getReturnRequests).toHaveBeenCalledWith(mockConnection);
-        expect(display.returnRequests).not.toHaveBeenCalled();
+        expect(displayReturnRequests).not.toHaveBeenCalled();
         expect(processReturnRequest).not.toHaveBeenCalled();
     });
 });

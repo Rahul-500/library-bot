@@ -1,16 +1,16 @@
 const constants = require('../../../src/constants/constant');
 const { isAdmin } = require('../../../src/middleware/validateAdmin');
 const { getAvailableBooks } = require('../../../src/controllers/commands/getAvailableBooks');
-const display = require('../../../src/utils/display');
 const { deleteBook } = require('../../../src/controllers/commands/deleteBook');
+const { deleteBook: deleteBookFunction } = require('../../../src/controllers/menuoptions/deleteBook');
+const { displayAvailableBooksWithQuantity } = require('../../../src/utils/display/displayAvailableBooksWithQuantity');
 
 jest.mock('../../../src/constants/constant');
 jest.mock('../../../src/middleware/validateAdmin');
 jest.mock('../../../src/controllers/commands/getAvailableBooks');
-jest.mock('../../../src/utils/display');
+jest.mock('../../../src/utils/display/displayAvailableBooksWithQuantity');
 jest.mock('../../../src/controllers/commands/deleteBook');
 
-const { deleteBook: deleteBookFunction } = require('../../../src/controllers/menuoptions/deleteBook')
 
 describe('deleteBook', () => {
   afterEach(() => {
@@ -28,7 +28,7 @@ describe('deleteBook', () => {
 
     expect(mockMessage.reply).toHaveBeenCalledWith(constants.HELP_MESSAGE);
     expect(getAvailableBooks).not.toHaveBeenCalled();
-    expect(display.availableBooksWithQuantity).not.toHaveBeenCalled();
+    expect(displayAvailableBooksWithQuantity).not.toHaveBeenCalled();
     expect(deleteBook).not.toHaveBeenCalled();
   });
 
@@ -48,7 +48,7 @@ describe('deleteBook', () => {
     await deleteBookFunction(mockMessage, mockConnection, mockBookMap, mockUserEventsMap);
 
     expect(getAvailableBooks).toHaveBeenCalledWith(mockMessage, mockConnection, mockBookMap);
-    expect(display.availableBooksWithQuantity).toHaveBeenCalledWith(mockMessage, mockBooks);
+    expect(displayAvailableBooksWithQuantity).toHaveBeenCalledWith(mockMessage, mockBooks);
     expect(deleteBook).toHaveBeenCalledWith(mockMessage, mockConnection, mockBookMap, mockUserEventsMap);
   });
 });

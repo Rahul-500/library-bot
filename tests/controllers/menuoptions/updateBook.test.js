@@ -1,9 +1,9 @@
 const { isAdmin } = require("../../../src/middleware/validateAdmin");
 const { getAvailableBooks } = require("../../../src/controllers/commands/getAvailableBooks");
-const display = require('../../../src/utils/display');
 const { updateBook } = require("../../../src/controllers/commands/updateBook");
 const constants = require('../../../src/constants/constant');
 const { updateBook: updateBookFunction } = require('../../../src/controllers/menuoptions/updateBook');
+const { displayAvailableBooksWithQuantity } = require("../../../src/utils/display/displayAvailableBooksWithQuantity");
 
 jest.mock('../../../src/middleware/validateAdmin', () => ({
     isAdmin: jest.fn(),
@@ -13,9 +13,7 @@ jest.mock("../../../src/controllers/commands/getAvailableBooks", () => ({
     getAvailableBooks: jest.fn(),
 }));
 
-jest.mock('../../../src/utils/display', () => ({
-    books: jest.fn(),
-}));
+jest.mock('../../../src/utils/display/displayAvailableBooksWithQuantity');
 
 jest.mock("../../../src/controllers/commands/updateBook", () => ({
     updateBook: jest.fn(),
@@ -40,7 +38,7 @@ describe('updateBook function', () => {
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.HELP_MESSAGE);
         expect(getAvailableBooks).not.toHaveBeenCalled();
-        expect(display.books).not.toHaveBeenCalled();
+        expect(displayAvailableBooksWithQuantity).not.toHaveBeenCalled();
         expect(updateBook).not.toHaveBeenCalled();
     });
 
@@ -57,7 +55,7 @@ describe('updateBook function', () => {
 
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(getAvailableBooks).toHaveBeenCalledWith(mockMessage, mockConnection, mockBookMap);
-        expect(display.books).toHaveBeenCalledWith(mockMessage, mockBooksForUpdate);
+        expect(displayAvailableBooksWithQuantity).toHaveBeenCalledWith(mockMessage, mockBooksForUpdate);
         expect(updateBook).toHaveBeenCalledWith(mockMessage, mockConnection, mockBookMap, mockUserEventsMap);
     });
 
@@ -73,7 +71,7 @@ describe('updateBook function', () => {
 
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(getAvailableBooks).toHaveBeenCalledWith(mockMessage, mockConnection, mockBookMap);
-        expect(display.books).not.toHaveBeenCalled();
+        expect(displayAvailableBooksWithQuantity).not.toHaveBeenCalled();
         expect(updateBook).not.toHaveBeenCalled();
     });
 });

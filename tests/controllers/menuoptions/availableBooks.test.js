@@ -1,12 +1,9 @@
 const { availableBooks } = require('../../../src/controllers/menuoptions/availableBooks');
-const constants = require('../../../src/constants/constant');
 const { getAvailableBooks } = require('../../../src/controllers/commands/getAvailableBooks');
-const display = require('../../../src/utils/display');
+const { displayAvailableBooks } = require('../../../src/utils/display/displayAvailableBooks');
 
 jest.mock('../../../src/controllers/commands/getAvailableBooks');
-jest.mock('../../../src/utils/display', () => ({
-  availableBooks: jest.fn(),
-}));
+jest.mock('../../../src/utils/display/displayAvailableBooks');
 
 describe('availableBooks function', () => {
   afterEach(() => {
@@ -28,7 +25,7 @@ describe('availableBooks function', () => {
     await availableBooks(mockMessage, mockConnection, bookMap);
 
     expect(getAvailableBooks).toHaveBeenCalledWith(mockMessage, mockConnection, bookMap);
-    expect(display.availableBooks).toHaveBeenCalledWith(mockMessage, availableBooksResult);
+    expect(displayAvailableBooks).toHaveBeenCalledWith(mockMessage, availableBooksResult);
   });
 
   test('should not call display function if getAvailableBooks returns null', async () => {
@@ -41,6 +38,6 @@ describe('availableBooks function', () => {
     await availableBooks(mockMessage, mockConnection, mockBookMap);
 
     expect(getAvailableBooks).toHaveBeenCalledWith(mockMessage, mockConnection, mockBookMap);
-    expect(display.availableBooks).not.toHaveBeenCalled();
+    expect(displayAvailableBooks).not.toHaveBeenCalled();
   });
 });

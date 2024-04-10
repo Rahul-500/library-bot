@@ -1,16 +1,15 @@
 const constants = require('../../../src/constants/constant');
 const { isAdmin } = require('../../../src/middleware/validateAdmin');
 const { getCheckoutRequests } = require('../../../src/service/databaseService');
-const display = require('../../../src/utils/display');
 const { processCheckoutRequest } = require('../../../src/controllers/commands/processCheckoutRequest');
+const { checkoutRequests } = require('../../../src/controllers/menuoptions/checkoutRequests'); 
+const { displayCheckoutRequests } = require('../../../src/utils/display/displayCheckoutRequests');
 
 jest.mock('../../../src/constants/constant');
 jest.mock('../../../src/middleware/validateAdmin');
 jest.mock('../../../src/service/databaseService');
-jest.mock('../../../src/utils/display');
+jest.mock('../../../src/utils/display/displayCheckoutRequests');
 jest.mock('../../../src/controllers/commands/processCheckoutRequest');
-
-const { checkoutRequests } = require('../../../src/controllers/menuoptions/checkoutRequests'); 
 
 describe('checkoutRequests', () => {
   afterEach(() => {
@@ -27,7 +26,7 @@ describe('checkoutRequests', () => {
 
     expect(mockMessage.reply).toHaveBeenCalledWith(constants.HELP_MESSAGE);
     expect(getCheckoutRequests).not.toHaveBeenCalled();
-    expect(display.checkoutRequests).not.toHaveBeenCalled();
+    expect(displayCheckoutRequests).not.toHaveBeenCalled();
     expect(processCheckoutRequest).not.toHaveBeenCalled();
   });
 
@@ -46,7 +45,7 @@ describe('checkoutRequests', () => {
     await checkoutRequests(null, mockMessage, mockConnection, mockUserEventsMap);
 
     expect(getCheckoutRequests).toHaveBeenCalledWith(mockConnection);
-    expect(display.checkoutRequests).toHaveBeenCalledWith(mockMessage, mockCheckoutRequests);
+    expect(displayCheckoutRequests).toHaveBeenCalledWith(mockMessage, mockCheckoutRequests);
     expect(processCheckoutRequest).toHaveBeenCalledWith(null, mockMessage, mockConnection, mockCheckoutRequests, mockUserEventsMap);
   });
 });

@@ -1,10 +1,9 @@
-const display = require('../../../src/utils/display');
 const { searchBooks } = require('../../../src/controllers/commands/searchBooks');
-
-jest.mock('../../../src/utils/display');
-jest.mock('../../../src/controllers/commands/searchBooks');
-
 const { search } = require('../../../src/controllers/menuoptions/search'); 
+const { displayAvailableBooks } = require('../../../src/utils/display/displayAvailableBooks');
+
+jest.mock('../../../src/utils/display/displayAvailableBooks');
+jest.mock('../../../src/controllers/commands/searchBooks');
 
 describe('search', () => {
   afterEach(() => {
@@ -26,7 +25,7 @@ describe('search', () => {
     await search(mockMessage, mockConnection, mockUserEventsMap, mockBookMap);
 
     expect(searchBooks).toHaveBeenCalledWith(mockMessage, mockConnection, mockUserEventsMap, mockBookMap);
-    expect(display.availableBooks).toHaveBeenCalledWith(mockMessage, mockBooksFound);
+    expect(displayAvailableBooks).toHaveBeenCalledWith(mockMessage, mockBooksFound);
   });
 
   it('should not call display.availableBooks if no books are found', async () => {
@@ -40,6 +39,6 @@ describe('search', () => {
     await search(mockMessage, mockConnection, mockUserEventsMap, mockBookMap);
 
     expect(searchBooks).toHaveBeenCalledWith(mockMessage, mockConnection, mockUserEventsMap, mockBookMap);
-    expect(display.availableBooks).not.toHaveBeenCalled();
+    expect(displayAvailableBooks).not.toHaveBeenCalled();
   });
 });

@@ -1,8 +1,8 @@
 const constants = require('../../../src/constants/constant');
 const { isAdmin } = require('../../../src/middleware/validateAdmin');
-const display = require('../../../src/utils/display');
 const { getLibraryHistory } = require('../../../src/controllers/commands/getLibraryHistory');
 const { libraryHistory } = require('../../../src/controllers/menuoptions/libraryHistory');
+const { displayLibraryHistory } = require('../../../src/utils/display/displayLibraryHistory');
 
 jest.mock('../../../src/middleware/validateAdmin', () => ({
     isAdmin: jest.fn(),
@@ -12,9 +12,7 @@ jest.mock('../../../src/controllers/commands/getLibraryHistory', () => ({
     getLibraryHistory: jest.fn(),
 }));
 
-jest.mock('../../../src/utils/display', () => ({
-    libraryHistory: jest.fn(),
-}));
+jest.mock('../../../src/utils/display/displayLibraryHistory')
 
 describe('libraryHistory function', () => {
     afterEach(() => {
@@ -32,7 +30,7 @@ describe('libraryHistory function', () => {
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.HELP_MESSAGE);
         expect(getLibraryHistory).not.toHaveBeenCalled();
-        expect(display.libraryHistory).not.toHaveBeenCalled();
+        expect(displayLibraryHistory).not.toHaveBeenCalled();
     });
 
     test('should call getLibraryHistory and display results if user is admin', async () => {
@@ -45,7 +43,7 @@ describe('libraryHistory function', () => {
 
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(getLibraryHistory).toHaveBeenCalledWith(mockMessage, mockConnection);
-        expect(display.libraryHistory).toHaveBeenCalledWith(mockMessage, ['history1', 'history2']);
+        expect(displayLibraryHistory).toHaveBeenCalledWith(mockMessage, ['history1', 'history2']);
     });
 
     test('should handle error if getLibraryHistory throws an error', async () => {
@@ -59,6 +57,6 @@ describe('libraryHistory function', () => {
 
         expect(isAdmin).toHaveBeenCalledWith(mockMessage);
         expect(getLibraryHistory).toHaveBeenCalledWith(mockMessage, mockConnection);
-        expect(display.libraryHistory).not.toHaveBeenCalled();
+        expect(displayLibraryHistory).not.toHaveBeenCalled();
     });
 });

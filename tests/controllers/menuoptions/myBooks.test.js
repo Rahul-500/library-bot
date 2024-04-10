@@ -1,11 +1,8 @@
-const display = require('../../../src/utils/display');
 const { getUserBooks } = require('../../../src/controllers/commands/getUserBooks');
 const { myBooks } = require('../../../src/controllers/menuoptions/myBooks');
+const { displayUserBooks } = require('../../../src/utils/display/displayUserBooks');
 
-jest.mock('../../../src/utils/display', () => ({
-    userBooks: jest.fn(),
-}));
-
+jest.mock('../../../src/utils/display/displayUserBooks')
 jest.mock('../../../src/controllers/commands/getUserBooks', () => ({
     getUserBooks: jest.fn(),
 }));
@@ -25,7 +22,7 @@ describe('myBooks function', () => {
         await myBooks(mockMessage, mockConnection, mockCheckedOutBooks);
 
         expect(getUserBooks).toHaveBeenCalledWith(mockMessage, mockConnection, mockCheckedOutBooks);
-        expect(display.userBooks).toHaveBeenCalledWith(mockMessage, mockUserBooks);
+        expect(displayUserBooks).toHaveBeenCalledWith(mockMessage, mockUserBooks);
     });
 
     test('should not display user books if getUserBooks returns null', async () => {
@@ -37,7 +34,7 @@ describe('myBooks function', () => {
         await myBooks(mockMessage, mockConnection, mockCheckedOutBooks);
 
         expect(getUserBooks).toHaveBeenCalledWith(mockMessage, mockConnection, mockCheckedOutBooks);
-        expect(display.userBooks).not.toHaveBeenCalled();
+        expect(displayUserBooks).not.toHaveBeenCalled();
     });
 
     test('should handle error if getUserBooks throws an error', async () => {
@@ -50,6 +47,6 @@ describe('myBooks function', () => {
         await expect(myBooks(mockMessage, mockConnection, mockCheckedOutBooks)).rejects.toThrow(mockError);
 
         expect(getUserBooks).toHaveBeenCalledWith(mockMessage, mockConnection, mockCheckedOutBooks);
-        expect(display.userBooks).not.toHaveBeenCalled();
+        expect(displayUserBooks).not.toHaveBeenCalled();
     });
 });

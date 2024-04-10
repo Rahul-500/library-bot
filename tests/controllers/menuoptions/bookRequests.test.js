@@ -1,16 +1,16 @@
 const { isAdmin } = require('../../../src/middleware/validateAdmin');
 const { getNewBookRequests } = require("../../../src/service/databaseService");
-const display = require('../../../src/utils/display');
 const { processBookRequest } = require("../../../src/controllers/commands/processBookRequest");
 const constants = require('../../../src/constants/constant');
+const { bookRequests } = require('../../../src/controllers/menuoptions/bookRequests');
+const { displayNewBookRequests } = require('../../../src/utils/display/displayNewBookRequests');
 
 jest.mock("../../../src/middleware/validateAdmin");
 jest.mock("../../../src/service/databaseService");
 jest.mock("../../../src/utils/display");
 jest.mock("../../../src/controllers/commands/processBookRequest")
 jest.mock('../../../src/constants/constant');
-
-const { bookRequests } = require('../../../src/controllers/menuoptions/bookRequests');
+jest.mock('../../../src/utils/display/displayNewBookRequests')
 
 describe('bookRequests', () => {
   let mockClient, mockMessage, mockConnection, mockUserEventsMap;
@@ -33,7 +33,7 @@ describe('bookRequests', () => {
 
     expect(mockMessage.reply).toHaveBeenCalledWith(constants.HELP_MESSAGE);
     expect(getNewBookRequests).not.toHaveBeenCalled();
-    expect(display.newBookRequests).not.toHaveBeenCalled();
+    expect(displayNewBookRequests).not.toHaveBeenCalled();
     expect(processBookRequest).not.toHaveBeenCalled();
   });
 
@@ -49,7 +49,7 @@ describe('bookRequests', () => {
     await bookRequests(mockClient, mockMessage, mockConnection, mockUserEventsMap);
 
     expect(getNewBookRequests).toHaveBeenCalledWith(mockConnection);
-    expect(display.newBookRequests).toHaveBeenCalledWith(mockMessage, mockNewBookRequests);
+    expect(displayNewBookRequests).toHaveBeenCalledWith(mockMessage, mockNewBookRequests);
     expect(processBookRequest).toHaveBeenCalledWith(mockClient, mockMessage, mockConnection, mockNewBookRequests, mockUserEventsMap);
   });
 });
