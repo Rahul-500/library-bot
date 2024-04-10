@@ -1,6 +1,5 @@
 const menuController = require("../../src/controllers/menuController");
 const constants = require("../../src/constants/constant");
-const display = require("../../src/utils/display");
 const validateUser = require("../../src/middleware/validateUser");
 const { availableBooks } = require("../../src/controllers/menuoptions/availableBooks");
 const { checkoutBook } = require("../../src/controllers/menuoptions/checkoutBook");
@@ -17,6 +16,7 @@ const { deleteBook } = require("../../src/controllers/menuoptions/deleteBook");
 const { libraryHistory } = require("../../src/controllers/menuoptions/libraryHistory");
 const { setOverdueBookInterval } = require("../../src/controllers/menuoptions/setOverdueBookInterval");
 const { help } = require("../../src/controllers/menuoptions/help");
+const { displayMenu } = require("../../src/utils/display/displayMenu");
 
 jest.mock("../../src/controllers/menuoptions/setOverdueBookInterval", () => ({
   setOverdueBookInterval: jest.fn(),
@@ -66,9 +66,8 @@ jest.mock("../../src/controllers/menuoptions/availableBooks", () => ({
 jest.mock("../../src/middleware/validateUser", () => ({
   createUserIfNotExists: jest.fn(),
 }));
-jest.mock("../../src/utils/display", () => ({
-  menu: jest.fn(),
-}));
+
+jest.mock("../../src/utils/display/displayMenu")
 
 describe("menu function", () => {
   let mockMessage;
@@ -85,7 +84,7 @@ describe("menu function", () => {
   it('should call menu for command "/menu"', async () => {
     mockMessage.content = "/menu";
     await menuController.menu({ message: mockMessage });
-    expect(display.menu).toHaveBeenCalledWith(mockMessage);
+    expect(displayMenu).toHaveBeenCalledWith(mockMessage);
   });
 
   it('should call availableBooks for command "/available-books"', async () => {
