@@ -1,6 +1,6 @@
 const constants = require("../constants/constant");
 const { createUserIfNotExists } = require("../middleware/validateUser");
-const display = require("../utils/display");
+const { displayMenu } = require("../utils/display/displayMenu");
 const { addBook } = require("./menuoptions/addBook");
 const { availableBooks } = require("./menuoptions/availableBooks");
 const { bookRequests } = require("./menuoptions/bookRequests");
@@ -39,7 +39,7 @@ exports.menu = async (dependencies) => {
 
   switch (true) {
     case command === "/menu":
-      display.menu(message);
+      displayMenu(message);
       break;
 
     case command === "/available-books":
