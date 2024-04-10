@@ -2,7 +2,6 @@ require("dotenv").config();
 const transactions = require("../service/transactions");
 const { DB_NAME } = process.env;
 const constants = require("../constants/constant");
-let intervalId = null;
 
 exports.checkForExistingUser = async (message, connection) => {
   const id = message.author.id;
