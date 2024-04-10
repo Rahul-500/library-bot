@@ -1,8 +1,8 @@
 const { isAdmin } = require("../../middleware/validateAdmin");
 const { getAvailableBooks } = require("../commands/getAvailableBooks");
-const display = require('../../utils/display');
 const { updateBook } = require("../commands/updateBook");
 const constants = require('../../constants/constant');
+const { displayAvailableBooksWithQuantity } = require("../../utils/display/displayAvailableBooksWithQuantity");
 
 exports.updateBook = async (message, connection, bookMap, userEventsMap) => {
   if (!isAdmin(message)) {
@@ -17,7 +17,7 @@ exports.updateBook = async (message, connection, bookMap, userEventsMap) => {
   );
 
   if (!booksForUpdate) return;
-  display.books(message, booksForUpdate);
+  displayAvailableBooksWithQuantity(message, booksForUpdate);
 
   await updateBook(
     message,

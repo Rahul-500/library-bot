@@ -1,4 +1,4 @@
-const display = require("../../utils/display");
+const {displayAvailableBooks} = require("../../utils/display/displayAvailableBooks");
 const { getAvailableBooks } = require("../commands/getAvailableBooks");
 
 exports.availableBooks = async (message, connection, bookMap) => {
@@ -9,5 +9,5 @@ exports.availableBooks = async (message, connection, bookMap) => {
   );
 
   if (!availableBooks) return;
-  display.availableBooks(message, availableBooks);
+  displayAvailableBooks(message, availableBooks);
 };

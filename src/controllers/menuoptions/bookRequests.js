@@ -1,8 +1,8 @@
 const { isAdmin } = require('../../../src/middleware/validateAdmin');
 const { getNewBookRequests } = require("../../service/databaseService");
-const display = require("../../utils/display");
 const { processBookRequest } = require("../commands/processBookRequest")
 const constants = require('../../constants/constant');
+const { displayNewBookRequests } = require('../../utils/display/displayNewBookRequests');
 
 exports.bookRequests = async (client, message, connection, userEventsMap) => {
   if (!isAdmin(message)) {
@@ -13,7 +13,7 @@ exports.bookRequests = async (client, message, connection, userEventsMap) => {
   const newBookRequests = await getNewBookRequests(connection);
 
   if (!newBookRequests) return;
-  display.newBookRequests(message, newBookRequests);
+  displayNewBookRequests(message, newBookRequests);
 
   await processBookRequest(
     client,

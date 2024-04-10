@@ -1,4 +1,4 @@
-const display = require('../../utils/display');
+const { displayUserBooks } = require('../../utils/display/displayUserBooks');
 const { getUserBooks } = require('../commands/getUserBooks');
 
 exports.myBooks = async (message, connection, checkedOutBooks) => {
@@ -8,5 +8,5 @@ exports.myBooks = async (message, connection, checkedOutBooks) => {
     checkedOutBooks
   );
   if (!userBooks) return;
-  display.userBooks(message, userBooks);
+  displayUserBooks(message, userBooks);
 };

@@ -1,8 +1,8 @@
 const constants = require('../../constants/constant');
 const { isAdmin } = require('../../middleware/validateAdmin');
 const { getReturnRequests } = require('../../service/databaseService');
+const { displayReturnRequests } = require('../../utils/display/displayReturnRequests');
 const { processReturnRequest } = require('../commands/processReturnRequest');
-const display = require('../../utils/display');
 
 exports.returnRequests = async (client, message, connection, userEventsMap) => {
   if (!isAdmin(message)) {
@@ -12,7 +12,7 @@ exports.returnRequests = async (client, message, connection, userEventsMap) => {
 
   const returnRequests = await getReturnRequests(connection);
   if (!returnRequests) return;
-  display.returnRequests(message, returnRequests);
+  displayReturnRequests(message, returnRequests);
   await processReturnRequest(
     client,
     message,

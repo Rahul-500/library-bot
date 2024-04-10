@@ -1,7 +1,7 @@
 const constants = require('../../constants/constant');
 const { isAdmin } = require('../../middleware/validateAdmin');
 const { getCheckoutRequests } = require('../../service/databaseService');
-const display = require('../../utils/display');
+const { displayCheckoutRequests } = require('../../utils/display/displayCheckoutRequests');
 const { processCheckoutRequest } = require('../commands/processCheckoutRequest');
 
 exports.checkoutRequests = async (client, message, connection, userEventsMap) => {
@@ -12,7 +12,7 @@ exports.checkoutRequests = async (client, message, connection, userEventsMap) =>
 
   const checkoutRequests = await getCheckoutRequests(connection);
   if (!checkoutRequests) return;
-  display.checkoutRequests(message, checkoutRequests);
+  displayCheckoutRequests(message, checkoutRequests);
 
   await processCheckoutRequest(
     client,

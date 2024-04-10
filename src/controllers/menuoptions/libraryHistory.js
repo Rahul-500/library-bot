@@ -1,6 +1,6 @@
 const constants = require('../../constants/constant');
 const { isAdmin } = require('../../middleware/validateAdmin');
-const display = require('../../utils/display');
+const { displayLibraryHistory } = require('../../utils/display/displayLibraryHistory');
 const { getLibraryHistory } = require('../commands/getLibraryHistory');
 
 exports.libraryHistory = async (message, connection) => {
@@ -13,5 +13,5 @@ exports.libraryHistory = async (message, connection) => {
     connection
   );
   if (!library_history) return;
-  display.libraryHistory(message, library_history);
+  displayLibraryHistory(message, library_history);
 };

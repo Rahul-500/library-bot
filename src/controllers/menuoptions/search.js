@@ -1,4 +1,4 @@
-const display = require('../../utils/display');
+const { displayAvailableBooks } = require('../../utils/display/displayAvailableBooks');
 const { searchBooks } = require('../commands/searchBooks');
 
 exports.search = async (message, connection, userEventsMap, bookMap) => {
@@ -9,5 +9,5 @@ exports.search = async (message, connection, userEventsMap, bookMap) => {
     bookMap
   );
   if (!booksFound) return;
-  await display.availableBooks(message, booksFound);
+  await displayAvailableBooks(message, booksFound);
 };
