@@ -1,16 +1,14 @@
 require("dotenv").config();
-const {
-  getUserIdByUsername,
-  getOverdueBooks,
-  addCheckoutRequest,
-  addReturnRequest
-} = require("../service/databaseService");
 const constants = require("../constants/constant");
+const { getUserIdByUsernameQuery } = require("../service/queries/getUserIdByUsernameQuery");
+const { getOverdueBooksQuery } = require("../service/queries/getOverdueBooksQuery");
+const { addCheckoutRequestQuery } = require("../service/queries/addCheckoutRequestQuery");
+const { addReturnRequestQuery } = require("../service/queries/addReturnRequestQuery");
 
 exports.checkOverdueBooks = async (dependencies) => {
   try {
     const { connection, client, timeInterval } = dependencies;
-    const overdueBooks = await getOverdueBooks(connection, timeInterval);
+    const overdueBooks = await getOverdueBooksQuery(connection, timeInterval);
 
     overdueBooks.forEach(async (book) => {
       const userId = book.user_id;
@@ -37,7 +35,7 @@ exports.notifyAdminNewBookRequest = async (
       (username) => `'${username.trim()}'`,
     );
     const usernamesString = botOwnerUsernames.join(",");
-    const userIdList = await getUserIdByUsername(connection, usernamesString);
+    const userIdList = await getUserIdByUsernameQuery(connection, usernamesString);
     if (userIdList == null) throw new Error("Error");
     let isNotified = false;
     await userIdList.forEach(async (userId) => {
@@ -80,7 +78,7 @@ exports.notifyAdminCheckoutRequest = async (message, connection, client, book) =
       (username) => `'${username.trim()}'`,
     );
     const usernamesString = botOwnerUsernames.join(",");
-    const userIdList = await getUserIdByUsername(connection, usernamesString);
+    const userIdList = await getUserIdByUsernameQuery(connection, usernamesString);
     if (userIdList == null) throw new Error("Error");
     let isNotified = false;
 
@@ -96,7 +94,7 @@ exports.notifyAdminCheckoutRequest = async (message, connection, client, book) =
       } catch (error) { }
     });
 
-    const checkoutRequest = await addCheckoutRequest(connection, message.author.id, book.id)
+    const checkoutRequest = await addCheckoutRequestQuery(connection, message.author.id, book.id)
 
     if (!isNotified || !checkoutRequest) {
       message.reply(constants.ERROR_SENDING_TO_ADMIN_MESSAGE);
@@ -129,7 +127,7 @@ exports.notifyAdminReturnBookRequest = async (message, connection, client, book)
       (username) => `'${username.trim()}'`,
     );
     const usernamesString = botOwnerUsernames.join(",");
-    const userIdList = await getUserIdByUsername(connection, usernamesString);
+    const userIdList = await getUserIdByUsernameQuery(connection, usernamesString);
     if (userIdList == null) throw new Error("Error");
     let isNotified = false;
 
@@ -145,7 +143,7 @@ exports.notifyAdminReturnBookRequest = async (message, connection, client, book)
       } catch (error) { }
     });
 
-    const returnRequest = await addReturnRequest(connection, message.author.id, book.id)
+    const returnRequest = await addReturnRequestQuery(connection, message.author.id, book.id)
 
     if (!isNotified || !returnRequest) {
       message.reply(constants.ERROR_SENDING_TO_ADMIN_MESSAGE);
