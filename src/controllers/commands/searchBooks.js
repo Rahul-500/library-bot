@@ -1,5 +1,5 @@
-const { getBooksByTitle } = require("../../service/databaseService");
 const constants = require("../../constants/constant")
+const { getBooksByTitleQuery } = require("../../service/queries/getBooksByTitleQuery");
 
 exports.searchBooks = async (message, connection, userEventsMap, bookMap) => {
     try {
@@ -18,7 +18,7 @@ exports.searchBooks = async (message, connection, userEventsMap, bookMap) => {
                 }
 
                 const bookTitle = response.content.trim();
-                const books = await getBooksByTitle(connection, bookTitle);
+                const books = await getBooksByTitleQuery(connection, bookTitle);
                 collector.stop();
                 resolve(books);
             });

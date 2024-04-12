@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { DB_NAME } = process.env;
 
-exports.getCheckedOutUsers = async (connection, book) => {
+exports.getCheckedOutUsersQuery = async (connection, book) => {
   try {
     const bookId = book.id;
 

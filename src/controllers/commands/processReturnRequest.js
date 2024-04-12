@@ -1,6 +1,6 @@
-const { updateReturnRequestStatus } = require("../../service/databaseService");
 const { notifyUserAboutReturnRequest } = require("../../service/notifier");
 const constants = require("../../constants/constant")
+const { updateReturnRequestStatusQuery } = require("../../service/queries/updateReturnRequestStatusQuery");
 
 exports.processReturnRequest = async (client, message, connection, returnRequests, userEventsMap) => {
     try {
@@ -45,7 +45,7 @@ exports.processReturnRequest = async (client, message, connection, returnRequest
                 message.reply(constants.INVALID_RETURN_REQUEST_ID_MESSAGE);
             } else {
                 message.reply(constants.CHANGE_OF_RETURN_STATUS_RECEIVED);
-                const updatedResult = await updateReturnRequestStatus(
+                const updatedResult = await updateReturnRequestStatusQuery(
                     connection,
                     returnRequest,
                     updateStatusTo

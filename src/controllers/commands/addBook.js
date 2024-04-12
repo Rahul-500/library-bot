@@ -1,5 +1,5 @@
-const { addBookToDatabase } = require("../../service/databaseService");
 const constants = require("../../constants/constant")
+const { addBookToDatabaseQuery } = require("../../service/queries/addBookToDatabaseQuery");
 
 exports.addBook = async (message, connection, userEventsMap) => {
     try {
@@ -12,7 +12,7 @@ exports.addBook = async (message, connection, userEventsMap) => {
         userEventsMap.get(authorId).messageCreate = false;
 
         collector.on("collect", async (response) => {
-            
+
             if (response.content.toLowerCase() === "exit") {
                 message.reply(constants.EXIT_ADD_MESSAGE);
                 collector.stop();
@@ -42,7 +42,7 @@ exports.addBook = async (message, connection, userEventsMap) => {
                 };
 
                 message.reply(constants.ADD_BOOK_DETAILS_RECEIVED_MESSAGE);
-                await addBookToDatabase(message, connection, bookDetails);
+                await addBookToDatabaseQuery(message, connection, bookDetails);
             } else {
                 message.reply(constants.INVALID_DETAILS_MESSAGE);
             }

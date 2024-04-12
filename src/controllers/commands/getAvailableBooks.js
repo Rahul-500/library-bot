@@ -1,8 +1,9 @@
-const { getAvailableBooks } = require("../../service/databaseService");
 const constants = require("../../constants/constant")
+const { getAvailableBooksQuery } = require("../../service/queries/getAvailableBooksQuery");
+
 exports.getAvailableBooks = async (message, connection, bookMap) => {
     try {
-        const books = await getAvailableBooks(connection)
+        const books = await getAvailableBooksQuery(connection)
         if (!books) {
             throw new Error('Error: executing book query')
         }

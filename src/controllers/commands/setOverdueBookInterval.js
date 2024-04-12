@@ -1,6 +1,7 @@
 const { checkOverdueBooks } = require('../../service/notifier');
 const constants = require('../../constants/constant');
-const { getOverdueBookInterval, setOverdueBookInterval } = require('../../service/databaseService');
+const { getOverdueBookIntervalQuery } = require("../../service/queries/getOverdueBookIntervalQuery");
+const { setOverdueBookIntervalQuery } = require("../../service/queries/setOverdueBookIntervalQuery");
 
 let intervalId;
 
@@ -11,11 +12,11 @@ exports.setOverdueBookInterval = async (connection, client, message) => {
         if (message) {
             const content = message.content;
             timeInterval = parseInt(content.split(" ")[1]);
-            await setOverdueBookInterval(connection, timeInterval);
+            await setOverdueBookIntervalQuery(connection, timeInterval);
             message.reply(constants.SUCCESSFULL_SET_OVERDUE_BOOK_INTERVAL_MESSAGE);
         }
 
-        const result = await getOverdueBookInterval(connection);
+        const result = await getOverdueBookIntervalQuery(connection);
         timeInterval = result[0].setting_value
 
         if (intervalId) {

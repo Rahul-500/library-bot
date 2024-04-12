@@ -1,9 +1,9 @@
-const { getLibraryHistory } = require("../../service/databaseService");
 const constants = require("../../constants/constant")
+const { getLibraryHistoryQuery } = require("../../service/queries/getLibraryHistoryQuery");
 
 exports.getLibraryHistory = async (message, connection) => {
     try {
-        const libraryHistory = await getLibraryHistory(connection)
+        const libraryHistory = await getLibraryHistoryQuery(connection)
         if (!libraryHistory) {
             throw new Error("Error: executing library history query")
         }

@@ -1,5 +1,5 @@
-const { updateBookDetails } = require("../../service/databaseService");
 const constants = require("../../constants/constant")
+const { updateBookDetailsQuery } = require("../../service/queries/updateBookDetailsQuery");
 
 exports.updateBook = async (message, connection, books, userEventsMap) => {
     try {
@@ -59,7 +59,7 @@ exports.updateBook = async (message, connection, books, userEventsMap) => {
                     message.reply(constants.INVALID_UPDATE_DETAILS_MESSAGE);
                 } else {
                     message.reply(constants.UPDATE_BOOK_DETAILS_RECEIVED_MESSAGE);
-                    await updateBookDetails(
+                    await updateBookDetailsQuery(
                         message,
                         connection,
                         book,

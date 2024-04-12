@@ -1,10 +1,10 @@
-const { getUserBooks } = require("../../service/databaseService");
 const constants = require("../../constants/constant")
+const { getUserBooksQuery } = require("../../service/queries/getUserBooksQuery");
 
 exports.getUserBooks = async (message, connection, checkedOutBooks) => {
     try {
         const userId = message.author.id;
-        const books = await getUserBooks(connection, userId)
+        const books = await getUserBooksQuery(connection, userId)
         if (!books) {
             throw new Error("Error: executing user book query")
         }

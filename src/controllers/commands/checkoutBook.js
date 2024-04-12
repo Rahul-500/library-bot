@@ -1,6 +1,6 @@
-const { getCheckedOutUsers } = require("../../service/databaseService");
 const { notifyAdminCheckoutRequest } = require("../../service/notifier");
 const constants = require("../../constants/constant")
+const { getCheckedOutUsersQuery } = require("../../service/queries/getCheckedOutUsersQuery");
 
 exports.checkoutBook = async (message, connection, bookMap, client) => {
     const content = message.content;
@@ -15,7 +15,7 @@ exports.checkoutBook = async (message, connection, bookMap, client) => {
     }
 
     const bookId = book.id;
-    const users = await getCheckedOutUsers(connection, book);
+    const users = await getCheckedOutUsersQuery(connection, book);
     if (users === null) {
         message.reply(constants.ERROR_VALIDATING_CHECKED_OUT_BOOK_MESSAGE);
         return;

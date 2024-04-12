@@ -1,6 +1,7 @@
 require("dotenv").config();
 const transactions = require("../../service/transactions");
 const { DB_NAME } = process.env;
+const { deleteBookRequestQuery } = require("./deleteBookRequestQuery");
 
 exports.updateBookRequestStatusQuery = async (
     connection,
@@ -27,7 +28,7 @@ exports.updateBookRequestStatusQuery = async (
         const updatedResult = await queryPromise;
         await transactions.commitTransaction(connection);
         if (bookRequestStatus === "approved") {
-            const deleteRequest = await this.deleteBookRequest(
+            const deleteRequest = await deleteBookRequestQuery(
                 connection,
                 bookRequestId
             );

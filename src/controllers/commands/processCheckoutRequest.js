@@ -1,6 +1,6 @@
-const { updateCheckoutRequestStatus } = require("../../service/databaseService");
 const { notifyUserAboutCheckoutRequest } = require("../../service/notifier");
 const constants = require("../../constants/constant")
+const { updateCheckoutRequestStatusQuery } = require("../../service/queries/updateCheckoutRequestStatusQuery");
 
 exports.processCheckoutRequest = async (client, message, connection, checkoutRequests, userEventsMap) => {
     try {
@@ -45,7 +45,7 @@ exports.processCheckoutRequest = async (client, message, connection, checkoutReq
                 message.reply(constants.INVALID_CHECKOUT_REQUEST_ID_MESSAGE);
             } else {
                 message.reply(constants.CHANGE_OF_CHECKOUT_STATUS_RECEIVED);
-                const updatedResult = await updateCheckoutRequestStatus(
+                const updatedResult = await updateCheckoutRequestStatusQuery(
                     connection,
                     checkoutRequest,
                     updateStatusTo

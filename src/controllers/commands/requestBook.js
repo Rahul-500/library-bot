@@ -1,6 +1,6 @@
-const { addBookRequest } = require("../../service/databaseService");
 const { notifyAdminNewBookRequest } = require("../../service/notifier");
 const constants = require("../../constants/constant")
+const { addBookRequestQuery } = require("../../service/queries/addBookRequestQuery");
 
 exports.requestBook = async (client, message, connection, userEventsMap) => {
     try {
@@ -19,7 +19,7 @@ exports.requestBook = async (client, message, connection, userEventsMap) => {
 
             const bookRequest = response.content.trim();
             collector.stop();
-            await addBookRequest(connection, bookRequest, message);
+            await addBookRequestQuery(connection, bookRequest, message);
             await notifyAdminNewBookRequest(client, message, connection, bookRequest);
         });
 

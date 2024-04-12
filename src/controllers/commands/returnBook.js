@@ -1,6 +1,8 @@
-const { validateReturn, getReturnRequestsForBook } = require("../../service/databaseService");
 const { notifyAdminReturnBookRequest } = require("../../service/notifier");
 const constants = require("../../constants/constant")
+const { validateReturnQuery } = require("../../service/queries/validateReturnQuery");
+const { getReturnRequestsForBookQuery } = require("../../service/queries/getReturnRequestsForBookQuery");
+
 
 exports.returnBook = async (message, client, connection, checkedOutBooks) => {
     const content = message.content;
@@ -13,13 +15,13 @@ exports.returnBook = async (message, client, connection, checkedOutBooks) => {
     }
     const bookId = book.id;
     try {
-        const result = await validateReturn(connection, userId, bookId);
+        const result = await validateReturnQuery(connection, userId, bookId);
         if (!result) {
             message.reply(constants.CANNOT_RETURN_BOOK_MESSAGE);
             return;
         }
 
-        const userIdList = await getReturnRequestsForBook(connection, bookId)
+        const userIdList = await getReturnRequestsForBookQuery(connection, bookId)
         if (userIdList === null) {
             message.reply(constants.ERROR_VALIDATING_RETURN_BOOK_MESSAGE);
             return;
