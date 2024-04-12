@@ -7,11 +7,11 @@ exports.getReturnRequestsQuery = async (connection) => {
       const queryPromise = new Promise((resolve, reject) => {
         connection.query(QUERY, (error, results) => {
           if (error) {
-            reject(eaddReturnRequestrror);
+            reject(error);
           } else {
             resolve(results);
           }
-        });addReturnRequest
+        });
       });
   
       const newReturnRequests = await queryPromise;
