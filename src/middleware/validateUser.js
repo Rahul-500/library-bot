@@ -1,17 +1,18 @@
-const { addUserInfo, checkForExistingUser } = require("../service/databaseService");
 const constants = require("../constants/constant");
+const { addUserInfoQuery } = require("../service/queries/addUserInfoQuery");
+const { checkForExistingUserQuery } = require("../service/queries/checkForExistingUserQuery");
 
 exports.createUserIfNotExists = async (message, connection) => {
     try {
-        const id = message.author.id; 
-        const name = message.author.username; 
-        const isUserExisting = await checkForExistingUser(
+        const id = message.author.id;
+        const name = message.author.username;
+        const isUserExisting = await checkForExistingUserQuery(
             message,
             connection
         );
-       
+
         if (!isUserExisting) {
-            const user = await addUserInfo(id, name, connection);
+            const user = await addUserInfoQuery(id, name, connection);
             return true;
         }
         return true;
