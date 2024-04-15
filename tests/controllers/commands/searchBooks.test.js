@@ -1,10 +1,8 @@
 const { searchBooks } = require('../../../src/controllers/commands/searchBooks');
-const { getBooksByTitle } = require('../../../src/service/databaseService');
 const constants = require('../../../src/constants/constant');
+const { getBooksByTitleQuery } = require('../../../src/service/queries/getBooksByTitleQuery');
 
-jest.mock('../../../src/service/databaseService', () => ({
-    getBooksByTitle: jest.fn(),
-}));
+jest.mock('../../../src/service/queries/getBooksByTitleQuery');
 
 describe('searchBooks function', () => {
     afterEach(() => {
@@ -67,7 +65,7 @@ describe('searchBooks function', () => {
         const mockBookMap = new Map();
         const mockBooks = [{ id: 1, title: 'Harry Potter' }];
 
-        getBooksByTitle.mockResolvedValue(mockBooks);
+        getBooksByTitleQuery.mockResolvedValue(mockBooks);
 
         const result = await searchBooks(mockMessage, mockConnection, mockUserEventsMap, mockBookMap);
 

@@ -3,22 +3,16 @@ const {
 } = require('../../../src/controllers/commands/setOverdueBookInterval');
 const constants = require('../../../src/constants/constant');
 const {
-    getOverdueBookInterval,
-    setOverdueBookInterval
-} = require('../../../src/service/databaseService');
-const {
     checkOverdueBooks
 } = require('../../../src/service/notifier');
+const { getOverdueBookIntervalQuery } = require('../../../src/service/queries/getOverdueBookIntervalQuery');
+const { setOverdueBookIntervalQuery } = require('../../../src/service/queries/setOverdueBookIntervalQuery');
 
-jest.mock('../../../src/service/databaseService', () => ({
-    getOverdueBookInterval: jest.fn(),
-    setOverdueBookInterval: jest.fn(),
-}));
-
+jest.mock('../../../src/service/queries/getOverdueBookIntervalQuery');
+jest.mock('../../../src/service/queries/setOverdueBookIntervalQuery');
 jest.mock('../../../src/service/notifier', () => ({
     checkOverdueBooks: jest.fn(),
 }));
-
 
 global.setInterval = jest.fn();
 
@@ -49,13 +43,13 @@ describe('setOverdueBookInterval function', () => {
         const mockClient = {};
         const mockResult = [{ setting_value: 24 }];
 
-        getOverdueBookInterval.mockResolvedValue(mockResult);
+        getOverdueBookIntervalQuery.mockResolvedValue(mockResult);
 
         await setOverdueBookIntervalCommand(mockConnection, mockClient, mockMessage);
 
-        expect(setOverdueBookInterval).toHaveBeenCalledWith(mockConnection, 24);
+        expect(setOverdueBookIntervalQuery).toHaveBeenCalledWith(mockConnection, 24);
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.SUCCESSFULL_SET_OVERDUE_BOOK_INTERVAL_MESSAGE);
-        expect(getOverdueBookInterval).toHaveBeenCalled();
+        expect(getOverdueBookIntervalQuery).toHaveBeenCalled();
         expect(global.setInterval).toHaveBeenCalled();
     });
 
@@ -68,7 +62,7 @@ describe('setOverdueBookInterval function', () => {
         const mockConnection = {};
         const mockClient = {};
 
-        setOverdueBookInterval.mockRejectedValue(new Error('Database error'));
+        setOverdueBookIntervalQuery.mockRejectedValue(new Error('Database error'));
 
         await setOverdueBookIntervalCommand(mockConnection, mockClient, mockMessage);
 

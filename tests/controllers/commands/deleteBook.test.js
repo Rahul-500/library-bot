@@ -1,10 +1,8 @@
 const { deleteBook } = require('../../../src/controllers/commands/deleteBook');
-const { deleteBookWithQuantity } = require('../../../src/service/databaseService');
 const constants = require('../../../src/constants/constant');
+const { deleteBookWithQuantityQuery } = require('../../../src/service/queries/deleteBookWithQuantityQuery');
 
-jest.mock('../../../src/service/databaseService', () => ({
-    deleteBookWithQuantity: jest.fn(),
-}));
+jest.mock('../../../src/service/queries/deleteBookWithQuantityQuery')
 
 describe('deleteBook function', () => {
     afterEach(() => {
@@ -38,12 +36,12 @@ describe('deleteBook function', () => {
         await deleteBook(mockMessage, mockConnection, mockBookMap, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DELETE_BOOK_ID_MESSAGE);
-        expect(deleteBookWithQuantity).not.toHaveBeenCalled();
+        expect(deleteBookWithQuantityQuery).not.toHaveBeenCalled();
     });
 
     test('should reply with quantity not in limit message if quantity to delete is more than available', async () => {
         const mockMessage = {
-            content: '123;10', 
+            content: '123;10',
             author: { id: '1234567890' },
             channel: {
                 createMessageCollector: jest.fn(() => ({
@@ -68,10 +66,10 @@ describe('deleteBook function', () => {
         await deleteBook(mockMessage, mockConnection, mockBookMap, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.QUANTITY_NOT_IN_LIMIT_MESSAGE);
-        expect(deleteBookWithQuantity).not.toHaveBeenCalled();
+        expect(deleteBookWithQuantityQuery).not.toHaveBeenCalled();
     });
 
-    test('should call deleteBookWithQuantity and reply with delete book details received message', async () => {
+    test('should call deleteBookWithQuantityQuery and reply with delete book details received message', async () => {
         const mockMessage = {
             content: '123;3',
             author: { id: '1234567890' },
@@ -98,6 +96,6 @@ describe('deleteBook function', () => {
         await deleteBook(mockMessage, mockConnection, mockBookMap, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.DELETE_BOOK_DETAILS_RECEIVED_MESSAGE);
-        expect(deleteBookWithQuantity).toHaveBeenCalledWith(mockMessage, mockConnection, mockBookMap.get(123), 3);
+        expect(deleteBookWithQuantityQuery).toHaveBeenCalledWith(mockMessage, mockConnection, mockBookMap.get(123), 3);
     });
 });

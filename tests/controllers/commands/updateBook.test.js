@@ -1,10 +1,8 @@
 const { updateBook } = require('../../../src/controllers/commands/updateBook');
-const { updateBookDetails } = require('../../../src/service/databaseService');
 const constants = require('../../../src/constants/constant');
+const { updateBookDetailsQuery } = require('../../../src/service/queries/updateBookDetailsQuery');
 
-jest.mock('../../../src/service/databaseService', () => ({
-    updateBookDetails: jest.fn(),
-}));
+jest.mock('../../../src/service/queries/updateBookDetailsQuery');
 
 describe('updateBook function', () => {
     afterEach(() => {
@@ -38,7 +36,7 @@ describe('updateBook function', () => {
         await updateBook(mockMessage, mockConnection, mockBooks, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.EXIT_REMOVE_MESSAGE);
-        expect(updateBookDetails).not.toHaveBeenCalled();
+        expect(updateBookDetailsQuery).not.toHaveBeenCalled();
     });
 
     test('should reply with invalid book ID message if book ID does not exist', async () => {
@@ -68,7 +66,7 @@ describe('updateBook function', () => {
         await updateBook(mockMessage, mockConnection, mockBooks, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_BOOK_ID_MESSAGE);
-        expect(updateBookDetails).not.toHaveBeenCalled();
+        expect(updateBookDetailsQuery).not.toHaveBeenCalled();
     });
 
     test('should update book details when user provides valid details', async () => {
@@ -125,11 +123,11 @@ describe('updateBook function', () => {
         const mockUserEventsMap = new Map();
         mockUserEventsMap.set('1234567890', { messageCreate: false });
 
-        updateBookDetails.mockRejectedValue(new Error('Test error'));
+        updateBookDetailsQuery.mockRejectedValue(new Error('Test error'));
 
         await updateBook(mockMessage, mockConnection, mockBooks, mockUserEventsMap);
 
-        expect(updateBookDetails).not.toHaveBeenCalled();
+        expect(updateBookDetailsQuery).not.toHaveBeenCalled();
     });
 });
 

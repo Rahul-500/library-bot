@@ -1,10 +1,8 @@
 const { addBook } = require('../../../src/controllers/commands/addBook');
 const constants = require('../../../src/constants/constant');
-const { addBookToDatabase } = require('../../../src/service/databaseService');
+const { addBookToDatabaseQuery } = require('../../../src/service/queries/addBookToDatabaseQuery');
 
-jest.mock('../../../src/service/databaseService', () => ({
-    addBookToDatabase: jest.fn(),
-}));
+jest.mock('../../../src/service/queries/addBookToDatabaseQuery')
 
 describe('addBook function', () => {
     afterEach(() => {
@@ -36,9 +34,9 @@ describe('addBook function', () => {
         await addBook(mockMessage, mockConnection, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.ADD_BOOK_DETAILS_RECEIVED_MESSAGE);
-        expect(addBookToDatabase).toHaveBeenCalled();
+        expect(addBookToDatabaseQuery).toHaveBeenCalled();
 
-        const [[messageArg, connectionArg, bookDetailsArg]] = addBookToDatabase.mock.calls;
+        const [[messageArg, connectionArg, bookDetailsArg]] = addBookToDatabaseQuery.mock.calls;
 
         expect(messageArg).toBe(mockMessage);
         expect(connectionArg).toBe(mockConnection);
@@ -75,7 +73,7 @@ describe('addBook function', () => {
         await addBook(mockMessage, mockConnection, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_DETAILS_MESSAGE);
-        expect(addBookToDatabase).not.toHaveBeenCalled();
+        expect(addBookToDatabaseQuery).not.toHaveBeenCalled();
     });
 
     test('should reply with exit message and stop collecting if user enters "exit"', async () => {
@@ -103,6 +101,6 @@ describe('addBook function', () => {
         await addBook(mockMessage, mockConnection, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.EXIT_ADD_MESSAGE);
-        expect(addBookToDatabase).not.toHaveBeenCalled();
+        expect(addBookToDatabaseQuery).not.toHaveBeenCalled();
     });
 });

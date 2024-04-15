@@ -1,11 +1,9 @@
 const { requestBook } = require('../../../src/controllers/commands/requestBook');
-const { addBookRequest } = require('../../../src/service/databaseService');
 const constants = require('../../../src/constants/constant');
 const { notifyAdminNewBookRequest } = require('../../../src/service/notifier');
+const { addBookRequestQuery } = require('../../../src/service/queries/addBookRequestQuery');
 
-jest.mock('../../../src/service/databaseService', () => ({
-    addBookRequest: jest.fn(),
-}));
+jest.mock('../../../src/service/queries/addBookRequestQuery')
 jest.mock('../../../src/service/notifier', () => ({
     notifyAdminNewBookRequest: jest.fn(),
 }));
@@ -42,7 +40,7 @@ describe('requestBook function', () => {
         await requestBook(mockClient, mockMessage, mockConnection, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.EXIT_REQUEST_BOOK_MESSAGE);
-        expect(addBookRequest).not.toHaveBeenCalled();
+        expect(addBookRequestQuery).not.toHaveBeenCalled();
         expect(notifyAdminNewBookRequest).not.toHaveBeenCalled();
     });
 
@@ -73,7 +71,7 @@ describe('requestBook function', () => {
         await requestBook(mockClient, mockMessage, mockConnection, mockUserEventsMap);
 
         expect(mockMessage.reply).not.toHaveBeenCalledWith(constants.EXIT_REQUEST_BOOK_MESSAGE);
-        expect(addBookRequest).toHaveBeenCalledWith(mockConnection, 'Title or link of the book', mockMessage);
+        expect(addBookRequestQuery).toHaveBeenCalledWith(mockConnection, 'Title or link of the book', mockMessage);
         expect(notifyAdminNewBookRequest).toHaveBeenCalledWith(mockClient, mockMessage, mockConnection, 'Title or link of the book');
     });
 });

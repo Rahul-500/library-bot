@@ -1,9 +1,9 @@
 const { getAvailableBooks } = require('../../../src/controllers/commands/getAvailableBooks');
-const { getAvailableBooks: getAvailableBooksService } = require('../../../src/service/databaseService');
 const constants = require('../../../src/constants/constant');
+const { getAvailableBooksQuery: getAvailableBooksService } = require('../../../src/service/queries/getAvailableBooksQuery')
 
-jest.mock('../../../src/service/databaseService', () => ({
-    getAvailableBooks: jest.fn(),
+jest.mock('../../../src/service/queries/getAvailableBooksQuery', () => ({
+    getAvailableBooksQuery: jest.fn(),
 }));
 
 describe('getAvailableBooks function', () => {

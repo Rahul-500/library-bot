@@ -1,11 +1,9 @@
 const { processReturnRequest } = require('../../../src/controllers/commands/processReturnRequest');
-const { updateReturnRequestStatus } = require('../../../src/service/databaseService');
 const constants = require('../../../src/constants/constant');
 const { notifyUserAboutReturnRequest } = require('../../../src/service/notifier');
+const { updateReturnRequestStatusQuery } = require('../../../src/service/queries/updateReturnRequestStatusQuery');
 
-jest.mock('../../../src/service/databaseService', () => ({
-    updateReturnRequestStatus: jest.fn(),
-}));
+jest.mock('../../../src/service/queries/updateReturnRequestStatusQuery');
 jest.mock('../../../src/service/notifier', () => ({
     notifyUserAboutReturnRequest: jest.fn(),
 }));
@@ -43,7 +41,7 @@ describe('processReturnRequest function', () => {
         await processReturnRequest(mockClient, mockMessage, mockConnection, mockReturnRequests, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_RETURN_REQUEST_ID_MESSAGE);
-        expect(updateReturnRequestStatus).not.toHaveBeenCalled();
+        expect(updateReturnRequestStatusQuery).not.toHaveBeenCalled();
         expect(notifyUserAboutReturnRequest).not.toHaveBeenCalled();
     });
 

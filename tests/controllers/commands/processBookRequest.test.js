@@ -1,11 +1,9 @@
 const { processBookRequest } = require('../../../src/controllers/commands/processBookRequest');
-const { updateBookRequestStatus } = require('../../../src/service/databaseService');
 const constants = require('../../../src/constants/constant');
 const { notifyUserAboutBookRequest } = require('../../../src/service/notifier');
+const { updateBookRequestStatusQuery } = require('../../../src/service/queries/updateBookRequestStatusQuery');
 
-jest.mock('../../../src/service/databaseService', () => ({
-    updateBookRequestStatus: jest.fn(),
-}));
+jest.mock('../../../src/service/queries/updateBookRequestStatusQuery')
 jest.mock('../../../src/service/notifier', () => ({
     notifyUserAboutBookRequest: jest.fn(),
 }));
@@ -43,7 +41,7 @@ describe('processBookRequest function', () => {
         await processBookRequest(mockClient, mockMessage, mockConnection, mockBookRequests, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_REQUEST_ID_MESSAGE);
-        expect(updateBookRequestStatus).not.toHaveBeenCalled();
+        expect(updateBookRequestStatusQuery).not.toHaveBeenCalled();
         expect(notifyUserAboutBookRequest).not.toHaveBeenCalled();
     });
 
@@ -75,7 +73,7 @@ describe('processBookRequest function', () => {
         await processBookRequest(mockClient, mockMessage, mockConnection, mockBookRequests, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.CHANGE_BOOK_REQUEST_STATUS_MESSAGE); // Change the expectation to match the actual message sent by the function
-        expect(updateBookRequestStatus).toHaveBeenCalledWith(mockConnection, 1, 'approved');
+        expect(updateBookRequestStatusQuery).toHaveBeenCalledWith(mockConnection, 1, 'approved');
     });
 
 });

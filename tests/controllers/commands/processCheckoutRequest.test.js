@@ -1,11 +1,9 @@
 const { processCheckoutRequest } = require('../../../src/controllers/commands/processCheckoutRequest');
-const { updateCheckoutRequestStatus } = require('../../../src/service/databaseService');
 const constants = require('../../../src/constants/constant');
 const { notifyUserAboutCheckoutRequest } = require('../../../src/service/notifier');
+const { updateCheckoutRequestStatusQuery } = require('../../../src/service/queries/updateCheckoutRequestStatusQuery');
 
-jest.mock('../../../src/service/databaseService', () => ({
-    updateCheckoutRequestStatus: jest.fn(),
-}));
+jest.mock('../../../src/service/queries/updateCheckoutRequestStatusQuery')
 jest.mock('../../../src/service/notifier', () => ({
     notifyUserAboutCheckoutRequest: jest.fn(),
 }));
@@ -43,7 +41,7 @@ describe('processCheckoutRequest function', () => {
         await processCheckoutRequest(mockClient, mockMessage, mockConnection, mockCheckoutRequests, mockUserEventsMap);
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.INVALID_CHECKOUT_REQUEST_ID_MESSAGE);
-        expect(updateCheckoutRequestStatus).not.toHaveBeenCalled();
+        expect(updateCheckoutRequestStatusQuery).not.toHaveBeenCalled();
         expect(notifyUserAboutCheckoutRequest).not.toHaveBeenCalled();
     });
 

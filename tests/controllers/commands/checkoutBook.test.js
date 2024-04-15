@@ -1,11 +1,9 @@
 const { checkoutBook } = require('../../../src/controllers/commands/checkoutBook');
-const { getCheckedOutUsers } = require('../../../src/service/databaseService');
 const { notifyAdminCheckoutRequest } = require('../../../src/service/notifier');
 const constants = require('../../../src/constants/constant');
+const { getCheckedOutUsersQuery } = require('../../../src/service/queries/getCheckedOutUsersQuery')
 
-jest.mock('../../../src/service/databaseService', () => ({
-    getCheckedOutUsers: jest.fn(),
-}));
+jest.mock('../../../src/service/queries/getCheckedOutUsersQuery')
 
 jest.mock('../../../src/service/notifier', () => ({
     notifyAdminCheckoutRequest: jest.fn(),
@@ -29,7 +27,7 @@ describe('checkoutBook function', () => {
         await checkoutBook(mockMessage, mockConnection, mockBookMap, {});
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.BOOK_WITH_THAT_ID_NOT_FOUND_MESSAGE);
-        expect(getCheckedOutUsers).not.toHaveBeenCalled();
+        expect(getCheckedOutUsersQuery).not.toHaveBeenCalled();
         expect(notifyAdminCheckoutRequest).not.toHaveBeenCalled();
     });
 
@@ -43,12 +41,12 @@ describe('checkoutBook function', () => {
         const mockConnection = {};
         const mockBookMap = new Map([[1, { id: 1, quantity_available: 1 }]]);
 
-        getCheckedOutUsers.mockResolvedValue(null);
+        getCheckedOutUsersQuery.mockResolvedValue(null);
 
         await checkoutBook(mockMessage, mockConnection, mockBookMap, {});
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.ERROR_VALIDATING_CHECKED_OUT_BOOK_MESSAGE);
-        expect(getCheckedOutUsers).toHaveBeenCalled();
+        expect(getCheckedOutUsersQuery).toHaveBeenCalled();
         expect(notifyAdminCheckoutRequest).not.toHaveBeenCalled();
     });
 
@@ -63,12 +61,12 @@ describe('checkoutBook function', () => {
         const mockBookMap = new Map([[1, { id: 1, quantity_available: 1 }]]);
         const mockUsers = [{ name: 'testuser' }];
 
-        getCheckedOutUsers.mockResolvedValue(mockUsers);
+        getCheckedOutUsersQuery.mockResolvedValue(mockUsers);
 
         await checkoutBook(mockMessage, mockConnection, mockBookMap, {});
 
         expect(mockMessage.reply).toHaveBeenCalledWith(constants.ALREADY_CHECKED_OUT_BOOK_MESSAGE);
-        expect(getCheckedOutUsers).toHaveBeenCalled();
+        expect(getCheckedOutUsersQuery).toHaveBeenCalled();
         expect(notifyAdminCheckoutRequest).not.toHaveBeenCalled();
     });
 

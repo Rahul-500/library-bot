@@ -1,10 +1,8 @@
 const { getUserBooks:commandGetUserBooks } = require("../../../src/controllers/commands/getUserBooks");
 const constants = require('../../../src/constants/constant');
-const { getUserBooks } = require('../../../src/service/databaseService')
+const { getUserBooksQuery } = require("../../../src/service/queries/getUserBooksQuery");
 
-jest.mock("'../../../src/service/databaseService", () => ({
-    getUserBooks: jest.fn(),
-}));
+jest.mock("../../../src/service/queries/getUserBooksQuery")
 
 describe("getUserBooks function", () => {
   afterEach(() => {
@@ -23,7 +21,7 @@ describe("getUserBooks function", () => {
       { id: 1, title: "Book 1" },
       { id: 2, title: "Book 2" },
     ];
-    getUserBooks.mockResolvedValue(mockBooks);
+    getUserBooksQuery.mockResolvedValue(mockBooks);
 
     const result = await commandGetUserBooks(mockMessage, mockConnection, mockCheckedOutBooks);
 
@@ -40,7 +38,7 @@ describe("getUserBooks function", () => {
 
     const mockConnection = {};
     const mockCheckedOutBooks = new Map();
-    getUserBooks.mockResolvedValue([]);
+    getUserBooksQuery.mockResolvedValue([]);
 
     await commandGetUserBooks(mockMessage, mockConnection, mockCheckedOutBooks);
 
@@ -56,7 +54,7 @@ describe("getUserBooks function", () => {
 
     const mockConnection = {};
     const mockCheckedOutBooks = new Map();
-    getUserBooks.mockRejectedValue(new Error("Error fetching books"));
+    getUserBooksQuery.mockRejectedValue(new Error("Error fetching books"));
 
     await commandGetUserBooks(mockMessage, mockConnection, mockCheckedOutBooks);
 
