@@ -1,13 +1,13 @@
 const constants = require('../../../src/constants/constant');
 const { isAdmin } = require('../../../src/middleware/validateAdmin');
-const { getCheckoutRequests } = require('../../../src/service/databaseService');
 const { processCheckoutRequest } = require('../../../src/controllers/commands/processCheckoutRequest');
 const { checkoutRequests } = require('../../../src/controllers/menuoptions/checkoutRequests'); 
 const { displayCheckoutRequests } = require('../../../src/utils/display/displayCheckoutRequests');
+const { getCheckoutRequestsQuery } = require('../../../src/service/queries/getCheckoutRequestsQuery');
 
 jest.mock('../../../src/constants/constant');
 jest.mock('../../../src/middleware/validateAdmin');
-jest.mock('../../../src/service/databaseService');
+jest.mock('../../../src/service/queries/getCheckoutRequestsQuery');
 jest.mock('../../../src/utils/display/displayCheckoutRequests');
 jest.mock('../../../src/controllers/commands/processCheckoutRequest');
 
@@ -25,12 +25,12 @@ describe('checkoutRequests', () => {
     await checkoutRequests(null, mockMessage, mockConnection, mockUserEventsMap);
 
     expect(mockMessage.reply).toHaveBeenCalledWith(constants.HELP_MESSAGE);
-    expect(getCheckoutRequests).not.toHaveBeenCalled();
+    expect(getCheckoutRequestsQuery).not.toHaveBeenCalled();
     expect(displayCheckoutRequests).not.toHaveBeenCalled();
     expect(processCheckoutRequest).not.toHaveBeenCalled();
   });
 
-  it('should call getCheckoutRequests, display.checkoutRequests, and processCheckoutRequest if user is admin', async () => {
+  it('should call getCheckoutRequestsQuery, display.checkoutRequests, and processCheckoutRequest if user is admin', async () => {
     isAdmin.mockReturnValue(true);
     const mockMessage = {};
     const mockConnection = jest.fn();
@@ -40,11 +40,11 @@ describe('checkoutRequests', () => {
       { id: 2, bookId: 'book789', userId: 'user012' },
     ];
 
-    getCheckoutRequests.mockResolvedValue(mockCheckoutRequests);
+    getCheckoutRequestsQuery.mockResolvedValue(mockCheckoutRequests);
 
     await checkoutRequests(null, mockMessage, mockConnection, mockUserEventsMap);
 
-    expect(getCheckoutRequests).toHaveBeenCalledWith(mockConnection);
+    expect(getCheckoutRequestsQuery).toHaveBeenCalledWith(mockConnection);
     expect(displayCheckoutRequests).toHaveBeenCalledWith(mockMessage, mockCheckoutRequests);
     expect(processCheckoutRequest).toHaveBeenCalledWith(null, mockMessage, mockConnection, mockCheckoutRequests, mockUserEventsMap);
   });

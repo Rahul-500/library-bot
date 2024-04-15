@@ -1,7 +1,9 @@
 const { createUserIfNotExists } = require('../../src/middleware/validateUser');
-const databaseService = require('../../src/service/databaseService');
+const { addUserInfoQuery } = require('../../src/service/queries/addUserInfoQuery');
+const { checkForExistingUserQuery } = require('../../src/service/queries/checkForExistingUserQuery');
 
-jest.mock('../../src/service/databaseService');
+jest.mock('../../src/service/queries/addUserInfoQuery');
+jest.mock('../../src/service/queries/checkForExistingUserQuery');
 
 describe("createUserIfNotExists", () => {
   afterEach(() => {
@@ -18,14 +20,14 @@ describe("createUserIfNotExists", () => {
     };
     const mockConnection = {};
 
-    databaseService.checkForExistingUser.mockReturnValue(false);
-    databaseService.addUserInfo.mockReturnValue(true);
+    checkForExistingUserQuery.mockReturnValue(false);
+    addUserInfoQuery.mockReturnValue(true);
 
     const result = await createUserIfNotExists(mockMessage, mockConnection);
 
     expect(result).toBe(true);
-    expect(databaseService.checkForExistingUser).toHaveBeenCalledWith(mockMessage, mockConnection);
-    expect(databaseService.addUserInfo).toHaveBeenCalledWith(mockMessage.author.id, mockMessage.author.username, mockConnection);
+    expect(checkForExistingUserQuery).toHaveBeenCalledWith(mockMessage, mockConnection);
+    expect(addUserInfoQuery).toHaveBeenCalledWith(mockMessage.author.id, mockMessage.author.username, mockConnection);
   });
 
   test("should not create user if already exists", async () => {
@@ -34,17 +36,17 @@ describe("createUserIfNotExists", () => {
         id: "123456789",
         username: "existinguser",
       },
-      reply: jest.fn(),     
+      reply: jest.fn(),
     };
     const mockConnection = {};
 
-    databaseService.checkForExistingUser.mockReturnValue(true);
+    checkForExistingUserQuery.mockReturnValue(true);
 
     const result = await createUserIfNotExists(mockMessage, mockConnection);
 
     expect(result).toBe(true);
-    expect(databaseService.checkForExistingUser).toHaveBeenCalledWith(mockMessage, mockConnection);
-    expect(databaseService.addUserInfo).not.toHaveBeenCalled();
+    expect(checkForExistingUserQuery).toHaveBeenCalledWith(mockMessage, mockConnection);
+    expect(addUserInfoQuery).not.toHaveBeenCalled();
   });
 
   test("should handle errors during user creation", async () => {
@@ -53,17 +55,17 @@ describe("createUserIfNotExists", () => {
         id: "123456789",
         username: "testuser",
       },
-      reply: jest.fn(),     
+      reply: jest.fn(),
     };
     const mockConnection = {};
 
-    databaseService.checkForExistingUser.mockReturnValue(false);
-    databaseService.addUserInfo.mockRejectedValue(new Error("User creation failed"));
+    checkForExistingUserQuery.mockReturnValue(false);
+    addUserInfoQuery.mockRejectedValue(new Error("User creation failed"));
 
     const result = await createUserIfNotExists(mockMessage, mockConnection);
 
     expect(result).toBe(false);
-    expect(databaseService.checkForExistingUser).toHaveBeenCalledWith(mockMessage, mockConnection);
-    expect(databaseService.addUserInfo).toHaveBeenCalledWith(mockMessage.author.id, mockMessage.author.username, mockConnection);
+    expect(checkForExistingUserQuery).toHaveBeenCalledWith(mockMessage, mockConnection);
+    expect(addUserInfoQuery).toHaveBeenCalledWith(mockMessage.author.id, mockMessage.author.username, mockConnection);
   });
 });
