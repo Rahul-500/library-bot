@@ -37,26 +37,34 @@ exports.notifyAdminNewBookRequest = async (
     const usernamesString = botOwnerUsernames.join(",");
     const userIdList = await getUserIdByUsernameQuery(connection, usernamesString);
     if (userIdList == null) throw new Error("Error");
-    let isNotified = false;
-    await userIdList.forEach(async (userId) => {
+
+    const promises = userIdList.map(async (userId) => {
       try {
         const user = await client.users.fetch(userId.id);
-
-        user.send(
+        await user.send(
           `Book request by ${message.author.username} : ${bookRequest}`,
         );
-        isNotified = true;
-      } catch (error) { }
+        return true;
+      } catch (error) {
+        return false;
+      }
     });
+
+    const results = await Promise.all(promises);
+    const isNotified = results.some((result) => result === true);
+
     if (!isNotified) {
+      console.log('error');
       message.reply(constants.ERROR_SENDING_TO_ADMIN_MESSAGE);
       return;
     }
+    
     message.reply(constants.SUCCESSFULL_SENDING_TO_ADMIN_MESSAGE);
   } catch (error) {
     message.reply(constants.UNEXPECTED_REQUEST_NEW_BOOK_ERROR_MESSAGE);
   }
 };
+
 
 exports.notifyUserAboutBookRequest = async (
   client,
@@ -82,17 +90,15 @@ exports.notifyAdminCheckoutRequest = async (message, connection, client, book) =
     if (userIdList == null) throw new Error("Error");
     let isNotified = false;
 
-    await userIdList.forEach(async (userId) => {
+    await Promise.all(userIdList.map(async (userId) => {
       try {
         const user = await client.users.fetch(userId.id);
-
-        user.send(
+        await user.send(
           `Book checkout request by \`${message.author.username}\` : \`${book.title}\``,
         );
         isNotified = true;
-
       } catch (error) { }
-    });
+    }));
 
     const checkoutRequest = await addCheckoutRequestQuery(connection, message.author.id, book.id)
 
@@ -105,6 +111,7 @@ exports.notifyAdminCheckoutRequest = async (message, connection, client, book) =
     message.reply(constants.UNEXPECTED_CHECKOUT_BOOK_ERROR_MESSAGE);
   }
 }
+
 
 exports.notifyUserAboutCheckoutRequest = async (
   client,
@@ -131,17 +138,17 @@ exports.notifyAdminReturnBookRequest = async (message, connection, client, book)
     if (userIdList == null) throw new Error("Error");
     let isNotified = false;
 
-    await userIdList.forEach(async (userId) => {
+    await Promise.all(userIdList.map(async (userId) => {
       try {
         const user = await client.users.fetch(userId.id);
 
-        user.send(
+        await user.send(
           `Book return request by \`${message.author.username}\` : \`${book.title}\``,
         );
         isNotified = true;
 
       } catch (error) { }
-    });
+    }));
 
     const returnRequest = await addReturnRequestQuery(connection, message.author.id, book.id)
 
@@ -154,6 +161,7 @@ exports.notifyAdminReturnBookRequest = async (message, connection, client, book)
     message.reply(constants.UNEXPECTED_RETURN_BOOK_ERROR_MESSAGE);
   }
 }
+
 
 exports.notifyUserAboutReturnRequest = async (
   client,
