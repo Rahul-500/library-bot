@@ -1,4 +1,4 @@
-const { getCheckedOutUsers } = require("../../../src/service/queries/getCheckedOutUsersQuery");
+const { getCheckedOutUsersQuery } = require("../../../src/service/queries/getCheckedOutUsersQuery");
 
 describe('getCheckedOutUsers function', () => {
     it('should return list of checked out users', async () => {
@@ -10,7 +10,7 @@ describe('getCheckedOutUsers function', () => {
             callback(null, mockResult);
         });
 
-        const users = await getCheckedOutUsers(mockConnection, mockBook);
+        const users = await getCheckedOutUsersQuery(mockConnection, mockBook);
 
         expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
         expect(users).toEqual(mockResult);
@@ -24,7 +24,7 @@ describe('getCheckedOutUsers function', () => {
             callback(new Error('Database error'));
         });
 
-        const users = await getCheckedOutUsers(mockConnection, mockBook);
+        const users = await getCheckedOutUsersQuery(mockConnection, mockBook);
 
         expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
         expect(users).toBeNull();

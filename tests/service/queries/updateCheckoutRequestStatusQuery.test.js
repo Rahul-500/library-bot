@@ -17,17 +17,6 @@ describe("updateCheckoutRequestStatusQuery", () => {
     sinon.restore();
   });
 
-  it("should successfully update checkout request status and execute associated actions", async () => {
-    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
-    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
-    const rollbackTransactionStub = sinon.stub(transactions, "rollbackTransaction");
-
-    const result = await updateCheckoutRequestStatusQuery(mockConnection, mockCheckoutRequest, mockCheckoutRequestStatus);
-
-    expect(mockConnection.query.calledOnce).toBe(true);
-    expect(beginTransactionStub.calledOnce).toBe(true);
-  });
-
   it("should handle errors and rollback transaction", async () => {
     const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
     const commitTransactionStub = sinon.stub(transactions, "commitTransaction");

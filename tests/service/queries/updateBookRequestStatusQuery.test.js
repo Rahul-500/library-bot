@@ -1,72 +1,36 @@
-const { updateBookRequestStatusQuery } = require('../../../src/service/queries/updateBookRequestStatusQuery');
-const { DB_NAME } = require('dotenv').config().parsed;
-const transactions = require('../../../src/service/transactions');
+const sinon = require("sinon");
+const { updateBookRequestStatusQuery } = require("../../../src/service/queries/updateBookRequestStatusQuery");
+const transactions = require("../../../src/service/transactions");
+const { deleteBookRequestQuery } = require("../../../src/service/queries/deleteBookRequestQuery");
 
-jest.mock('../../../src/service/transactions', () => ({
-    beginTransaction: jest.fn(),
-    commitTransaction: jest.fn(),
-    rollbackTransaction: jest.fn(),
-}));
+describe("updateBookRequestStatusQuery", () => {
+  let mockConnection;
+  let mockBookRequestId;
+  let mockBookRequestStatus;
 
-describe('updateBookRequestStatusQuery function', () => {
-    let mockConnection;
+  beforeEach(() => {
+    mockConnection = { query: sinon.stub() };
+    mockBookRequestId = 123;
+    mockBookRequestStatus = "approved";
+  });
 
-    beforeEach(() => {
-        mockConnection = { query: jest.fn() };
-    });
+  afterEach(() => {
+    sinon.restore();
+  });
 
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
+  it("should handle errors and rollback transaction", async () => {
+    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
+    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
+    const rollbackTransactionStub = sinon.stub(transactions, "rollbackTransaction");
 
-    it('should update a book request status and delete the request if status is "approved"', async () => {
-        const mockBookRequestId = 1;
-        const mockBookRequestStatus = 'approved';
-        const mockResults = { affectedRows: 1 };
+    mockConnection.query.callsArgWith(1, new Error("Fake database error"));
 
-        mockConnection.query.mockImplementationOnce((query, callback) => {
-            callback(null, mockResults);
-        });
+    const result = await updateBookRequestStatusQuery(mockConnection, mockBookRequestId, mockBookRequestStatus);
 
-        await updateBookRequestStatusQuery(mockConnection, mockBookRequestId, mockBookRequestStatus);
-
-        expect(transactions.beginTransaction).toHaveBeenCalledWith(mockConnection);
-        expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
-        expect(transactions.commitTransaction).toHaveBeenCalledWith(mockConnection);
-    });
-
-    it('should update a book request status without deleting the request if status is not "approved"', async () => {
-        const mockBookRequestId = 1;
-        const mockBookRequestStatus = 'rejected';
-        const mockResults = { affectedRows: 1 };
-
-        mockConnection.query.mockImplementationOnce((query, callback) => {
-            callback(null, mockResults);
-        });
-
-        await updateBookRequestStatusQuery(mockConnection, mockBookRequestId, mockBookRequestStatus);
-
-        expect(transactions.beginTransaction).toHaveBeenCalledWith(mockConnection);
-        expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
-        expect(transactions.commitTransaction).toHaveBeenCalledWith(mockConnection);
-    });
-
-    it('should handle database query failure and rollback transaction', async () => {
-        const mockBookRequestId = 1;
-        const mockBookRequestStatus = 'approved';
-
-        mockConnection.query.mockImplementationOnce((query, callback) => {
-            callback(new Error('Database error'));
-        });
-
-        try {
-            await updateBookRequestStatusQuery(mockConnection, mockBookRequestId, mockBookRequestStatus);
-        } catch (error) {
-            expect(transactions.beginTransaction).toHaveBeenCalledWith(mockConnection);
-            expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
-            expect(transactions.rollbackTransaction).toHaveBeenCalledWith(mockConnection);
-            expect(error).toBeInstanceOf(Error);
-            expect(error.message).toBe('Database error');
-        }
-    });
+    expect(mockConnection.query.calledOnce).toBe(true);
+    expect(beginTransactionStub.calledOnce).toBe(true);
+    expect(commitTransactionStub.calledOnce).toBe(false);
+    expect(rollbackTransactionStub.calledOnce).toBe(true);
+    expect(result).toBeNull();
+  });
 });

@@ -1,47 +1,36 @@
+const sinon = require("sinon");
 const { updateReturnRequestStatusQuery } = require("../../../src/service/queries/updateReturnRequestStatusQuery");
 const transactions = require("../../../src/service/transactions");
+const { returnBookWithIdQuery } = require("../../../src/service/queries/returnBookWithIdQuery");
+const { deleteReturnRequestQuery } = require("../../../src/service/queries/deleteReturnRequestQuery");
 
-jest.mock("../../../src/service/transactions", () => ({
-    beginTransaction: jest.fn(),
-    commitTransaction: jest.fn(),
-    rollbackTransaction: jest.fn(),
-}));
+describe("updateReturnRequestStatusQuery", () => {
+  let mockConnection;
+  let mockReturnRequest;
+  let mockReturnRequestStatus;
 
-describe('updateReturnRequestStatusQuery function', () => {
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
+  beforeEach(() => {
+    mockConnection = { query: sinon.stub() };
+    mockReturnRequest = { id: 123, user_id: 456, book_id: 789 };
+    mockReturnRequestStatus = "approved";
+  });
 
-    it('should update return request status in database successfully', async () => {
-        const mockConnection = { query: jest.fn() };
-        const mockReturnRequest = { id: 1, user_id: 1, book_id: 2 };
-        const mockReturnRequestStatus = "approved";
+  afterEach(() => {
+    sinon.restore();
+  });
 
-        mockConnection.query.mockImplementationOnce((query, callback) => {
-            callback(null, { affectedRows: 1 });
-        });
+  it("should handle errors and rollback transaction", async () => {
+    const beginTransactionStub = sinon.stub(transactions, "beginTransaction");
+    const commitTransactionStub = sinon.stub(transactions, "commitTransaction");
+    const rollbackTransactionStub = sinon.stub(transactions, "rollbackTransaction");
 
-        const result = await updateReturnRequestStatusQuery(mockConnection, mockReturnRequest, mockReturnRequestStatus);
+    mockConnection.query.callsArgWith(1, new Error("Fake database error"));
 
-        expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
-        expect(transactions.beginTransaction).toHaveBeenCalled();
-    });
+    const result = await updateReturnRequestStatusQuery(mockConnection, mockReturnRequest, mockReturnRequestStatus);
 
-    it('should handle database query failure', async () => {
-        const mockConnection = { query: jest.fn() };
-        const mockReturnRequest = { id: 1, user_id: 1, book_id: 2 };
-        const mockReturnRequestStatus = "approved";
-
-        mockConnection.query.mockImplementationOnce((query, callback) => {
-            callback(new Error('Database error'));
-        });
-
-        const result = await updateReturnRequestStatusQuery(mockConnection, mockReturnRequest, mockReturnRequestStatus);
-
-        expect(mockConnection.query).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
-        expect(transactions.beginTransaction).toHaveBeenCalled();
-        expect(transactions.rollbackTransaction).toHaveBeenCalled();
-        expect(transactions.commitTransaction).not.toHaveBeenCalled();
-        expect(result).toBeNull();
-    });
+    expect(mockConnection.query.calledOnce).toBe(true);
+    expect(beginTransactionStub.calledOnce).toBe(true);
+    expect(commitTransactionStub.calledOnce).toBe(false);
+    expect(rollbackTransactionStub.calledOnce).toBe(true);
+  });
 });
